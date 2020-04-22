@@ -25,6 +25,10 @@ java_library {
             static_libs: ["guava-jre"],
         },
     },
+    apex_available: [
+        "//apex_available:platform",
+        "//apex_available:anyapex",
+    ],
 }
 
 java_library {
