@@ -25,6 +25,8 @@ import static com.google.common.math.MathBenchmarking.randomPositiveBigInteger;
 import com.google.caliper.BeforeExperiment;
 import com.google.caliper.Benchmark;
 import com.google.caliper.Param;
+import com.google.common.math.IntMath;
+
 import java.math.RoundingMode;
 
 /**
@@ -49,8 +51,7 @@ public class IntMathRoundingBenchmark {
   @Param({"DOWN", "UP", "FLOOR", "CEILING", "HALF_EVEN", "HALF_UP", "HALF_DOWN"})
   RoundingMode mode;
 
-  @Benchmark
-  int log2(int reps) {
+  @Benchmark int log2(int reps) {
     int tmp = 0;
     for (int i = 0; i < reps; i++) {
       int j = i & ARRAY_MASK;
@@ -59,8 +60,7 @@ public class IntMathRoundingBenchmark {
     return tmp;
   }
 
-  @Benchmark
-  int log10(int reps) {
+  @Benchmark int log10(int reps) {
     int tmp = 0;
     for (int i = 0; i < reps; i++) {
       int j = i & ARRAY_MASK;
@@ -69,8 +69,7 @@ public class IntMathRoundingBenchmark {
     return tmp;
   }
 
-  @Benchmark
-  int sqrt(int reps) {
+  @Benchmark int sqrt(int reps) {
     int tmp = 0;
     for (int i = 0; i < reps; i++) {
       int j = i & ARRAY_MASK;
@@ -79,8 +78,7 @@ public class IntMathRoundingBenchmark {
     return tmp;
   }
 
-  @Benchmark
-  int divide(int reps) {
+  @Benchmark int divide(int reps) {
     int tmp = 0;
     for (int i = 0; i < reps; i++) {
       int j = i & ARRAY_MASK;

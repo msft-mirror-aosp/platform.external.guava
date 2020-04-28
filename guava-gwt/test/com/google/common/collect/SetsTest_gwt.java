@@ -18,6 +18,7 @@ public class SetsTest_gwt extends com.google.gwt.junit.client.GWTTestCase {
 @Override public String getModuleName() {
   return "com.google.common.collect.testModule";
 }
+
 public void testCartesianProductTooBig() throws Exception {
   com.google.common.collect.SetsTest testCase = new com.google.common.collect.SetsTest();
   testCase.testCartesianProductTooBig();
@@ -81,11 +82,6 @@ public void testCartesianProduct_unrelatedTypes() throws Exception {
 public void testCartesianProduct_zeroary() throws Exception {
   com.google.common.collect.SetsTest testCase = new com.google.common.collect.SetsTest();
   testCase.testCartesianProduct_zeroary();
-}
-
-public void testCombinations() throws Exception {
-  com.google.common.collect.SetsTest testCase = new com.google.common.collect.SetsTest();
-  testCase.testCombinations();
 }
 
 public void testComplementOfEmptyEnumSetWithoutType() throws Exception {
@@ -326,15 +322,5 @@ public void testPowerSetShowOff() throws Exception {
 public void testPowerSetSize() throws Exception {
   com.google.common.collect.SetsTest testCase = new com.google.common.collect.SetsTest();
   testCase.testPowerSetSize();
-}
-
-public void testToImmutableEnumSet() throws Exception {
-  com.google.common.collect.SetsTest testCase = new com.google.common.collect.SetsTest();
-  testCase.testToImmutableEnumSet();
-}
-
-public void testToImmutableEnumSetEmpty() throws Exception {
-  com.google.common.collect.SetsTest testCase = new com.google.common.collect.SetsTest();
-  testCase.testToImmutableEnumSetEmpty();
 }
 }

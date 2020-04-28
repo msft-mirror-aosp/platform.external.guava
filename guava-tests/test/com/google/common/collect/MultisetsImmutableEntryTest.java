@@ -18,8 +18,10 @@ package com.google.common.collect;
 
 import com.google.common.annotations.GwtCompatible;
 import com.google.common.collect.Multiset.Entry;
-import java.util.Collections;
+
 import junit.framework.TestCase;
+
+import java.util.Collections;
 
 /**
  * Tests for {@link Multisets#immutableEntry}.
@@ -35,7 +37,8 @@ public class MultisetsImmutableEntryTest extends TestCase {
   }
 
   private static <E> Entry<E> control(E element, int count) {
-    return HashMultiset.create(Collections.nCopies(count, element)).entrySet().iterator().next();
+    return HashMultiset.create(Collections.nCopies(count, element))
+        .entrySet().iterator().next();
   }
 
   public void testToString() {
@@ -78,7 +81,6 @@ public class MultisetsImmutableEntryTest extends TestCase {
     try {
       entry("foo", -1);
       fail();
-    } catch (IllegalArgumentException expected) {
-    }
+    } catch (IllegalArgumentException expected) {}
   }
 }

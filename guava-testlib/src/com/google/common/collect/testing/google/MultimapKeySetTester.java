@@ -25,9 +25,9 @@ import com.google.common.collect.Multimap;
 import com.google.common.collect.testing.features.CollectionFeature;
 import com.google.common.collect.testing.features.CollectionSize;
 import com.google.common.collect.testing.features.MapFeature;
+
 import java.util.Iterator;
-import java.util.Map.Entry;
-import org.junit.Ignore;
+import java.util.Map;
 
 /**
  * Tester for {@code Multimap.keySet}.
@@ -35,45 +35,44 @@ import org.junit.Ignore;
  * @author Louis Wasserman
  */
 @GwtCompatible
-@Ignore // Affects only Android test runner, which respects JUnit 4 annotations on JUnit 3 tests.
 public class MultimapKeySetTester<K, V> extends AbstractMultimapTester<K, V, Multimap<K, V>> {
   public void testKeySet() {
-    for (Entry<K, V> entry : getSampleElements()) {
+    for (Map.Entry<K, V> entry : getSampleElements()) {
       assertTrue(multimap().keySet().contains(entry.getKey()));
     }
   }
-
+  
   @CollectionSize.Require(absent = ZERO)
   @MapFeature.Require(ALLOWS_NULL_KEYS)
   public void testKeySetContainsNullKeyPresent() {
     initMultimapWithNullKey();
     assertTrue(multimap().keySet().contains(null));
   }
-
+  
   @MapFeature.Require(ALLOWS_NULL_KEY_QUERIES)
   public void testKeySetContainsNullKeyAbsent() {
     assertFalse(multimap().keySet().contains(null));
   }
-
+  
   @MapFeature.Require(SUPPORTS_REMOVE)
   public void testKeySetRemovePropagatesToMultimap() {
-    int key0Count = multimap().get(k0()).size();
-    assertEquals(key0Count > 0, multimap().keySet().remove(k0()));
+    int key0Count = multimap().get(sampleKeys().e0).size();
+    assertEquals(key0Count > 0, multimap().keySet().remove(sampleKeys().e0));
     assertEquals(getNumElements() - key0Count, multimap().size());
-    assertGet(k0());
+    assertGet(sampleKeys().e0);
   }
-
+  
   @CollectionSize.Require(absent = ZERO)
   @CollectionFeature.Require(SUPPORTS_ITERATOR_REMOVE)
   public void testKeySetIteratorRemove() {
-    int key0Count = multimap().get(k0()).size();
+    int key0Count = multimap().get(sampleKeys().e0).size();
     Iterator<K> keyItr = multimap().keySet().iterator();
     while (keyItr.hasNext()) {
-      if (keyItr.next().equals(k0())) {
+      if (keyItr.next().equals(sampleKeys().e0)) {
         keyItr.remove();
       }
     }
     assertEquals(getNumElements() - key0Count, multimap().size());
-    assertGet(k0());
+    assertGet(sampleKeys().e0);
   }
 }

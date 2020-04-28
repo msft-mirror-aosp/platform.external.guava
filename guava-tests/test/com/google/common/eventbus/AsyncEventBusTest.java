@@ -17,9 +17,11 @@
 package com.google.common.eventbus;
 
 import com.google.common.collect.Lists;
+
+import junit.framework.TestCase;
+
 import java.util.List;
 import java.util.concurrent.Executor;
-import junit.framework.TestCase;
 
 /**
  * Test case for {@link AsyncEventBus}.
@@ -31,11 +33,9 @@ public class AsyncEventBusTest extends TestCase {
 
   /** The executor we use to fake asynchronicity. */
   private FakeExecutor executor;
-
   private AsyncEventBus bus;
 
-  @Override
-  protected void setUp() throws Exception {
+  @Override protected void setUp() throws Exception {
     super.setUp();
     executor = new FakeExecutor();
     bus = new AsyncEventBus(executor);
@@ -49,7 +49,8 @@ public class AsyncEventBusTest extends TestCase {
     bus.post(EVENT);
 
     List<String> events = catcher.getEvents();
-    assertTrue("No events should be delivered synchronously.", events.isEmpty());
+    assertTrue("No events should be delivered synchronously.",
+        events.isEmpty());
 
     // Now we find the task in our Executor and explicitly activate it.
     List<Runnable> tasks = executor.getTasks();
@@ -62,10 +63,11 @@ public class AsyncEventBusTest extends TestCase {
   }
 
   /**
-   * An {@link Executor} wanna-be that simply records the tasks it's given. Arguably the Worst
-   * Executor Ever.
+   * An {@link Executor} wanna-be that simply records the tasks it's given.
+   * Arguably the Worst Executor Ever.
    *
    * @author cbiffle
+   *
    */
   public static class FakeExecutor implements Executor {
     List<Runnable> tasks = Lists.newArrayList();
@@ -79,4 +81,5 @@ public class AsyncEventBusTest extends TestCase {
       return tasks;
     }
   }
+
 }

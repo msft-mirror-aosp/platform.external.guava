@@ -18,6 +18,7 @@ package com.google.common.collect.testing;
 
 import com.google.common.annotations.GwtCompatible;
 import com.google.common.collect.testing.SampleElements.Strings;
+
 import java.util.List;
 
 /**
@@ -26,7 +27,8 @@ import java.util.List;
  * @author Kevin Bourrillion
  */
 @GwtCompatible
-public abstract class TestStringListGenerator implements TestListGenerator<String> {
+public abstract class TestStringListGenerator
+    implements TestListGenerator<String> {
   @Override
   public SampleElements<String> samples() {
     return new Strings();
@@ -43,8 +45,8 @@ public abstract class TestStringListGenerator implements TestListGenerator<Strin
   }
 
   /**
-   * Creates a new collection containing the given elements; implement this method instead of {@link
-   * #create(Object...)}.
+   * Creates a new collection containing the given elements; implement this
+   * method instead of {@link #create(Object...)}.
    */
   protected abstract List<String> create(String[] elements);
 

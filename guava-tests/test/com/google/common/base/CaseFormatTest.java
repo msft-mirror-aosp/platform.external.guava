@@ -26,6 +26,7 @@ import com.google.common.annotations.GwtCompatible;
 import com.google.common.annotations.GwtIncompatible;
 import com.google.common.testing.NullPointerTester;
 import com.google.common.testing.SerializableTester;
+
 import junit.framework.TestCase;
 
 /**
@@ -46,7 +47,7 @@ public class CaseFormatTest extends TestCase {
     }
   }
 
-  @GwtIncompatible // NullPointerTester
+  @GwtIncompatible("NullPointerTester")
   public void testNullArguments() {
     NullPointerTester tester = new NullPointerTester();
     tester.testAllPublicStaticMethods(CaseFormat.class);
@@ -212,7 +213,8 @@ public class CaseFormatTest extends TestCase {
 
   public void testConverter_toString() {
     assertEquals(
-        "LOWER_HYPHEN.converterTo(UPPER_CAMEL)", LOWER_HYPHEN.converterTo(UPPER_CAMEL).toString());
+        "LOWER_HYPHEN.converterTo(UPPER_CAMEL)",
+        LOWER_HYPHEN.converterTo(UPPER_CAMEL).toString());
   }
 
   public void testConverter_serialization() {

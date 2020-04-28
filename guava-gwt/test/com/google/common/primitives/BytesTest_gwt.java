@@ -78,16 +78,6 @@ public void testLastIndexOf() throws Exception {
   testCase.testLastIndexOf();
 }
 
-public void testReverse() throws Exception {
-  com.google.common.primitives.BytesTest testCase = new com.google.common.primitives.BytesTest();
-  testCase.testReverse();
-}
-
-public void testReverseIndexed() throws Exception {
-  com.google.common.primitives.BytesTest testCase = new com.google.common.primitives.BytesTest();
-  testCase.testReverseIndexed();
-}
-
 public void testToArray() throws Exception {
   com.google.common.primitives.BytesTest testCase = new com.google.common.primitives.BytesTest();
   testCase.testToArray();

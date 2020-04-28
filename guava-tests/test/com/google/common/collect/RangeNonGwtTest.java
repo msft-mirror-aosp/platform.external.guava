@@ -17,6 +17,7 @@
 package com.google.common.collect;
 
 import com.google.common.testing.NullPointerTester;
+
 import junit.framework.TestCase;
 
 /**
@@ -36,4 +37,5 @@ public class RangeNonGwtTest extends TestCase {
     tester.testAllPublicInstanceMethods(Range.all());
     tester.testAllPublicInstanceMethods(Range.open(1, 3));
   }
+
 }

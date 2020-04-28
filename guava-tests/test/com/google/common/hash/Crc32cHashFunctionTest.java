@@ -16,8 +16,9 @@ package com.google.common.hash;
 
 import static com.google.common.base.Charsets.UTF_8;
 
-import java.util.Arrays;
 import junit.framework.TestCase;
+
+import java.util.Arrays;
 
 /**
  * Unit tests for {@link Crc32c}. Known test values are from RFC 3720, Section B.4.
@@ -59,23 +60,21 @@ public class Crc32cHashFunctionTest extends TestCase {
     assertCrc(0x113fdb5c, descending);
   }
 
-  public void testScsiReadCommand() {
+  public void testScsiReadCommad() {
     // Test SCSI read command.
-    byte[] scsiReadCommand =
-        new byte[] {
-          0x01, (byte) 0xc0, 0x00, 0x00,
-          0x00, 0x00, 0x00, 0x00,
-          0x00, 0x00, 0x00, 0x00,
-          0x00, 0x00, 0x00, 0x00,
-          0x14, 0x00, 0x00, 0x00,
-          0x00, 0x00, 0x04, 0x00,
-          0x00, 0x00, 0x00, 0x14,
-          0x00, 0x00, 0x00, 0x18,
-          0x28, 0x00, 0x00, 0x00,
-          0x00, 0x00, 0x00, 0x00,
-          0x02, 0x00, 0x00, 0x00,
-          0x00, 0x00, 0x00, 0x00
-        };
+    byte[] scsiReadCommand = new byte[] {
+        0x01, (byte) 0xc0, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00,
+        0x14, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x04, 0x00,
+        0x00, 0x00, 0x00, 0x14,
+        0x00, 0x00, 0x00, 0x18,
+        0x28, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00,
+        0x02, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00 };
     assertCrc(0xd9963a56, scsiReadCommand);
   }
 
@@ -88,7 +87,7 @@ public class Crc32cHashFunctionTest extends TestCase {
   }
 
   /**
-   * Verifies that the crc of an array of byte data matches the expected value.
+   * Verfies that the crc of an array of byte data matches the expected value.
    *
    * @param expectedCrc the expected crc value.
    * @param data the data to run the checksum on.
@@ -102,7 +101,7 @@ public class Crc32cHashFunctionTest extends TestCase {
   // We calculate the constant below by:
   //   1. Omitting the most significant bit (because it's always 1). => 0x1EDC6F41
   //   2. Flipping the bits of the constant so we can process a byte at a time. => 0x82F63B78
-  private static final int CRC32C_GENERATOR = 0x1EDC6F41; // 0x11EDC6F41
+  private static final int CRC32C_GENERATOR = 0x1EDC6F41;  // 0x11EDC6F41
   private static final int CRC32C_GENERATOR_FLIPPED = Integer.reverse(CRC32C_GENERATOR);
 
   public void testCrc32cLookupTable() {

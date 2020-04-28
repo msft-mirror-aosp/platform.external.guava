@@ -21,11 +21,12 @@ import com.google.caliper.Benchmark;
 import com.google.caliper.Param;
 import com.google.caliper.api.SkipThisScenarioException;
 import com.google.common.primitives.Doubles;
+
 import java.util.Random;
 
 /**
  * Benchmarks for various algorithms for computing the mean and/or variance.
- *
+ * 
  * @author Louis Wasserman
  */
 public class StatsBenchmark {
@@ -143,8 +144,10 @@ public class StatsBenchmark {
   @Param({"100", "10000"})
   int n;
 
-  @Param MeanAlgorithm meanAlgorithm;
-  @Param VarianceAlgorithm varianceAlgorithm;
+  @Param
+  MeanAlgorithm meanAlgorithm;
+  @Param
+  VarianceAlgorithm varianceAlgorithm;
 
   private double[][] values = new double[0x100][];
 
@@ -159,8 +162,7 @@ public class StatsBenchmark {
     }
   }
 
-  @Benchmark
-  int meanAndVariance(int reps) {
+  @Benchmark int meanAndVariance(int reps) {
     int tmp = 0;
     for (int i = 0; i < reps; i++) {
       tmp += varianceAlgorithm.variance(values[i & 0xFF], meanAlgorithm).hashCode();

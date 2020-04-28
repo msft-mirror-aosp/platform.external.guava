@@ -21,12 +21,14 @@ import com.google.common.annotations.GwtIncompatible;
 import com.google.common.collect.testing.Helpers;
 import com.google.common.testing.NullPointerTester;
 import com.google.common.testing.SerializableTester;
+
+import junit.framework.TestCase;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import junit.framework.TestCase;
 
 /**
  * Unit test for {@link Booleans}.
@@ -48,25 +50,13 @@ public class BooleansTest extends TestCase {
     assertEquals(Boolean.FALSE.hashCode(), Booleans.hashCode(false));
   }
 
-  public void testTrueFirst() {
-    assertEquals(0, Booleans.trueFirst().compare(true, true));
-    assertEquals(0, Booleans.trueFirst().compare(false, false));
-    assertTrue(Booleans.trueFirst().compare(true, false) < 0);
-    assertTrue(Booleans.trueFirst().compare(false, true) > 0);
-  }
-
-  public void testFalseFirst() {
-    assertEquals(0, Booleans.falseFirst().compare(true, true));
-    assertEquals(0, Booleans.falseFirst().compare(false, false));
-    assertTrue(Booleans.falseFirst().compare(false, true) < 0);
-    assertTrue(Booleans.falseFirst().compare(true, false) > 0);
-  }
-
   public void testCompare() {
     for (boolean x : VALUES) {
       for (boolean y : VALUES) {
         // note: spec requires only that the sign is the same
-        assertEquals(x + ", " + y, Boolean.valueOf(x).compareTo(y), Booleans.compare(x, y));
+        assertEquals(x + ", " + y,
+                     Boolean.valueOf(x).compareTo(y),
+                     Booleans.compare(x, y));
       }
     }
   }
@@ -116,23 +106,21 @@ public class BooleansTest extends TestCase {
     assertTrue(Arrays.equals(ARRAY_FALSE, Booleans.concat(ARRAY_FALSE)));
     assertNotSame(ARRAY_FALSE, Booleans.concat(ARRAY_FALSE));
     assertTrue(Arrays.equals(ARRAY_FALSE, Booleans.concat(EMPTY, ARRAY_FALSE, EMPTY)));
-    assertTrue(
-        Arrays.equals(
-            new boolean[] {false, false, false},
-            Booleans.concat(ARRAY_FALSE, ARRAY_FALSE, ARRAY_FALSE)));
-    assertTrue(
-        Arrays.equals(
-            new boolean[] {false, false, true}, Booleans.concat(ARRAY_FALSE, ARRAY_FALSE_TRUE)));
+    assertTrue(Arrays.equals(
+        new boolean[] {false, false, false},
+        Booleans.concat(ARRAY_FALSE, ARRAY_FALSE, ARRAY_FALSE)));
+    assertTrue(Arrays.equals(
+        new boolean[] {false, false, true},
+        Booleans.concat(ARRAY_FALSE, ARRAY_FALSE_TRUE)));
   }
 
   public void testEnsureCapacity() {
     assertSame(EMPTY, Booleans.ensureCapacity(EMPTY, 0, 1));
     assertSame(ARRAY_FALSE, Booleans.ensureCapacity(ARRAY_FALSE, 0, 1));
     assertSame(ARRAY_FALSE, Booleans.ensureCapacity(ARRAY_FALSE, 1, 1));
-    assertTrue(
-        Arrays.equals(
-            new boolean[] {true, false, false},
-            Booleans.ensureCapacity(new boolean[] {true}, 2, 1)));
+    assertTrue(Arrays.equals(
+        new boolean[] {true, false, false},
+        Booleans.ensureCapacity(new boolean[] {true}, 2, 1)));
   }
 
   public void testEnsureCapacity_fail() {
@@ -153,60 +141,29 @@ public class BooleansTest extends TestCase {
     assertEquals("", Booleans.join(",", EMPTY));
     assertEquals("false", Booleans.join(",", ARRAY_FALSE));
     assertEquals("false,true", Booleans.join(",", false, true));
-    assertEquals("falsetruefalse", Booleans.join("", false, true, false));
+    assertEquals("falsetruefalse",
+        Booleans.join("", false, true, false));
   }
 
   public void testLexicographicalComparator() {
-    List<boolean[]> ordered =
-        Arrays.asList(
-            new boolean[] {},
-            new boolean[] {false},
-            new boolean[] {false, false},
-            new boolean[] {false, true},
-            new boolean[] {true},
-            new boolean[] {true, false},
-            new boolean[] {true, true},
-            new boolean[] {true, true, true});
+    List<boolean[]> ordered = Arrays.asList(
+        new boolean[] {},
+        new boolean[] {false},
+        new boolean[] {false, false},
+        new boolean[] {false, true},
+        new boolean[] {true},
+        new boolean[] {true, false},
+        new boolean[] {true, true},
+        new boolean[] {true, true, true});
 
     Comparator<boolean[]> comparator = Booleans.lexicographicalComparator();
     Helpers.testComparator(comparator, ordered);
   }
 
-  @GwtIncompatible // SerializableTester
+  @GwtIncompatible("SerializableTester")
   public void testLexicographicalComparatorSerializable() {
     Comparator<boolean[]> comparator = Booleans.lexicographicalComparator();
     assertSame(comparator, SerializableTester.reserialize(comparator));
-  }
-
-  public void testReverse() {
-    testReverse(new boolean[] {}, new boolean[] {});
-    testReverse(new boolean[] {true}, new boolean[] {true});
-    testReverse(new boolean[] {false, true}, new boolean[] {true, false});
-    testReverse(new boolean[] {true, false, false}, new boolean[] {false, false, true});
-    testReverse(new boolean[] {true, true, false, false}, new boolean[] {false, false, true, true});
-  }
-
-  private static void testReverse(boolean[] input, boolean[] expectedOutput) {
-    input = Arrays.copyOf(input, input.length);
-    Booleans.reverse(input);
-    assertTrue(Arrays.equals(expectedOutput, input));
-  }
-
-  private static void testReverse(
-      boolean[] input, int fromIndex, int toIndex, boolean[] expectedOutput) {
-    input = Arrays.copyOf(input, input.length);
-    Booleans.reverse(input, fromIndex, toIndex);
-    assertTrue(Arrays.equals(expectedOutput, input));
-  }
-
-  public void testReverseIndexed() {
-    testReverse(new boolean[] {}, 0, 0, new boolean[] {});
-    testReverse(new boolean[] {true}, 0, 1, new boolean[] {true});
-    testReverse(new boolean[] {false, true}, 0, 2, new boolean[] {true, false});
-    testReverse(new boolean[] {true, false, false}, 0, 2, new boolean[] {false, true, false});
-    testReverse(new boolean[] {true, false, false}, 0, 1, new boolean[] {true, false, false});
-    testReverse(
-        new boolean[] {true, true, false, false}, 1, 3, new boolean[] {true, false, true, false});
   }
 
   public void testToArray() {
@@ -230,10 +187,11 @@ public class BooleansTest extends TestCase {
     boolean[] VALUES = BooleansTest.VALUES;
     VALUES = Booleans.concat(VALUES, VALUES);
 
-    for (int delta : new int[] {+1, 0, -1}) {
+    for (int delta : new int[] { +1, 0, -1 }) {
       for (int i = 0; i < VALUES.length; i++) {
         List<Boolean> list = Booleans.asList(VALUES).subList(0, i);
-        Collection<Boolean> misleadingSize = Helpers.misleadingSizeCollection(delta);
+        Collection<Boolean> misleadingSize =
+            Helpers.misleadingSizeCollection(delta);
         misleadingSize.addAll(list);
         boolean[] arr = Booleans.toArray(misleadingSize);
         assertEquals(i, arr.length);
@@ -265,7 +223,7 @@ public class BooleansTest extends TestCase {
   }
 
   public void testAsListIndexOf() {
-    assertEquals(-1, Booleans.asList(EMPTY).indexOf((Object) "wrong type"));
+    assertEquals(-1, Booleans.asList(EMPTY).indexOf("wrong type"));
     assertEquals(-1, Booleans.asList(EMPTY).indexOf(true));
     assertEquals(-1, Booleans.asList(ARRAY_FALSE).indexOf(true));
     assertEquals(0, Booleans.asList(ARRAY_FALSE).indexOf(false));
@@ -273,15 +231,15 @@ public class BooleansTest extends TestCase {
   }
 
   public void testAsListLastIndexOf() {
-    assertEquals(-1, Booleans.asList(EMPTY).lastIndexOf((Object) "wrong type"));
-    assertEquals(-1, Booleans.asList(EMPTY).lastIndexOf(true));
+    assertEquals(-1, Booleans.asList(EMPTY).indexOf("wrong type"));
+    assertEquals(-1, Booleans.asList(EMPTY).indexOf(true));
     assertEquals(-1, Booleans.asList(ARRAY_FALSE).lastIndexOf(true));
     assertEquals(1, Booleans.asList(ARRAY_FALSE_TRUE).lastIndexOf(true));
     assertEquals(1, Booleans.asList(ARRAY_FALSE_FALSE).lastIndexOf(false));
   }
 
   public void testAsListContains() {
-    assertFalse(Booleans.asList(EMPTY).contains((Object) "wrong type"));
+    assertFalse(Booleans.asList(EMPTY).contains("wrong type"));
     assertFalse(Booleans.asList(EMPTY).contains(true));
     assertFalse(Booleans.asList(ARRAY_FALSE).contains(true));
     assertTrue(Booleans.asList(ARRAY_TRUE).contains(true));
@@ -338,7 +296,7 @@ public class BooleansTest extends TestCase {
     assertEquals(1, Booleans.countTrue(false, false, true, false, false));
   }
 
-  @GwtIncompatible // NullPointerTester
+  @GwtIncompatible("NullPointerTester")
   public void testNulls() {
     new NullPointerTester().testAllPublicStaticMethods(Booleans.class);
   }

@@ -17,6 +17,7 @@ package com.google.common.html;
 import static com.google.common.html.HtmlEscapers.htmlEscaper;
 
 import com.google.common.annotations.GwtCompatible;
+
 import junit.framework.TestCase;
 
 /**
@@ -54,10 +55,9 @@ public class HtmlEscapersTest extends TestCase {
     assertEquals("foo&amp;&amp;bar", htmlEscaper().escape("foo&&bar"));
 
     // Test many non-escaped characters.
-    s =
-        "!@#$%^*()_+=-/?\\|]}[{,.;:"
-            + "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-            + "1234567890";
+    s = "!@#$%^*()_+=-/?\\|]}[{,.;:"
+        + "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        + "1234567890";
     assertSame(s, htmlEscaper().escape(s));
   }
 }

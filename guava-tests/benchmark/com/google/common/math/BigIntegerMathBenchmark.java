@@ -24,6 +24,10 @@ import static java.math.RoundingMode.CEILING;
 import com.google.caliper.BeforeExperiment;
 import com.google.caliper.Benchmark;
 import com.google.caliper.Param;
+import com.google.common.math.BigIntegerMath;
+import com.google.common.math.IntMath;
+import com.google.common.math.LongMath;
+
 import java.math.BigInteger;
 
 /**
@@ -48,7 +52,9 @@ public class BigIntegerMathBenchmark {
     }
   }
 
-  /** Previous version of BigIntegerMath.factorial, kept for timing purposes. */
+  /**
+   * Previous version of BigIntegerMath.factorial, kept for timing purposes.
+   */
   private static BigInteger oldSlowFactorial(int n) {
     if (n <= 20) {
       return BigInteger.valueOf(LongMath.factorial(n));
@@ -58,7 +64,9 @@ public class BigIntegerMathBenchmark {
     }
   }
 
-  /** Returns the product of {@code n1} exclusive through {@code n2} inclusive. */
+  /**
+   * Returns the product of {@code n1} exclusive through {@code n2} inclusive.
+   */
   private static BigInteger oldSlowFactorial(int n1, int n2) {
     assert n1 <= n2;
     if (IntMath.log2(n2, CEILING) * (n2 - n1) < Long.SIZE - 1) {
@@ -78,8 +86,7 @@ public class BigIntegerMathBenchmark {
     return oldSlowFactorial(n1, mid).multiply(oldSlowFactorial(mid, n2));
   }
 
-  @Benchmark
-  int slowFactorial(int reps) {
+  @Benchmark int slowFactorial(int reps) {
     int tmp = 0;
     for (int i = 0; i < reps; i++) {
       int j = i & ARRAY_MASK;
@@ -88,8 +95,7 @@ public class BigIntegerMathBenchmark {
     return tmp;
   }
 
-  @Benchmark
-  int factorial(int reps) {
+  @Benchmark int factorial(int reps) {
     int tmp = 0;
     for (int i = 0; i < reps; i++) {
       int j = i & ARRAY_MASK;
@@ -98,8 +104,7 @@ public class BigIntegerMathBenchmark {
     return tmp;
   }
 
-  @Benchmark
-  int binomial(int reps) {
+  @Benchmark int binomial(int reps) {
     int tmp = 0;
     for (int i = 0; i < reps; i++) {
       int j = i & 0xffff;

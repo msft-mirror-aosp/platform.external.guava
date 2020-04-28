@@ -16,14 +16,11 @@
 
 package com.google.common.collect;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.CollectPreconditions.checkEntryNotNull;
 
 import com.google.common.annotations.GwtCompatible;
-import com.google.errorprone.annotations.concurrent.LazyInit;
-import com.google.j2objc.annotations.RetainedWith;
-import java.util.function.BiConsumer;
-import org.checkerframework.checker.nullness.qual.Nullable;
+
+import javax.annotation.Nullable;
 
 /**
  * Implementation of {@link ImmutableMap} with exactly one entry.
@@ -44,14 +41,18 @@ final class SingletonImmutableBiMap<K, V> extends ImmutableBiMap<K, V> {
     this.singleValue = singleValue;
   }
 
-  private SingletonImmutableBiMap(K singleKey, V singleValue, ImmutableBiMap<V, K> inverse) {
+  private SingletonImmutableBiMap(K singleKey, V singleValue,
+      ImmutableBiMap<V, K> inverse) {
     this.singleKey = singleKey;
     this.singleValue = singleValue;
     this.inverse = inverse;
   }
 
-  @Override
-  public V get(@Nullable Object key) {
+  SingletonImmutableBiMap(Entry<? extends K, ? extends V> entry) {
+    this(entry.getKey(), entry.getValue());
+  }
+
+  @Override public V get(@Nullable Object key) {
     return singleKey.equals(key) ? singleValue : null;
   }
 
@@ -60,23 +61,15 @@ final class SingletonImmutableBiMap<K, V> extends ImmutableBiMap<K, V> {
     return 1;
   }
 
-  @Override
-  public void forEach(BiConsumer<? super K, ? super V> action) {
-    checkNotNull(action).accept(singleKey, singleValue);
-  }
-
-  @Override
-  public boolean containsKey(@Nullable Object key) {
+  @Override public boolean containsKey(@Nullable Object key) {
     return singleKey.equals(key);
   }
 
-  @Override
-  public boolean containsValue(@Nullable Object value) {
+  @Override public boolean containsValue(@Nullable Object value) {
     return singleValue.equals(value);
   }
 
-  @Override
-  boolean isPartialView() {
+  @Override boolean isPartialView() {
     return false;
   }
 
@@ -90,14 +83,15 @@ final class SingletonImmutableBiMap<K, V> extends ImmutableBiMap<K, V> {
     return ImmutableSet.of(singleKey);
   }
 
-  @LazyInit @RetainedWith transient ImmutableBiMap<V, K> inverse;
+  transient ImmutableBiMap<V, K> inverse;
 
   @Override
   public ImmutableBiMap<V, K> inverse() {
     // racy single-check idiom
     ImmutableBiMap<V, K> result = inverse;
     if (result == null) {
-      return inverse = new SingletonImmutableBiMap<>(singleValue, singleKey, this);
+      return inverse = new SingletonImmutableBiMap<V, K>(
+          singleValue, singleKey, this);
     } else {
       return result;
     }

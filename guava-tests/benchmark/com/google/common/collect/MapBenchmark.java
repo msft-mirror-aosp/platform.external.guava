@@ -22,17 +22,17 @@ import com.google.caliper.BeforeExperiment;
 import com.google.caliper.Benchmark;
 import com.google.caliper.Param;
 import com.google.common.collect.CollectionBenchmarkSampleData.Element;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 
 /**
  * A microbenchmark that tests the performance of get() and iteration on various map
- * implementations. Forked from {@link SetContainsBenchmark}.
+ * implementations.  Forked from {@link SetContainsBenchmark}.
  *
  * @author Nicholaus Shupe
  */
@@ -42,100 +42,95 @@ public class MapBenchmark {
 
   public enum Impl {
     Hash {
-      @Override
-      Map<Element, Element> create(Collection<Element> keys) {
+      @Override Map<Element, Element> create(Collection<Element> keys) {
         Map<Element, Element> map = Maps.newHashMap();
-        for (Element element : keys) {
+        for (Element element: keys) {
           map.put(element, element);
         }
         return map;
       }
     },
     LinkedHM {
-      @Override
-      Map<Element, Element> create(Collection<Element> keys) {
+      @Override Map<Element, Element> create(Collection<Element> keys) {
         Map<Element, Element> map = Maps.newLinkedHashMap();
-        for (Element element : keys) {
+        for (Element element: keys) {
           map.put(element, element);
         }
         return map;
       }
     },
     UnmodHM {
-      @Override
-      Map<Element, Element> create(Collection<Element> keys) {
+      @Override Map<Element, Element> create(Collection<Element> keys) {
         return Collections.unmodifiableMap(Hash.create(keys));
       }
     },
     SyncHM {
-      @Override
-      Map<Element, Element> create(Collection<Element> keys) {
+      @Override Map<Element, Element> create(Collection<Element> keys) {
         return Collections.synchronizedMap(Hash.create(keys));
       }
     },
     Tree {
-      @Override
-      Map<Element, Element> create(Collection<Element> keys) {
+      @Override Map<Element, Element> create(Collection<Element> keys) {
         Map<Element, Element> map = Maps.newTreeMap();
-        for (Element element : keys) {
+        for (Element element: keys) {
           map.put(element, element);
         }
         return map;
       }
     },
     SkipList {
-      @Override
-      Map<Element, Element> create(Collection<Element> keys) {
-        Map<Element, Element> map = new ConcurrentSkipListMap<>();
-        for (Element element : keys) {
+      @Override Map<Element, Element> create(Collection<Element> keys) {
+        Map<Element, Element> map = new ConcurrentSkipListMap<Element, Element>();
+        for (Element element: keys) {
           map.put(element, element);
         }
         return map;
       }
     },
     ConcurrentHM1 {
-      @Override
-      Map<Element, Element> create(Collection<Element> keys) {
-        Map<Element, Element> map = new ConcurrentHashMap<>(keys.size(), 0.75f, 1);
-        for (Element element : keys) {
+      @Override Map<Element, Element> create(Collection<Element> keys) {
+        Map<Element, Element> map =
+            new ConcurrentHashMap<Element, Element>(keys.size(), 0.75f, 1);
+        for (Element element: keys) {
           map.put(element, element);
         }
         return map;
       }
     },
     ConcurrentHM16 {
-      @Override
-      Map<Element, Element> create(Collection<Element> keys) {
-        Map<Element, Element> map = new ConcurrentHashMap<>(keys.size(), 0.75f, 16);
-        for (Element element : keys) {
+      @Override Map<Element, Element> create(Collection<Element> keys) {
+        Map<Element, Element> map =
+            new ConcurrentHashMap<Element, Element>(keys.size(), 0.75f, 16);
+        for (Element element: keys) {
           map.put(element, element);
         }
         return map;
       }
     },
     MapMaker1 {
-      @Override
-      Map<Element, Element> create(Collection<Element> keys) {
-        Map<Element, Element> map = new MapMaker().concurrencyLevel(1).makeMap();
-        for (Element element : keys) {
+      @Override Map<Element, Element> create(Collection<Element> keys) {
+        Map<Element, Element> map = new MapMaker()
+            .concurrencyLevel(1)
+            .makeMap();
+        for (Element element: keys) {
           map.put(element, element);
         }
         return map;
       }
     },
     MapMaker16 {
-      @Override
-      Map<Element, Element> create(Collection<Element> keys) {
-        Map<Element, Element> map = new MapMaker().concurrencyLevel(16).makeMap();
-        for (Element element : keys) {
+      @Override Map<Element, Element> create(Collection<Element> keys) {
+        Map<Element, Element> map = new MapMaker()
+            .concurrencyLevel(16)
+            .makeMap();
+        for (Element element: keys) {
           map.put(element, element);
         }
         return map;
       }
     },
     Immutable {
-      @Override
-      Map<Element, Element> create(Collection<Element> keys) {
+      @Override Map<Element, Element> create(Collection<Element> keys) {
         ImmutableMap.Builder<Element, Element> builder = ImmutableMap.builder();
         for (Element element : keys) {
           builder.put(element, element);
@@ -144,9 +139,9 @@ public class MapBenchmark {
       }
     },
     ImmutableSorted {
-      @Override
-      Map<Element, Element> create(Collection<Element> keys) {
-        ImmutableSortedMap.Builder<Element, Element> builder = ImmutableSortedMap.naturalOrder();
+      @Override Map<Element, Element> create(Collection<Element> keys) {
+        ImmutableSortedMap.Builder<Element, Element> builder =
+            ImmutableSortedMap.naturalOrder();
         for (Element element : keys) {
           builder.put(element, element);
         }
@@ -156,7 +151,7 @@ public class MapBenchmark {
 
     abstract Map<Element, Element> create(Collection<Element> contents);
   }
-
+  
   @Param({"5", "50", "500", "5000", "50000"})
   private int size;
 
@@ -180,10 +175,10 @@ public class MapBenchmark {
 
   private Collection<Element> values;
 
-  @BeforeExperiment
-  void setUp() {
-    CollectionBenchmarkSampleData sampleData =
-        new CollectionBenchmarkSampleData(isUserTypeFast, random, hitRate, size);
+  @BeforeExperiment void setUp() {
+    CollectionBenchmarkSampleData sampleData = 
+        new CollectionBenchmarkSampleData(
+            isUserTypeFast, random, hitRate, size);
 
     if (sortedData) {
       List<Element> valueList = newArrayList(sampleData.getValuesInSet());
@@ -196,8 +191,7 @@ public class MapBenchmark {
     this.queries = sampleData.getQueries();
   }
 
-  @Benchmark
-  boolean get(int reps) {
+  @Benchmark boolean get(int reps) {
     // Paranoia: acting on hearsay that accessing fields might be slow
     // Should write a benchmark to test that!
     Map<Element, Element> map = mapToTest;
@@ -214,8 +208,7 @@ public class MapBenchmark {
     return dummy;
   }
 
-  @Benchmark
-  int createAndPopulate(int reps) {
+  @Benchmark int createAndPopulate(int reps) {
     int dummy = 0;
     for (int i = 0; i < reps; i++) {
       dummy += impl.create(values).size();
@@ -223,21 +216,19 @@ public class MapBenchmark {
     return dummy;
   }
 
-  @Benchmark
-  boolean iterateWithEntrySet(int reps) {
+  @Benchmark boolean iterateWithEntrySet(int reps) {
     Map<Element, Element> map = mapToTest;
 
     boolean dummy = false;
     for (int i = 0; i < reps; i++) {
-      for (Entry<Element, Element> entry : map.entrySet()) {
+      for (Map.Entry<Element, Element> entry : map.entrySet()) {
         dummy ^= entry.getKey() != entry.getValue();
       }
     }
     return dummy;
   }
 
-  @Benchmark
-  boolean iterateWithKeySetAndGet(int reps) {
+  @Benchmark boolean iterateWithKeySetAndGet(int reps) {
     Map<Element, Element> map = mapToTest;
 
     boolean dummy = false;
@@ -248,20 +239,6 @@ public class MapBenchmark {
       }
     }
     return dummy;
-  }
 
-  @Benchmark
-  boolean iterateValuesAndGet(int reps) {
-    Map<Element, Element> map = mapToTest;
-
-    boolean dummy = false;
-    for (int i = 0; i < reps; i++) {
-      for (Element key : map.values()) {
-        // This normally wouldn't make sense, but because our keys are our values it kind of does
-        Element value = map.get(key);
-        dummy ^= key != value;
-      }
-    }
-    return dummy;
   }
 }

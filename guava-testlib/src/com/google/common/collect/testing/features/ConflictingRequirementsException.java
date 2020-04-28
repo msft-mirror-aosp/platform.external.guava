@@ -17,10 +17,12 @@
 package com.google.common.collect.testing.features;
 
 import com.google.common.annotations.GwtCompatible;
+
 import java.util.Set;
 
 /**
- * Thrown when requirements on a tester method or class conflict with each other.
+ * Thrown when requirements on a tester method or class conflict with
+ * each other.
  *
  * @author George van den Driessche
  */
@@ -44,8 +46,7 @@ public class ConflictingRequirementsException extends Exception {
     return source;
   }
 
-  @Override
-  public String getMessage() {
+  @Override public String getMessage() {
     return super.getMessage() + " (source: " + source + ")";
   }
 

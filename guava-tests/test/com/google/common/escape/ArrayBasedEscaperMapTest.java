@@ -18,10 +18,14 @@ package com.google.common.escape;
 
 import com.google.common.annotations.GwtCompatible;
 import com.google.common.collect.ImmutableMap;
-import java.util.Map;
+
 import junit.framework.TestCase;
 
-/** @author David Beaumont */
+import java.util.Map;
+
+/**
+ * @author David Beaumont
+ */
 @GwtCompatible
 public class ArrayBasedEscaperMapTest extends TestCase {
   public void testNullMap() {
@@ -41,23 +45,21 @@ public class ArrayBasedEscaperMapTest extends TestCase {
   }
 
   public void testMapLength() {
-    Map<Character, String> map =
-        ImmutableMap.of(
-            'a', "first",
-            'z', "last");
+    Map<Character, String> map = ImmutableMap.of(
+        'a', "first",
+        'z', "last");
     ArrayBasedEscaperMap fem = ArrayBasedEscaperMap.create(map);
     // Array length is highest character value + 1
     assertEquals('z' + 1, fem.getReplacementArray().length);
   }
 
   public void testMapping() {
-    Map<Character, String> map =
-        ImmutableMap.of(
-            '\0', "zero",
-            'a', "first",
-            'b', "second",
-            'z', "last",
-            '\uFFFF', "biggest");
+    Map<Character, String> map = ImmutableMap.of(
+        '\0', "zero",
+        'a', "first",
+        'b', "second",
+        'z', "last",
+        '\uFFFF', "biggest");
     ArrayBasedEscaperMap fem = ArrayBasedEscaperMap.create(map);
     char[][] replacementArray = fem.getReplacementArray();
     // Array length is highest character value + 1

@@ -16,35 +16,37 @@
 
 package com.google.common.net;
 
-import static com.google.common.truth.Truth.assertThat;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.testing.EqualsTester;
 import com.google.common.testing.NullPointerTester;
-import java.text.ParseException;
+
 import junit.framework.TestCase;
 
+import java.text.ParseException;
+import java.util.List;
+
 /**
- * {@link TestCase} for {@link HostSpecifier}. This is a relatively cursory test, as HostSpecifier
- * is a thin wrapper around {@link InetAddresses} and {@link InternetDomainName}; the unit tests for
- * those classes explore numerous corner cases. The intent here is to confirm that everything is
- * wired up properly.
+ * {@link TestCase} for {@link HostSpecifier}.  This is a relatively
+ * cursory test, as HostSpecifier is a thin wrapper around
+ * {@link InetAddresses} and {@link InternetDomainName}; the unit tests for
+ * those classes explore numerous corner cases.  The intent here is to
+ * confirm that everything is wired up properly.
  *
  * @author Craig Berry
  */
 public final class HostSpecifierTest extends TestCase {
 
-  private static final ImmutableList<String> GOOD_IPS =
-      ImmutableList.of("1.2.3.4", "2001:db8::1", "[2001:db8::1]");
+  private static final List<String> GOOD_IPS = ImmutableList.of(
+      "1.2.3.4", "2001:db8::1", "[2001:db8::1]");
 
-  private static final ImmutableList<String> BAD_IPS =
-      ImmutableList.of("1.2.3", "2001:db8::1::::::0", "[2001:db8::1", "[::]:80");
+  private static final List<String> BAD_IPS = ImmutableList.of(
+      "1.2.3", "2001:db8::1::::::0", "[2001:db8::1", "[::]:80");
 
-  private static final ImmutableList<String> GOOD_DOMAINS =
-      ImmutableList.of("com", "google.com", "foo.co.uk");
+  private static final List<String> GOOD_DOMAINS = ImmutableList.of(
+      "com", "google.com", "foo.co.uk");
 
-  private static final ImmutableList<String> BAD_DOMAINS =
-      ImmutableList.of("foo.blah", "", "[google.com]");
+  private static final List<String> BAD_DOMAINS = ImmutableList.of(
+      "foo.blah", "", "[google.com]");
 
   public void testGoodIpAddresses() throws ParseException {
     for (String spec : GOOD_IPS) {
@@ -73,7 +75,8 @@ public final class HostSpecifierTest extends TestCase {
   public void testEquality() {
     new EqualsTester()
         .addEqualityGroup(spec("1.2.3.4"), spec("1.2.3.4"))
-        .addEqualityGroup(spec("2001:db8::1"), spec("2001:db8::1"), spec("[2001:db8::1]"))
+        .addEqualityGroup(
+            spec("2001:db8::1"), spec("2001:db8::1"), spec("[2001:db8::1]"))
         .addEqualityGroup(spec("2001:db8::2"))
         .addEqualityGroup(spec("google.com"), spec("google.com"))
         .addEqualityGroup(spec("www.google.com"))
@@ -92,7 +95,7 @@ public final class HostSpecifierTest extends TestCase {
   }
 
   private void assertGood(String spec) throws ParseException {
-    HostSpecifier.fromValid(spec); // Throws exception if not working correctly
+    HostSpecifier.fromValid(spec);  // Throws exception if not working correctly
     HostSpecifier.from(spec);
     assertTrue(HostSpecifier.isValid(spec));
   }
@@ -102,15 +105,17 @@ public final class HostSpecifierTest extends TestCase {
       HostSpecifier.fromValid(spec);
       fail("Should have thrown IllegalArgumentException: " + spec);
     } catch (IllegalArgumentException expected) {
+      // Expected outcome
     }
 
     try {
       HostSpecifier.from(spec);
       fail("Should have thrown ParseException: " + spec);
     } catch (ParseException expected) {
-      assertThat(expected).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
+      assertTrue(expected.getCause() instanceof IllegalArgumentException);
     }
 
     assertFalse(HostSpecifier.isValid(spec));
   }
+
 }

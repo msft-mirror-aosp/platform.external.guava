@@ -26,19 +26,19 @@ import com.google.common.collect.testing.Helpers;
 import com.google.common.collect.testing.features.CollectionFeature;
 import com.google.common.collect.testing.features.CollectionSize;
 import com.google.common.collect.testing.features.ListFeature;
+
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.List;
-import org.junit.Ignore;
 
 /**
- * A generic JUnit test which tests {@code remove(int)} operations on a list. Can't be invoked
- * directly; please see {@link com.google.common.collect.testing.ListTestSuiteBuilder}.
+ * A generic JUnit test which tests {@code remove(int)} operations on a list.
+ * Can't be invoked directly; please see
+ * {@link com.google.common.collect.testing.ListTestSuiteBuilder}.
  *
  * @author Chris Povirk
  */
 @GwtCompatible
-@Ignore // Affects only Android test runner, which respects JUnit 4 annotations on JUnit 3 tests.
 public class ListRemoveAtIndexTester<E> extends AbstractListTester<E> {
   @ListFeature.Require(absent = SUPPORTS_REMOVE_WITH_INDEX)
   @CollectionSize.Require(absent = ZERO)
@@ -104,10 +104,9 @@ public class ListRemoveAtIndexTester<E> extends AbstractListTester<E> {
   }
 
   private void runRemoveTest(int index) {
-    assertEquals(
-        Platform.format("remove(%d) should return the element at index %d", index, index),
-        getList().get(index),
-        getList().remove(index));
+    assertEquals(Platform.format(
+        "remove(%d) should return the element at index %d", index, index),
+        getList().get(index), getList().remove(index));
     List<E> expected = Helpers.copyToList(createSamplesArray());
     expected.remove(index);
     expectContents(expected);

@@ -19,14 +19,20 @@ package com.google.common.escape;
 import com.google.common.annotations.GwtCompatible;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.escape.testing.EscaperAsserts;
-import java.io.IOException;
+
 import junit.framework.TestCase;
 
-/** @author David Beaumont */
+import java.io.IOException;
+import java.util.Map;
+
+/**
+ * @author David Beaumont
+ */
 @GwtCompatible
 public class ArrayBasedCharEscaperTest extends TestCase {
-  private static final ImmutableMap<Character, String> NO_REPLACEMENTS = ImmutableMap.of();
-  private static final ImmutableMap<Character, String> SIMPLE_REPLACEMENTS =
+  private static final Map<Character, String> NO_REPLACEMENTS =
+      ImmutableMap.of();
+  private static final Map<Character, String> SIMPLE_REPLACEMENTS =
       ImmutableMap.of(
           '\n', "<newline>",
           '\t', "<tab>",
@@ -36,8 +42,7 @@ public class ArrayBasedCharEscaperTest extends TestCase {
     // Basic escaping of unsafe chars (wrap them in {,}'s)
     CharEscaper wrappingEscaper =
         new ArrayBasedCharEscaper(NO_REPLACEMENTS, 'A', 'Z') {
-          @Override
-          protected char[] escapeUnsafe(char c) {
+          @Override protected char[] escapeUnsafe(char c) {
             return ("{" + c + "}").toCharArray();
           }
         };
@@ -45,13 +50,12 @@ public class ArrayBasedCharEscaperTest extends TestCase {
     // '[' and '@' lie either side of [A-Z].
     assertEquals("{[}FOO{@}BAR{]}", wrappingEscaper.escape("[FOO@BAR]"));
   }
-
+  
   public void testSafeRange_maxLessThanMin() throws IOException {
     // Basic escaping of unsafe chars (wrap them in {,}'s)
     CharEscaper wrappingEscaper =
         new ArrayBasedCharEscaper(NO_REPLACEMENTS, 'Z', 'A') {
-          @Override
-          protected char[] escapeUnsafe(char c) {
+          @Override protected char[] escapeUnsafe(char c) {
             return ("{" + c + "}").toCharArray();
           }
         };
@@ -64,27 +68,21 @@ public class ArrayBasedCharEscaperTest extends TestCase {
     CharEscaper deletingEscaper =
         new ArrayBasedCharEscaper(NO_REPLACEMENTS, ' ', '~') {
           private final char[] noChars = new char[0];
-
-          @Override
-          protected char[] escapeUnsafe(char c) {
+          @Override protected char[] escapeUnsafe(char c) {
             return noChars;
           }
         };
     EscaperAsserts.assertBasic(deletingEscaper);
-    assertEquals(
-        "Everything outside the printable ASCII range is deleted.",
-        deletingEscaper.escape(
-            "\tEverything\0 outside the\uD800\uDC00 "
-                + "printable ASCII \uFFFFrange is \u007Fdeleted.\n"));
+    assertEquals("Everything outside the printable ASCII range is deleted.",
+        deletingEscaper.escape("\tEverything\0 outside the\uD800\uDC00 " +
+            "printable ASCII \uFFFFrange is \u007Fdeleted.\n"));
   }
 
   public void testReplacementPriority() throws IOException {
     CharEscaper replacingEscaper =
         new ArrayBasedCharEscaper(SIMPLE_REPLACEMENTS, ' ', '~') {
-          private final char[] unknown = new char[] {'?'};
-
-          @Override
-          protected char[] escapeUnsafe(char c) {
+          private final char[] unknown = new char[] { '?' };
+          @Override protected char[] escapeUnsafe(char c) {
             return unknown;
           }
         };
@@ -92,7 +90,7 @@ public class ArrayBasedCharEscaperTest extends TestCase {
 
     // Replacements are applied first regardless of whether the character is in
     // the safe range or not ('&' is a safe char while '\t' and '\n' are not).
-    assertEquals(
-        "<tab>Fish <and>? Chips?<newline>", replacingEscaper.escape("\tFish &\0 Chips\r\n"));
+    assertEquals("<tab>Fish <and>? Chips?<newline>",
+        replacingEscaper.escape("\tFish &\0 Chips\r\n"));
   }
 }

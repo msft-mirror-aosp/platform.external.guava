@@ -24,6 +24,11 @@ import com.google.common.collect.Sets;
 import com.google.common.collect.testing.features.CollectionFeature;
 import com.google.common.collect.testing.features.CollectionSize;
 import com.google.common.testing.SerializableTester;
+
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -31,86 +36,68 @@ import java.util.Map;
 import java.util.NavigableSet;
 import java.util.Set;
 import java.util.SortedSet;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 public class SafeTreeSetTest extends TestCase {
   public static Test suite() {
     TestSuite suite = new TestSuite();
     suite.addTestSuite(SafeTreeSetTest.class);
     suite.addTest(
-        NavigableSetTestSuiteBuilder.using(
-                new TestStringSetGenerator() {
-                  @Override
-                  protected Set<String> create(String[] elements) {
-                    return new SafeTreeSet<>(Arrays.asList(elements));
-                  }
+        NavigableSetTestSuiteBuilder.using(new TestStringSetGenerator() {
+          @Override protected Set<String> create(String[] elements) {
+            return new SafeTreeSet<String>(Arrays.asList(elements));
+          }
 
-                  @Override
-                  public List<String> order(List<String> insertionOrder) {
-                    return Lists.newArrayList(Sets.newTreeSet(insertionOrder));
-                  }
-                })
-            .withFeatures(
-                CollectionSize.ANY,
-                CollectionFeature.KNOWN_ORDER,
-                CollectionFeature.GENERAL_PURPOSE)
-            .named("SafeTreeSet with natural comparator")
-            .createTestSuite());
-    suite.addTest(
-        SetTestSuiteBuilder.using(
-                new TestStringSetGenerator() {
-                  @Override
-                  protected Set<String> create(String[] elements) {
-                    NavigableSet<String> set = new SafeTreeSet<>(Ordering.natural().nullsFirst());
-                    Collections.addAll(set, elements);
-                    return set;
-                  }
+          @Override public List<String> order(List<String> insertionOrder) {
+            return Lists.newArrayList(Sets.newTreeSet(insertionOrder));
+          }
+        }).withFeatures(CollectionSize.ANY, CollectionFeature.KNOWN_ORDER,
+            CollectionFeature.GENERAL_PURPOSE).named(
+            "SafeTreeSet with natural comparator").createTestSuite());
+    suite.addTest(SetTestSuiteBuilder.using(new TestStringSetGenerator() {
+      @Override protected Set<String> create(String[] elements) {
+        NavigableSet<String> set =
+            new SafeTreeSet<String>(Ordering.natural().nullsFirst());
+        Collections.addAll(set, elements);
+        return set;
+      }
 
-                  @Override
-                  public List<String> order(List<String> insertionOrder) {
-                    return Lists.newArrayList(Sets.newTreeSet(insertionOrder));
-                  }
-                })
-            .withFeatures(
-                CollectionSize.ANY,
-                CollectionFeature.KNOWN_ORDER,
-                CollectionFeature.GENERAL_PURPOSE,
-                CollectionFeature.ALLOWS_NULL_VALUES)
-            .named("SafeTreeSet with null-friendly comparator")
-            .createTestSuite());
+      @Override public List<String> order(List<String> insertionOrder) {
+        return Lists.newArrayList(Sets.newTreeSet(insertionOrder));
+      }
+    }).withFeatures(CollectionSize.ANY, CollectionFeature.KNOWN_ORDER,
+        CollectionFeature.GENERAL_PURPOSE, CollectionFeature.ALLOWS_NULL_VALUES)
+        .named("SafeTreeSet with null-friendly comparator").createTestSuite());
     return suite;
   }
 
-  @GwtIncompatible // SerializableTester
+  @GwtIncompatible("SerializableTester")
   public void testViewSerialization() {
-    Map<String, Integer> map = ImmutableSortedMap.of("one", 1, "two", 2, "three", 3);
+    Map<String, Integer> map =
+        ImmutableSortedMap.of("one", 1, "two", 2, "three", 3);
     SerializableTester.reserializeAndAssert(map.entrySet());
     SerializableTester.reserializeAndAssert(map.keySet());
-    assertEquals(
-        Lists.newArrayList(map.values()),
+    assertEquals(Lists.newArrayList(map.values()),
         Lists.newArrayList(SerializableTester.reserialize(map.values())));
   }
 
-  @GwtIncompatible // SerializableTester
+  @GwtIncompatible("SerializableTester")
   public void testEmpty_serialization() {
-    SortedSet<String> set = new SafeTreeSet<>();
+    SortedSet<String> set = new SafeTreeSet<String>();
     SortedSet<String> copy = SerializableTester.reserializeAndAssert(set);
     assertEquals(set.comparator(), copy.comparator());
   }
 
-  @GwtIncompatible // SerializableTester
+  @GwtIncompatible("SerializableTester")
   public void testSingle_serialization() {
-    SortedSet<String> set = new SafeTreeSet<>();
+    SortedSet<String> set = new SafeTreeSet<String>();
     set.add("e");
     SortedSet<String> copy = SerializableTester.reserializeAndAssert(set);
     assertEquals(set.comparator(), copy.comparator());
   }
 
-  @GwtIncompatible // SerializableTester
+  @GwtIncompatible("SerializableTester")
   public void testSeveral_serialization() {
-    SortedSet<String> set = new SafeTreeSet<>();
+    SortedSet<String> set = new SafeTreeSet<String>();
     set.add("a");
     set.add("b");
     set.add("c");

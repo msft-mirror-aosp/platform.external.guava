@@ -18,6 +18,7 @@ package com.google.common.base;
 
 import com.google.common.annotations.GwtCompatible;
 import com.google.common.annotations.GwtIncompatible;
+
 import junit.framework.TestCase;
 
 /**
@@ -29,11 +30,11 @@ import junit.framework.TestCase;
 public class AsciiTest extends TestCase {
 
   /**
-   * The Unicode points {@code 00c1} and {@code 00e1} are the upper- and lowercase forms of
-   * A-with-acute-accent, {@code Á} and {@code á}.
+   * The Unicode points {@code 00c1} and {@code 00e1} are the upper- and
+   * lowercase forms of A-with-acute-accent, {@code Á} and {@code á}.
    */
-  private static final String IGNORED = "`10-=~!@#$%^&*()_+[]\\{}|;':\",./<>?'\u00c1\u00e1\n";
-
+  private static final String IGNORED =
+      "`10-=~!@#$%^&*()_+[]\\{}|;':\",./<>?'\u00c1\u00e1\n";
   private static final String LOWER = "abcdefghijklmnopqrstuvwxyz";
   private static final String UPPER = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
@@ -102,26 +103,22 @@ public class AsciiTest extends TestCase {
     try {
       truncated = Ascii.truncate("foobar", 2, "...");
       fail();
-    } catch (IllegalArgumentException expected) {
-    }
+    } catch (IllegalArgumentException expected) {}
 
     try {
       truncated = Ascii.truncate("foobar", 8, "1234567890");
       fail();
-    } catch (IllegalArgumentException expected) {
-    }
+    } catch (IllegalArgumentException expected) {}
 
     try {
       truncated = Ascii.truncate("foobar", -1, "...");
       fail();
-    } catch (IllegalArgumentException expected) {
-    }
+    } catch (IllegalArgumentException expected) {}
 
     try {
       truncated = Ascii.truncate("foobar", -1, "");
       fail();
-    } catch (IllegalArgumentException expected) {
-    }
+    } catch (IllegalArgumentException expected) {}
   }
 
   public void testEqualsIgnoreCase() {
@@ -139,7 +136,7 @@ public class AsciiTest extends TestCase {
     assertFalse(Ascii.equalsIgnoreCase("[", "{"));
   }
 
-  @GwtIncompatible // String.toUpperCase() has browser semantics
+  @GwtIncompatible("String.toUpperCase() has browser semantics")
   public void testEqualsIgnoreCaseUnicodeEquivalence() {
     // Note that it's possible in future that the JDK's idea to toUpperCase() or equalsIgnoreCase()
     // may change and break assumptions in this test [*]. This is not a bug in the implementation of
@@ -147,8 +144,8 @@ public class AsciiTest extends TestCase {
     // regards edge cases.
 
     // The Unicode point {@code 00df} is the lowercase form of sharp-S (ß), whose uppercase is "SS".
-    assertEquals("PASSWORD", "pa\u00dfword".toUpperCase()); // [*]
-    assertFalse("pa\u00dfword".equalsIgnoreCase("PASSWORD")); // [*]
+    assertEquals("pa\u00dfword".toUpperCase(), "PASSWORD");    // [*]
+    assertFalse("pa\u00dfword".equalsIgnoreCase("PASSWORD"));  // [*]
     assertFalse(Ascii.equalsIgnoreCase("pa\u00dfword", "PASSWORD"));
   }
 }

@@ -21,7 +21,6 @@ import com.google.common.collect.ListMultimap;
 import com.google.common.collect.testing.Helpers;
 import com.google.common.collect.testing.features.CollectionSize;
 import com.google.common.testing.EqualsTester;
-import org.junit.Ignore;
 
 /**
  * Testers for {@link ListMultimap#equals(Object)}.
@@ -29,22 +28,20 @@ import org.junit.Ignore;
  * @author Louis Wasserman
  */
 @GwtCompatible
-@Ignore // Affects only Android test runner, which respects JUnit 4 annotations on JUnit 3 tests.
 public class ListMultimapEqualsTester<K, V> extends AbstractListMultimapTester<K, V> {
   @CollectionSize.Require(SEVERAL)
   public void testOrderingAffectsEqualsComparisons() {
-    ListMultimap<K, V> multimap1 =
-        getSubjectGenerator()
-            .create(
-                Helpers.mapEntry(k0(), v0()),
-                Helpers.mapEntry(k0(), v1()),
-                Helpers.mapEntry(k0(), v0()));
-    ListMultimap<K, V> multimap2 =
-        getSubjectGenerator()
-            .create(
-                Helpers.mapEntry(k0(), v1()),
-                Helpers.mapEntry(k0(), v0()),
-                Helpers.mapEntry(k0(), v0()));
-    new EqualsTester().addEqualityGroup(multimap1).addEqualityGroup(multimap2).testEquals();
+    ListMultimap<K, V> multimap1 = getSubjectGenerator().create(
+        Helpers.mapEntry(sampleKeys().e0, sampleValues().e0),
+        Helpers.mapEntry(sampleKeys().e0, sampleValues().e1),
+        Helpers.mapEntry(sampleKeys().e0, sampleValues().e0));
+    ListMultimap<K, V> multimap2 = getSubjectGenerator().create(
+        Helpers.mapEntry(sampleKeys().e0, sampleValues().e1),
+        Helpers.mapEntry(sampleKeys().e0, sampleValues().e0),
+        Helpers.mapEntry(sampleKeys().e0, sampleValues().e0));
+    new EqualsTester()
+        .addEqualityGroup(multimap1)
+        .addEqualityGroup(multimap2)
+        .testEquals();
   }
 }

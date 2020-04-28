@@ -23,21 +23,20 @@ import static com.google.common.collect.testing.features.CollectionSize.ZERO;
 import com.google.common.annotations.GwtCompatible;
 import com.google.common.collect.testing.Helpers;
 import com.google.common.collect.testing.features.CollectionSize;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.SortedSet;
-import org.junit.Ignore;
 
 /**
- * A generic JUnit test which tests operations on a SortedSet. Can't be invoked directly; please see
- * {@code SortedSetTestSuiteBuilder}.
+ * A generic JUnit test which tests operations on a SortedSet. Can't be
+ * invoked directly; please see {@code SortedSetTestSuiteBuilder}.
  *
  * @author Jesse Wilson
  * @author Louis Wasserman
  */
 @GwtCompatible
-@Ignore // Affects only Android test runner, which respects JUnit 4 annotations on JUnit 3 tests.
 public class SortedSetNavigationTester<E> extends AbstractSetTester<E> {
 
   private SortedSet<E> sortedSet;
@@ -46,14 +45,11 @@ public class SortedSetNavigationTester<E> extends AbstractSetTester<E> {
   private E b;
   private E c;
 
-  @Override
-  public void setUp() throws Exception {
+  @Override public void setUp() throws Exception {
     super.setUp();
     sortedSet = (SortedSet<E>) getSet();
-    values =
-        Helpers.copyToList(
-            getSubjectGenerator()
-                .getSampleElements(getSubjectGenerator().getCollectionSize().getNumElements()));
+    values = Helpers.copyToList(getSubjectGenerator().getSampleElements(
+        getSubjectGenerator().getCollectionSize().getNumElements()));
     Collections.sort(values, sortedSet.comparator());
 
     // some tests assume SEVERAL == 3

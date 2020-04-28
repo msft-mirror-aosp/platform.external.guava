@@ -16,16 +16,16 @@
 
 package com.google.common.io;
 
-import static com.google.common.truth.Truth.assertThat;
-
 import com.google.common.primitives.Bytes;
+
+import junit.framework.TestCase;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInput;
 import java.io.DataOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
-import junit.framework.TestCase;
 
 /**
  * Test class for {@link LittleEndianDataInputStream}.
@@ -33,13 +33,13 @@ import junit.framework.TestCase;
  * @author Chris Nokleberg
  */
 public class LittleEndianDataInputStreamTest extends TestCase {
-
+  
   private byte[] data;
 
   @Override
   protected void setUp() throws Exception {
     super.setUp();
-
+    
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     DataOutputStream out = new DataOutputStream(baos);
 
@@ -50,13 +50,13 @@ public class LittleEndianDataInputStreamTest extends TestCase {
 
   private void initializeData(DataOutputStream out) throws IOException {
     /* Write out various test values NORMALLY */
-    out.write(new byte[] {-100, 100});
+    out.write(new byte[] { -100, 100 });
     out.writeBoolean(true);
     out.writeBoolean(false);
     out.writeByte(100);
     out.writeByte(-100);
     out.writeByte((byte) 200);
-    out.writeChar('a');
+    out.writeChar('a'); 
     out.writeShort((short) -30000);
     out.writeShort((short) 50000);
     out.writeInt(0xCAFEBABE);
@@ -65,14 +65,14 @@ public class LittleEndianDataInputStreamTest extends TestCase {
     out.writeFloat(Float.intBitsToFloat(0xCAFEBABE));
     out.writeDouble(Double.longBitsToDouble(0xDEADBEEFCAFEBABEL));
   }
-
+  
   public void testReadFully() throws IOException {
     DataInput in = new LittleEndianDataInputStream(new ByteArrayInputStream(data));
     byte[] b = new byte[data.length];
     in.readFully(b);
     assertEquals(Bytes.asList(data), Bytes.asList(b));
   }
-
+  
   public void testReadUnsignedByte_eof() throws IOException {
     DataInput in = new LittleEndianDataInputStream(new ByteArrayInputStream(new byte[0]));
     try {
@@ -81,27 +81,26 @@ public class LittleEndianDataInputStreamTest extends TestCase {
     } catch (EOFException expected) {
     }
   }
-
+  
   public void testReadUnsignedShort_eof() throws IOException {
     byte[] buf = {23};
     DataInput in = new LittleEndianDataInputStream(new ByteArrayInputStream(buf));
     try {
       in.readUnsignedShort();
       fail();
-    } catch (EOFException expected) {
-    }
+    } catch (EOFException expected) {}
   }
-
+  
   public void testReadLine() throws IOException {
     DataInput in = new LittleEndianDataInputStream(new ByteArrayInputStream(data));
     try {
       in.readLine();
       fail();
     } catch (UnsupportedOperationException expected) {
-      assertThat(expected).hasMessageThat().isEqualTo("readLine is not supported");
+      assertEquals("readLine is not supported", expected.getMessage()); 
     }
   }
-
+  
   public void testReadLittleEndian() throws IOException {
     DataInput in = new LittleEndianDataInputStream(new ByteArrayInputStream(data));
 
@@ -124,13 +123,13 @@ public class LittleEndianDataInputStreamTest extends TestCase {
     assertEquals(0xBEBAFECA, Float.floatToIntBits(in.readFloat()));
     assertEquals(0xBEBAFECAEFBEADDEL, Double.doubleToLongBits(in.readDouble()));
   }
-
+  
   public void testSkipBytes() throws IOException {
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     DataOutputStream out = new DataOutputStream(baos);
 
     /* Write out various test values NORMALLY */
-    out.write(new byte[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 9}); // 10 bytes of junk to skip
+    out.write(new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9}); // 10 bytes of junk to skip
     initializeData(out);
 
     byte[] data = baos.toByteArray();
@@ -140,7 +139,7 @@ public class LittleEndianDataInputStreamTest extends TestCase {
     while (bytesSkipped < 10) {
       bytesSkipped += in.skipBytes(10 - bytesSkipped);
     }
-
+    
     /* Read in various values in LITTLE ENDIAN FORMAT */
     byte[] b = new byte[2];
     in.readFully(b);

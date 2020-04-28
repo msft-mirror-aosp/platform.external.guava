@@ -16,9 +16,10 @@
 
 package com.google.common.collect;
 
+import junit.framework.TestCase;
+
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import junit.framework.TestCase;
 
 /**
  * Tests for {@link ForwardingConcurrentMap}.
@@ -27,11 +28,11 @@ import junit.framework.TestCase;
  */
 public class ForwardingConcurrentMapTest extends TestCase {
 
-  private static class TestMap extends ForwardingConcurrentMap<String, Integer> {
-    final ConcurrentMap<String, Integer> delegate = new ConcurrentHashMap<>();
-
-    @Override
-    protected ConcurrentMap<String, Integer> delegate() {
+  private static class TestMap
+      extends ForwardingConcurrentMap<String, Integer> {
+    final ConcurrentMap<String, Integer> delegate
+        = new ConcurrentHashMap<String, Integer>();
+    @Override protected ConcurrentMap<String, Integer> delegate() {
       return delegate;
     }
   }

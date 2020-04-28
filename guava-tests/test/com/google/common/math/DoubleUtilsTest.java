@@ -20,40 +20,27 @@ import static com.google.common.math.MathTesting.ALL_BIGINTEGER_CANDIDATES;
 import static com.google.common.math.MathTesting.FINITE_DOUBLE_CANDIDATES;
 import static com.google.common.math.MathTesting.POSITIVE_FINITE_DOUBLE_CANDIDATES;
 
-import java.lang.reflect.Method;
-import java.math.BigInteger;
 import junit.framework.TestCase;
+
+import sun.misc.FpUtils;
+
+import java.math.BigInteger;
 
 /**
  * Tests for {@link DoubleUtils}.
- *
+ * 
  * @author Louis Wasserman
  */
 public class DoubleUtilsTest extends TestCase {
-  @AndroidIncompatible // no FpUtils and no Math.nextDown in old versions
-  public void testNextDown() throws Exception {
-    Method jdkNextDown = getJdkNextDown();
+  public void testNextDown() {
     for (double d : FINITE_DOUBLE_CANDIDATES) {
-      assertEquals(jdkNextDown.invoke(null, d), DoubleUtils.nextDown(d));
+      assertEquals(FpUtils.nextDown(d), DoubleUtils.nextDown(d));
     }
   }
-
-  private static Method getJdkNextDown() throws Exception {
-    try {
-      return Math.class.getMethod("nextDown", double.class);
-    } catch (NoSuchMethodException expectedBeforeJava8) {
-      return Class.forName("sun.misc.FpUtils").getMethod("nextDown", double.class);
-    }
-  }
-
-  @AndroidIncompatible // TODO(cpovirk): File bug for BigDecimal.doubleValue().
+  
   public void testBigToDouble() {
     for (BigInteger b : ALL_BIGINTEGER_CANDIDATES) {
-      if (b.doubleValue() != DoubleUtils.bigToDouble(b)) {
-        failFormat(
-            "Converting %s to double: expected doubleValue %s but got bigToDouble %s",
-            b, b.doubleValue(), DoubleUtils.bigToDouble(b));
-      }
+      assertEquals(b.doubleValue(), DoubleUtils.bigToDouble(b));
     }
   }
 
@@ -70,13 +57,5 @@ public class DoubleUtilsTest extends TestCase {
       fail("Expected IllegalArgumentException from ensureNonNegative(Double.NaN)");
     } catch (IllegalArgumentException expected) {
     }
-  }
-
-  public void testOneBits() {
-    assertEquals(DoubleUtils.ONE_BITS, Double.doubleToRawLongBits(1.0));
-  }
-
-  private static void failFormat(String template, Object... args) {
-    fail(String.format(template, args));
   }
 }

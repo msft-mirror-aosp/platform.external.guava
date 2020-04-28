@@ -17,7 +17,6 @@
 package com.google.common.collect.testing;
 
 import com.google.common.annotations.GwtCompatible;
-import java.util.Locale;
 
 /**
  * Methods factored out so that they can be emulated differently in GWT.
@@ -28,6 +27,17 @@ import java.util.Locale;
  */
 @GwtCompatible
 final class Platform {
+
+  /**
+   * Calls {@link Class#isInstance(Object)}.  Factored out so that it can be
+   * emulated in GWT.
+   *
+   * <p>This method always returns {@code true} in GWT.
+   */
+  static boolean checkIsInstance(Class<?> clazz, Object obj) {
+    return clazz.isInstance(obj);
+  }
+
   static <T> T[] clone(T[] array) {
     return array.clone();
   }
@@ -38,7 +48,7 @@ final class Platform {
   }
 
   static String format(String template, Object... args) {
-    return String.format(Locale.ROOT, template, args);
+    return String.format(template, args);
   }
 
   private Platform() {}

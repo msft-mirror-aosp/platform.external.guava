@@ -16,21 +16,20 @@
 
 package com.google.common.collect;
 
-import com.google.common.annotations.GwtCompatible;
-import com.google.common.annotations.GwtIncompatible;
+import static java.util.Arrays.asList;
+
 import com.google.common.testing.NullPointerTester;
 import com.google.common.testing.SerializableTester;
-import java.util.AbstractList;
-import java.util.List;
-import java.util.NoSuchElementException;
+
 import junit.framework.TestCase;
+
+import java.util.NoSuchElementException;
 
 /**
  * Tests for {@link EvictingQueue}.
  *
  * @author Kurt Alfred Kluever
  */
-@GwtCompatible(emulated = true)
 public class EvictingQueueTest extends TestCase {
 
   public void testCreateWithNegativeSize() throws Exception {
@@ -57,16 +56,14 @@ public class EvictingQueueTest extends TestCase {
     try {
       queue.element();
       fail();
-    } catch (NoSuchElementException expected) {
-    }
+    } catch (NoSuchElementException expected) {}
 
     assertNull(queue.peek());
     assertNull(queue.poll());
     try {
       queue.remove();
       fail();
-    } catch (NoSuchElementException expected) {
-    }
+    } catch (NoSuchElementException expected) {}
   }
 
   public void testRemainingCapacity_maxSize0() {
@@ -143,13 +140,13 @@ public class EvictingQueueTest extends TestCase {
     assertEquals(0, queue.size());
     assertEquals(3, queue.remainingCapacity());
 
-    assertTrue(queue.addAll(ImmutableList.of("one", "two", "three")));
+    assertTrue(queue.addAll(asList("one", "two", "three")));
     assertEquals("one", queue.element());
     assertEquals("one", queue.peek());
     assertEquals(3, queue.size());
     assertEquals(0, queue.remainingCapacity());
 
-    assertTrue(queue.addAll(ImmutableList.of("four")));
+    assertTrue(queue.addAll(asList("four")));
     assertEquals("two", queue.element());
     assertEquals("two", queue.peek());
     assertEquals(3, queue.size());
@@ -160,34 +157,6 @@ public class EvictingQueueTest extends TestCase {
     assertEquals(1, queue.remainingCapacity());
   }
 
-  public void testAddAll_largeList() {
-    final List<String> list = ImmutableList.of("one", "two", "three", "four", "five");
-    List<String> misbehavingList =
-        new AbstractList<String>() {
-          @Override
-          public int size() {
-            return list.size();
-          }
-
-          @Override
-          public String get(int index) {
-            if (index < 2) {
-              throw new AssertionError();
-            }
-            return list.get(index);
-          }
-        };
-
-    EvictingQueue<String> queue = EvictingQueue.create(3);
-    assertTrue(queue.addAll(misbehavingList));
-
-    assertEquals("three", queue.remove());
-    assertEquals("four", queue.remove());
-    assertEquals("five", queue.remove());
-    assertTrue(queue.isEmpty());
-  }
-
-  @GwtIncompatible // NullPointerTester
   public void testNullPointerExceptions() {
     NullPointerTester tester = new NullPointerTester();
     tester.testAllPublicStaticMethods(EvictingQueue.class);

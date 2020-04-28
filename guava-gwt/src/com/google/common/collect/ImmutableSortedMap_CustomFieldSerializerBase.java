@@ -20,6 +20,7 @@ import com.google.gwt.user.client.rpc.SerializationException;
 import com.google.gwt.user.client.rpc.SerializationStreamReader;
 import com.google.gwt.user.client.rpc.SerializationStreamWriter;
 import com.google.gwt.user.client.rpc.core.java.util.Map_CustomFieldSerializerBase;
+
 import java.util.Comparator;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -40,7 +41,7 @@ final class ImmutableSortedMap_CustomFieldSerializerBase {
     @SuppressWarnings("unchecked")
     Comparator<Object> comparator = (Comparator<Object>) reader.readObject();
 
-    SortedMap<Object, Object> entries = new TreeMap<>(comparator);
+    SortedMap<Object, Object> entries = new TreeMap<Object, Object>(comparator);
     Map_CustomFieldSerializerBase.deserialize(reader, entries);
 
     return ImmutableSortedMap.orderedBy(comparator).putAll(entries).build();

@@ -21,14 +21,15 @@ import static com.google.common.truth.Truth.assertThat;
 import com.google.common.collect.Lists;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
-import java.util.List;
+
 import junit.framework.TestCase;
+
+import java.util.List;
 
 /**
  * Test that EventBus finds the correct subscribers.
  *
- * <p>This test must be outside the c.g.c.eventbus package to test correctly.
- *
+ * This test must be outside the c.g.c.eventbus package to test correctly.
  * @author Louis Wasserman
  */
 public class AnnotatedSubscriberFinderTests {
@@ -61,8 +62,8 @@ public class AnnotatedSubscriberFinderTests {
   /*
    * We break the tests up based on whether they are annotated or abstract in the superclass.
    */
-  public static class BaseSubscriberFinderTest
-      extends AbstractEventBusTest<BaseSubscriberFinderTest.Subscriber> {
+  public static class BaseSubscriberFinderTest extends
+      AbstractEventBusTest<BaseSubscriberFinderTest.Subscriber> {
     static class Subscriber {
       final List<Object> nonSubscriberEvents = Lists.newArrayList();
       final List<Object> subscriberEvents = Lists.newArrayList();
@@ -82,7 +83,7 @@ public class AnnotatedSubscriberFinderTests {
     }
 
     public void testSubscriber() {
-      assertThat(getSubscriber().subscriberEvents).contains(EVENT);
+      assertThat(getSubscriber().subscriberEvents).has().item(EVENT);
     }
 
     @Override
@@ -91,8 +92,8 @@ public class AnnotatedSubscriberFinderTests {
     }
   }
 
-  public static class AnnotatedAndAbstractInSuperclassTest
-      extends AbstractEventBusTest<AnnotatedAndAbstractInSuperclassTest.SubClass> {
+  public static class AnnotatedAndAbstractInSuperclassTest extends
+      AbstractEventBusTest<AnnotatedAndAbstractInSuperclassTest.SubClass> {
     abstract static class SuperClass {
       @Subscribe
       public abstract void overriddenAndAnnotatedInSubclass(Object o);
@@ -118,11 +119,11 @@ public class AnnotatedSubscriberFinderTests {
     }
 
     public void testOverriddenAndAnnotatedInSubclass() {
-      assertThat(getSubscriber().overriddenAndAnnotatedInSubclassEvents).contains(EVENT);
+      assertThat(getSubscriber().overriddenAndAnnotatedInSubclassEvents).has().item(EVENT);
     }
 
     public void testOverriddenNotAnnotatedInSubclass() {
-      assertThat(getSubscriber().overriddenInSubclassEvents).contains(EVENT);
+      assertThat(getSubscriber().overriddenInSubclassEvents).has().item(EVENT);
     }
 
     @Override
@@ -131,14 +132,14 @@ public class AnnotatedSubscriberFinderTests {
     }
   }
 
-  public static class AnnotatedNotAbstractInSuperclassTest
-      extends AbstractEventBusTest<AnnotatedNotAbstractInSuperclassTest.SubClass> {
+  public static class AnnotatedNotAbstractInSuperclassTest extends
+      AbstractEventBusTest<AnnotatedNotAbstractInSuperclassTest.SubClass> {
     static class SuperClass {
       final List<Object> notOverriddenInSubclassEvents = Lists.newArrayList();
       final List<Object> overriddenNotAnnotatedInSubclassEvents = Lists.newArrayList();
       final List<Object> overriddenAndAnnotatedInSubclassEvents = Lists.newArrayList();
-      final List<Object> differentlyOverriddenNotAnnotatedInSubclassBadEvents =
-          Lists.newArrayList();
+      final List<Object> differentlyOverriddenNotAnnotatedInSubclassBadEvents = Lists
+          .newArrayList();
       final List<Object> differentlyOverriddenAnnotatedInSubclassBadEvents = Lists.newArrayList();
 
       @Subscribe
@@ -170,8 +171,8 @@ public class AnnotatedSubscriberFinderTests {
     }
 
     static class SubClass extends SuperClass {
-      final List<Object> differentlyOverriddenNotAnnotatedInSubclassGoodEvents =
-          Lists.newArrayList();
+      final List<Object> differentlyOverriddenNotAnnotatedInSubclassGoodEvents = Lists
+          .newArrayList();
       final List<Object> differentlyOverriddenAnnotatedInSubclassGoodEvents = Lists.newArrayList();
 
       @Override
@@ -198,26 +199,26 @@ public class AnnotatedSubscriberFinderTests {
     }
 
     public void testNotOverriddenInSubclass() {
-      assertThat(getSubscriber().notOverriddenInSubclassEvents).contains(EVENT);
+      assertThat(getSubscriber().notOverriddenInSubclassEvents).has().item(EVENT);
     }
 
     public void testOverriddenNotAnnotatedInSubclass() {
-      assertThat(getSubscriber().overriddenNotAnnotatedInSubclassEvents).contains(EVENT);
+      assertThat(getSubscriber().overriddenNotAnnotatedInSubclassEvents).has().item(EVENT);
     }
 
     public void testDifferentlyOverriddenNotAnnotatedInSubclass() {
       assertThat(getSubscriber().differentlyOverriddenNotAnnotatedInSubclassGoodEvents)
-          .contains(EVENT);
+          .has().item(EVENT);
       assertThat(getSubscriber().differentlyOverriddenNotAnnotatedInSubclassBadEvents).isEmpty();
     }
 
     public void testOverriddenAndAnnotatedInSubclass() {
-      assertThat(getSubscriber().overriddenAndAnnotatedInSubclassEvents).contains(EVENT);
+      assertThat(getSubscriber().overriddenAndAnnotatedInSubclassEvents).has().item(EVENT);
     }
 
     public void testDifferentlyOverriddenAndAnnotatedInSubclass() {
       assertThat(getSubscriber().differentlyOverriddenAnnotatedInSubclassGoodEvents)
-          .contains(EVENT);
+          .has().item(EVENT);
       assertThat(getSubscriber().differentlyOverriddenAnnotatedInSubclassBadEvents).isEmpty();
     }
 
@@ -227,8 +228,8 @@ public class AnnotatedSubscriberFinderTests {
     }
   }
 
-  public static class AbstractNotAnnotatedInSuperclassTest
-      extends AbstractEventBusTest<AbstractNotAnnotatedInSuperclassTest.SubClass> {
+  public static class AbstractNotAnnotatedInSuperclassTest extends
+      AbstractEventBusTest<AbstractNotAnnotatedInSuperclassTest.SubClass> {
     abstract static class SuperClass {
       public abstract void overriddenInSubclassNowhereAnnotated(Object o);
 
@@ -252,7 +253,7 @@ public class AnnotatedSubscriberFinderTests {
     }
 
     public void testOverriddenAndAnnotatedInSubclass() {
-      assertThat(getSubscriber().overriddenAndAnnotatedInSubclassEvents).contains(EVENT);
+      assertThat(getSubscriber().overriddenAndAnnotatedInSubclassEvents).has().item(EVENT);
     }
 
     public void testOverriddenInSubclassNowhereAnnotated() {
@@ -265,8 +266,8 @@ public class AnnotatedSubscriberFinderTests {
     }
   }
 
-  public static class NeitherAbstractNorAnnotatedInSuperclassTest
-      extends AbstractEventBusTest<NeitherAbstractNorAnnotatedInSuperclassTest.SubClass> {
+  public static class NeitherAbstractNorAnnotatedInSuperclassTest extends
+      AbstractEventBusTest<NeitherAbstractNorAnnotatedInSuperclassTest.SubClass> {
     static class SuperClass {
       final List<Object> neitherOverriddenNorAnnotatedEvents = Lists.newArrayList();
       final List<Object> overriddenInSubclassNowhereAnnotatedEvents = Lists.newArrayList();
@@ -307,7 +308,7 @@ public class AnnotatedSubscriberFinderTests {
     }
 
     public void testOverriddenAndAnnotatedInSubclass() {
-      assertThat(getSubscriber().overriddenAndAnnotatedInSubclassEvents).contains(EVENT);
+      assertThat(getSubscriber().overriddenAndAnnotatedInSubclassEvents).has().item(EVENT);
     }
 
     @Override
@@ -316,8 +317,8 @@ public class AnnotatedSubscriberFinderTests {
     }
   }
 
-  public static class DeepInterfaceTest
-      extends AbstractEventBusTest<DeepInterfaceTest.SubscriberClass> {
+  public static class DeepInterfaceTest extends
+      AbstractEventBusTest<DeepInterfaceTest.SubscriberClass> {
     interface Interface1 {
       @Subscribe
       void annotatedIn1(Object o);
@@ -409,31 +410,31 @@ public class AnnotatedSubscriberFinderTests {
     }
 
     public void testAnnotatedIn1() {
-      assertThat(getSubscriber().annotatedIn1Events).contains(EVENT);
+      assertThat(getSubscriber().annotatedIn1Events).has().item(EVENT);
     }
 
     public void testAnnotatedIn2() {
-      assertThat(getSubscriber().annotatedIn2Events).contains(EVENT);
+      assertThat(getSubscriber().annotatedIn2Events).has().item(EVENT);
     }
 
     public void testAnnotatedIn1And2() {
-      assertThat(getSubscriber().annotatedIn1And2Events).contains(EVENT);
+      assertThat(getSubscriber().annotatedIn1And2Events).has().item(EVENT);
     }
 
     public void testAnnotatedIn1And2AndClass() {
-      assertThat(getSubscriber().annotatedIn1And2AndClassEvents).contains(EVENT);
+      assertThat(getSubscriber().annotatedIn1And2AndClassEvents).has().item(EVENT);
     }
 
     public void testDeclaredIn1AnnotatedIn2() {
-      assertThat(getSubscriber().declaredIn1AnnotatedIn2Events).contains(EVENT);
+      assertThat(getSubscriber().declaredIn1AnnotatedIn2Events).has().item(EVENT);
     }
 
     public void testDeclaredIn1AnnotatedInClass() {
-      assertThat(getSubscriber().declaredIn1AnnotatedInClassEvents).contains(EVENT);
+      assertThat(getSubscriber().declaredIn1AnnotatedInClassEvents).has().item(EVENT);
     }
 
     public void testDeclaredIn2AnnotatedInClass() {
-      assertThat(getSubscriber().declaredIn2AnnotatedInClassEvents).contains(EVENT);
+      assertThat(getSubscriber().declaredIn2AnnotatedInClassEvents).has().item(EVENT);
     }
 
     public void testNowhereAnnotated() {

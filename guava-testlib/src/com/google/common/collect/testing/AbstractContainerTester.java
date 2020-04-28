@@ -17,48 +17,46 @@
 package com.google.common.collect.testing;
 
 import com.google.common.annotations.GwtCompatible;
-import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import org.junit.Ignore;
 
 /**
- * Base class for testers of classes (including {@link Collection} and {@link java.util.Map Map})
- * that contain elements.
+ * Base class for testers of classes (including {@link Collection}
+ * and {@link java.util.Map Map}) that contain elements.
  *
  * @param <C> the type of the container
  * @param <E> the type of the container's contents
+ *
  * @author George van den Driessche
  */
 @GwtCompatible
-@Ignore // Affects only Android test runner, which respects JUnit 4 annotations on JUnit 3 tests.
 public abstract class AbstractContainerTester<C, E>
     extends AbstractTester<OneSizeTestContainerGenerator<C, E>> {
   protected SampleElements<E> samples;
   protected C container;
 
-  @Override
-  @OverridingMethodsMustInvokeSuper
-  public void setUp() throws Exception {
+  @Override public void setUp() throws Exception {
     super.setUp();
     samples = this.getSubjectGenerator().samples();
     resetContainer();
   }
 
   /**
-   * @return the contents of the container under test, for use by {@link #expectContents(Object[])
-   *     expectContents(E...)} and its friends.
+   * @return the contents of the container under test, for use by
+   * {@link #expectContents(Object[]) expectContents(E...)} and its friends.
    */
   protected abstract Collection<E> actualContents();
 
   /**
-   * Replaces the existing container under test with a new container created by the subject
-   * generator.
+   * Replaces the existing container under test with a new container created
+   * by the subject generator.
    *
    * @see #resetContainer(Object) resetContainer(C)
+   *
    * @return the new container instance.
    */
   protected C resetContainer() {
@@ -66,11 +64,12 @@ public abstract class AbstractContainerTester<C, E>
   }
 
   /**
-   * Replaces the existing container under test with a new container. This is useful when a single
-   * test method needs to create multiple containers while retaining the ability to use {@link
-   * #expectContents(Object[]) expectContents(E...)} and other convenience methods. The creation of
-   * multiple containers in a single method is discouraged in most cases, but it is vital to the
-   * iterator tests.
+   * Replaces the existing container under test with a new container.
+   * This is useful when a single test method needs to create multiple
+   * containers while retaining the ability to use
+   * {@link #expectContents(Object[]) expectContents(E...)} and other
+   * convenience methods. The creation of multiple containers in a single
+   * method is discouraged in most cases, but it is vital to the iterator tests.
    *
    * @return the new container instance
    * @param newValue the new container instance
@@ -82,6 +81,7 @@ public abstract class AbstractContainerTester<C, E>
 
   /**
    * @see #expectContents(java.util.Collection)
+   *
    * @param elements expected contents of {@link #container}
    */
   protected final void expectContents(E... elements) {
@@ -89,11 +89,13 @@ public abstract class AbstractContainerTester<C, E>
   }
 
   /**
-   * Asserts that the collection under test contains exactly the given elements, respecting
-   * cardinality but not order. Subclasses may override this method to provide stronger assertions,
-   * e.g., to check ordering in lists, but realize that <strong>unless a test extends {@link
-   * com.google.common.collect.testing.testers.AbstractListTester AbstractListTester}, a call to
-   * {@code expectContents()} invokes this version</strong>.
+   * Asserts that the collection under test contains exactly the given elements,
+   * respecting cardinality but not order. Subclasses may override this method
+   * to provide stronger assertions, e.g., to check ordering in lists, but
+   * realize that <strong>unless a test extends
+   * {@link com.google.common.collect.testing.testers.AbstractListTester
+   * AbstractListTester}, a call to {@code expectContents()} invokes this
+   * version</strong>.
    *
    * @param expected expected value of {@link #container}
    */
@@ -113,21 +115,24 @@ public abstract class AbstractContainerTester<C, E>
   }
 
   /**
-   * Asserts that the collection under test contains exactly the elements it was initialized with
-   * plus the given elements, according to {@link #expectContents(java.util.Collection)}. In other
-   * words, for the default {@code expectContents()} implementation, the number of occurrences of
-   * each given element has increased by one since the test collection was created, and the number
-   * of occurrences of all other elements has not changed.
+   * Asserts that the collection under test contains exactly the elements it was
+   * initialized with plus the given elements, according to
+   * {@link #expectContents(java.util.Collection)}. In other words, for the
+   * default {@code expectContents()} implementation, the number of occurrences
+   * of each given element has increased by one since the test collection was
+   * created, and the number of occurrences of all other elements has not
+   * changed.
    *
-   * <p>Note: This means that a test like the following will fail if {@code collection} is a {@code
-   * Set}:
+   * <p>Note: This means that a test like the following will fail if
+   * {@code collection} is a {@code Set}:
    *
    * <pre>
    * collection.add(existingElement);
    * expectAdded(existingElement);</pre>
    *
-   * <p>In this case, {@code collection} was not modified as a result of the {@code add()} call, and
-   * the test will fail because the number of occurrences of {@code existingElement} is unchanged.
+   * <p>In this case, {@code collection} was not modified as a result of the
+   * {@code add()} call, and the test will fail because the number of
+   * occurrences of {@code existingElement} is unchanged.
    *
    * @param elements expected additional contents of {@link #container}
    */
@@ -155,7 +160,8 @@ public abstract class AbstractContainerTester<C, E>
    */
   protected void expectMissing(E... elements) {
     for (E element : elements) {
-      assertFalse("Should not contain " + element, actualContents().contains(element));
+      assertFalse("Should not contain " + element,
+          actualContents().contains(element));
     }
   }
 
@@ -182,7 +188,8 @@ public abstract class AbstractContainerTester<C, E>
   }
 
   /**
-   * @return an array of the proper size with a duplicate element. The size must be at least three.
+   * @return an array of the proper size with a duplicate element.
+   * The size must be at least three.
    */
   protected ArrayWithDuplicate<E> createArrayWithDuplicateElement() {
     E[] elements = createSamplesArray();
@@ -206,21 +213,23 @@ public abstract class AbstractContainerTester<C, E>
   }
 
   /**
-   * Returns the {@linkplain #getSampleElements() sample elements} as ordered by {@link
-   * TestContainerGenerator#order(List)}. Tests should used this method only if they declare
-   * requirement {@link com.google.common.collect.testing.features.CollectionFeature#KNOWN_ORDER}.
+   * Returns the {@linkplain #getSampleElements() sample elements} as ordered by
+   * {@link TestContainerGenerator#order(List)}. Tests should used this method
+   * only if they declare requirement {@link
+   * com.google.common.collect.testing.features.CollectionFeature#KNOWN_ORDER}.
    */
   protected List<E> getOrderedElements() {
     List<E> list = new ArrayList<E>();
-    for (E e : getSubjectGenerator().order(new ArrayList<E>(getSampleElements()))) {
+    for (E e : getSubjectGenerator().order(
+        new ArrayList<E>(getSampleElements()))) {
       list.add(e);
     }
     return Collections.unmodifiableList(list);
   }
 
   /**
-   * @return a suitable location for a null element, to use when initializing containers for tests
-   *     that involve a null element being present.
+   * @return a suitable location for a null element, to use when initializing
+   * containers for tests that involve a null element being present.
    */
   protected int getNullLocation() {
     return getNumElements() / 2;
@@ -228,31 +237,11 @@ public abstract class AbstractContainerTester<C, E>
 
   @SuppressWarnings("unchecked")
   protected MinimalCollection<E> createDisjointCollection() {
-    return MinimalCollection.of(e3(), e4());
+    return MinimalCollection.of(samples.e3, samples.e4);
   }
 
   @SuppressWarnings("unchecked")
   protected MinimalCollection<E> emptyCollection() {
     return MinimalCollection.<E>of();
-  }
-
-  protected final E e0() {
-    return samples.e0();
-  }
-
-  protected final E e1() {
-    return samples.e1();
-  }
-
-  protected final E e2() {
-    return samples.e2();
-  }
-
-  protected final E e3() {
-    return samples.e3();
-  }
-
-  protected final E e4() {
-    return samples.e4();
   }
 }

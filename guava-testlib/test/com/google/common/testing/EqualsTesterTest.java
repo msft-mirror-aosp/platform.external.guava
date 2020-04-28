@@ -20,9 +20,11 @@ import com.google.common.annotations.GwtCompatible;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
-import java.util.Set;
+
 import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
+
+import java.util.Set;
 
 /**
  * Unit tests for {@link EqualsTester}.
@@ -30,7 +32,6 @@ import junit.framework.TestCase;
  * @author Jim McMaster
  */
 @GwtCompatible
-@SuppressWarnings("MissingTestCall")
 public class EqualsTesterTest extends TestCase {
   private ValidTestObject reference;
   private EqualsTester equalsTester;
@@ -48,36 +49,39 @@ public class EqualsTesterTest extends TestCase {
     notEqualObject1 = new ValidTestObject(0, 2);
   }
 
-  /** Test null reference yields error */
+  /**
+   * Test null reference yields error
+   */
   public void testAddNullReference() {
     try {
       equalsTester.addEqualityGroup((Object) null);
       fail("Should fail on null reference");
-    } catch (NullPointerException e) {
-    }
+    } catch (NullPointerException e) {}
   }
 
-  /** Test equalObjects after adding multiple instances at once with a null */
+  /**
+   * Test equalObjects after adding multiple instances at once with a null
+   */
   public void testAddTwoEqualObjectsAtOnceWithNull() {
     try {
       equalsTester.addEqualityGroup(reference, equalObject1, null);
       fail("Should fail on null equal object");
-    } catch (NullPointerException e) {
-    }
+    } catch (NullPointerException e) {}
   }
 
-  /** Test adding null equal object yields error */
+  /**
+   * Test adding null equal object yields error
+   */
   public void testAddNullEqualObject() {
     try {
       equalsTester.addEqualityGroup(reference, (Object[]) null);
       fail("Should fail on null equal object");
-    } catch (NullPointerException e) {
-    }
+    } catch (NullPointerException e) {}
   }
 
   /**
-   * Test adding objects only by addEqualityGroup, with no reference object specified in the
-   * constructor.
+   * Test adding objects only by addEqualityGroup, with no reference object
+   * specified in the constructor.
    */
   public void testAddEqualObjectWithOArgConstructor() {
     equalsTester.addEqualityGroup(equalObject1, notEqualObject1);
@@ -85,19 +89,17 @@ public class EqualsTesterTest extends TestCase {
       equalsTester.testEquals();
     } catch (AssertionFailedError e) {
       assertErrorMessage(
-          e,
-          equalObject1
-              + " [group 1, item 1] must be Object#equals to "
-              + notEqualObject1
-              + " [group 1, item 2]");
+        e,
+        equalObject1 + " [group 1, item 1] must be Object#equals to "
+            + notEqualObject1 + " [group 1, item 2]");
       return;
     }
     fail("Should get not equal to equal object error");
   }
 
   /**
-   * Test EqualsTester with no equals or not equals objects. This checks proper handling of null,
-   * incompatible class and reflexive tests
+   * Test EqualsTester with no equals or not equals objects.  This checks
+   * proper handling of null, incompatible class and reflexive tests
    */
   public void testTestEqualsEmptyLists() {
     equalsTester.addEqualityGroup(reference);
@@ -105,41 +107,50 @@ public class EqualsTesterTest extends TestCase {
   }
 
   /**
-   * Test EqualsTester after populating equalObjects. This checks proper handling of equality and
-   * verifies hashCode for valid objects
+   * Test EqualsTester after populating equalObjects.  This checks proper
+   * handling of equality and verifies hashCode for valid objects
    */
   public void testTestEqualsEqualsObjects() {
     equalsTester.addEqualityGroup(reference, equalObject1, equalObject2);
     equalsTester.testEquals();
   }
 
-  /** Test proper handling of case where an object is not equal to itself */
+  /**
+   * Test proper handling of case where an object is not equal to itself
+   */
   public void testNonreflexiveEquals() {
     Object obj = new NonReflexiveObject();
     equalsTester.addEqualityGroup(obj);
     try {
       equalsTester.testEquals();
     } catch (AssertionFailedError e) {
-      assertErrorMessage(e, obj + " must be Object#equals to itself");
+      assertErrorMessage(
+          e, obj + " must be Object#equals to itself");
       return;
     }
     fail("Should get non-reflexive error");
   }
 
-  /** Test proper handling where an object tests equal to null */
+  /**
+   * Test proper handling where an object tests equal to null
+   */
   public void testInvalidEqualsNull() {
     Object obj = new InvalidEqualsNullObject();
     equalsTester.addEqualityGroup(obj);
     try {
       equalsTester.testEquals();
     } catch (AssertionFailedError e) {
-      assertErrorMessage(e, obj + " must not be Object#equals to null");
+      assertErrorMessage(
+          e, obj + " must not be Object#equals to null");
       return;
     }
     fail("Should get equal to null error");
   }
 
-  /** Test proper handling where an object incorrectly tests for an incompatible class */
+  /**
+   * Test proper handling where an object incorrectly tests for an
+   * incompatible class
+   */
   public void testInvalidEqualsIncompatibleClass() {
     Object obj = new InvalidEqualsIncompatibleClassObject();
     equalsTester.addEqualityGroup(obj);
@@ -147,13 +158,18 @@ public class EqualsTesterTest extends TestCase {
       equalsTester.testEquals();
     } catch (AssertionFailedError e) {
       assertErrorMessage(
-          e, obj + " must not be Object#equals to an arbitrary object of another class");
+          e,
+          obj
+          + " must not be Object#equals to an arbitrary object of another class");
       return;
     }
     fail("Should get equal to incompatible class error");
   }
 
-  /** Test proper handling where an object is not equal to one the user has said should be equal */
+  /**
+   * Test proper handling where an object is not equal to one the user has
+   * said should be equal
+   */
   public void testInvalidNotEqualsEqualObject() {
     equalsTester.addEqualityGroup(reference, notEqualObject1);
     try {
@@ -167,8 +183,8 @@ public class EqualsTesterTest extends TestCase {
   }
 
   /**
-   * Test for an invalid hashCode method, i.e., one that returns different value for objects that
-   * are equal according to the equals method
+   * Test for an invalid hashCode method, i.e., one that returns different
+   * value for objects that are equal according to the equals method
    */
   public void testInvalidHashCode() {
     Object a = new InvalidHashCodeObject(1, 2);
@@ -178,15 +194,9 @@ public class EqualsTesterTest extends TestCase {
       equalsTester.testEquals();
     } catch (AssertionFailedError e) {
       assertErrorMessage(
-          e,
-          "the Object#hashCode ("
-              + a.hashCode()
-              + ") of "
-              + a
-              + " [group 1, item 1] must be equal to the Object#hashCode ("
-              + b.hashCode()
-              + ") of "
-              + b);
+          e, "the Object#hashCode (" + a.hashCode() + ") of " + a
+          + " [group 1, item 1] must be equal to the Object#hashCode ("
+          + b.hashCode() + ") of " + b);
       return;
     }
     fail("Should get invalid hashCode error");
@@ -197,8 +207,7 @@ public class EqualsTesterTest extends TestCase {
     try {
       tester.addEqualityGroup((Object[]) null);
       fail();
-    } catch (NullPointerException e) {
-    }
+    } catch (NullPointerException e) {}
   }
 
   public void testNullObjectInEqualityGroup() {
@@ -212,54 +221,64 @@ public class EqualsTesterTest extends TestCase {
   }
 
   public void testSymmetryBroken() {
-    EqualsTester tester =
-        new EqualsTester().addEqualityGroup(named("foo").addPeers("bar"), named("bar"));
+    EqualsTester tester = new EqualsTester()
+        .addEqualityGroup(named("foo").addPeers("bar"), named("bar"));
     try {
       tester.testEquals();
     } catch (AssertionFailedError e) {
-      assertErrorMessage(e, "bar [group 1, item 2] must be Object#equals to foo [group 1, item 1]");
+      assertErrorMessage(
+          e,
+          "bar [group 1, item 2] must be Object#equals to foo [group 1, item 1]");
       return;
     }
     fail("should failed because symmetry is broken");
   }
 
   public void testTransitivityBrokenInEqualityGroup() {
-    EqualsTester tester =
-        new EqualsTester()
-            .addEqualityGroup(
-                named("foo").addPeers("bar", "baz"),
-                named("bar").addPeers("foo"),
-                named("baz").addPeers("foo"));
+    EqualsTester tester = new EqualsTester()
+        .addEqualityGroup(
+            named("foo").addPeers("bar", "baz"),
+            named("bar").addPeers("foo"),
+            named("baz").addPeers("foo"));
     try {
       tester.testEquals();
     } catch (AssertionFailedError e) {
-      assertErrorMessage(e, "bar [group 1, item 2] must be Object#equals to baz [group 1, item 3]");
+      assertErrorMessage(
+          e,
+          "bar [group 1, item 2] must be Object#equals to baz [group 1, item 3]");
       return;
     }
     fail("should failed because transitivity is broken");
   }
 
   public void testUnequalObjectsInEqualityGroup() {
-    EqualsTester tester = new EqualsTester().addEqualityGroup(named("foo"), named("bar"));
+    EqualsTester tester = new EqualsTester()
+        .addEqualityGroup(named("foo"), named("bar"));
     try {
       tester.testEquals();
     } catch (AssertionFailedError e) {
-      assertErrorMessage(e, "foo [group 1, item 1] must be Object#equals to bar [group 1, item 2]");
+      assertErrorMessage(
+          e,
+          "foo [group 1, item 1] must be Object#equals to bar [group 1, item 2]");
       return;
     }
     fail("should failed because of unequal objects in the same equality group");
   }
 
   public void testTransitivityBrokenAcrossEqualityGroups() {
-    EqualsTester tester =
-        new EqualsTester()
-            .addEqualityGroup(named("foo").addPeers("bar"), named("bar").addPeers("foo", "x"))
-            .addEqualityGroup(named("baz").addPeers("x"), named("x").addPeers("baz", "bar"));
+    EqualsTester tester = new EqualsTester()
+        .addEqualityGroup(
+            named("foo").addPeers("bar"),
+            named("bar").addPeers("foo", "x"))
+        .addEqualityGroup(
+            named("baz").addPeers("x"),
+            named("x").addPeers("baz", "bar"));
     try {
       tester.testEquals();
     } catch (AssertionFailedError e) {
       assertErrorMessage(
-          e, "bar [group 1, item 2] must not be Object#equals to x [group 2, item 2]");
+          e,
+          "bar [group 1, item 2] must not be Object#equals to x [group 2, item 2]");
       return;
     }
     fail("should failed because transitivity is broken");
@@ -267,7 +286,8 @@ public class EqualsTesterTest extends TestCase {
 
   public void testEqualityGroups() {
     new EqualsTester()
-        .addEqualityGroup(named("foo").addPeers("bar"), named("bar").addPeers("foo"))
+        .addEqualityGroup(
+            named("foo").addPeers("bar"), named("bar").addPeers("foo"))
         .addEqualityGroup(named("baz"), named("baz"))
         .testEquals();
   }
@@ -280,8 +300,8 @@ public class EqualsTesterTest extends TestCase {
   }
 
   /**
-   * Test class with valid equals and hashCode methods. Testers created with instances of this class
-   * should always pass.
+   * Test class with valid equals and hashCode methods.  Testers created
+   * with instances of this class should always pass.
    */
   private static class ValidTestObject {
     private int aspect1;
@@ -292,8 +312,7 @@ public class EqualsTesterTest extends TestCase {
       this.aspect2 = aspect2;
     }
 
-    @Override
-    public boolean equals(Object o) {
+    @Override public boolean equals(Object o) {
       if (!(o instanceof ValidTestObject)) {
         return false;
       }
@@ -307,8 +326,7 @@ public class EqualsTesterTest extends TestCase {
       return true;
     }
 
-    @Override
-    public int hashCode() {
+    @Override public int hashCode() {
       int result = 17;
       result = 37 * result + aspect1;
       result = 37 * result + aspect2;
@@ -326,9 +344,7 @@ public class EqualsTesterTest extends TestCase {
       this.aspect2 = aspect2;
     }
 
-    @SuppressWarnings("EqualsHashCode")
-    @Override
-    public boolean equals(Object o) {
+    @Override public boolean equals(Object o) {
       if (!(o instanceof InvalidHashCodeObject)) {
         return false;
       }
@@ -343,16 +359,14 @@ public class EqualsTesterTest extends TestCase {
     }
   }
 
-  /** Test class that violates reflexivity. It is not equal to itself */
+  /** Test class that violates reflexitivity.  It is not equal to itself */
   private static class NonReflexiveObject {
 
-    @Override
-    public boolean equals(Object o) {
+    @Override public boolean equals(Object o) {
       return false;
     }
 
-    @Override
-    public int hashCode() {
+    @Override public int hashCode() {
       return super.hashCode();
     }
   }
@@ -360,27 +374,28 @@ public class EqualsTesterTest extends TestCase {
   /** Test class that returns true if the test object is null */
   private static class InvalidEqualsNullObject {
 
-    @Override
-    public boolean equals(Object o) {
+    @Override public boolean equals(Object o) {
       return o == this || o == null;
     }
 
-    @Override
-    public int hashCode() {
+    @Override public int hashCode() {
       return 0;
     }
   }
 
-  /** Test class that returns true even if the test object is of the wrong class */
+  /**
+   * Test class that returns true even if the test object is of the wrong class
+   */
   private static class InvalidEqualsIncompatibleClassObject {
 
-    @Override
-    public boolean equals(Object o) {
-      return o != null;
+    @Override public boolean equals(Object o) {
+      if (o == null) {
+        return false;
+      }
+      return true;
     }
 
-    @Override
-    public int hashCode() {
+    @Override public int hashCode() {
       return 0;
     }
   }
@@ -403,8 +418,7 @@ public class EqualsTesterTest extends TestCase {
       return this;
     }
 
-    @Override
-    public boolean equals(Object obj) {
+    @Override public boolean equals(Object obj) {
       if (obj instanceof NamedObject) {
         NamedObject that = (NamedObject) obj;
         return name.equals(that.name) || peerNames.contains(that.name);
@@ -412,13 +426,11 @@ public class EqualsTesterTest extends TestCase {
       return false;
     }
 
-    @Override
-    public int hashCode() {
+    @Override public int hashCode() {
       return 0;
     }
 
-    @Override
-    public String toString() {
+    @Override public String toString() {
       return name;
     }
   }

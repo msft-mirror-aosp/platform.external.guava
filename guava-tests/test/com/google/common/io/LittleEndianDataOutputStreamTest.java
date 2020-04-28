@@ -18,12 +18,14 @@ package com.google.common.io;
 
 import com.google.common.base.Charsets;
 import com.google.common.primitives.Bytes;
+
+import junit.framework.TestCase;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.IOException;
-import junit.framework.TestCase;
 
 /**
  * Test class for {@link LittleEndianDataOutputStream}.
@@ -34,11 +36,11 @@ public class LittleEndianDataOutputStreamTest extends TestCase {
 
   private ByteArrayOutputStream baos = new ByteArrayOutputStream();
   private LittleEndianDataOutputStream out = new LittleEndianDataOutputStream(baos);
-
+  
   public void testWriteLittleEndian() throws IOException {
 
     /* Write out various test values in LITTLE ENDIAN FORMAT */
-    out.write(new byte[] {-100, 100});
+    out.write(new byte[] { -100, 100 });
     out.writeBoolean(true);
     out.writeBoolean(false);
     out.writeByte(100);
@@ -77,10 +79,10 @@ public class LittleEndianDataOutputStreamTest extends TestCase {
     assertEquals(0xBEBAFECA, Float.floatToIntBits(in.readFloat()));
     assertEquals(0xBEBAFECAEFBEADDEL, Double.doubleToLongBits(in.readDouble()));
   }
-
+  
   @SuppressWarnings("deprecation") // testing a deprecated method
   public void testWriteBytes() throws IOException {
-
+    
     /* Write out various test values in LITTLE ENDIAN FORMAT */
     out.writeBytes("r\u00C9sum\u00C9");
 
@@ -94,10 +96,10 @@ public class LittleEndianDataOutputStreamTest extends TestCase {
     in.readFully(b);
     assertEquals("r\u00C9sum\u00C9".getBytes(Charsets.ISO_8859_1), b);
   }
-
+  
   @SuppressWarnings("deprecation") // testing a deprecated method
   public void testWriteBytes_discardHighOrderBytes() throws IOException {
-
+    
     /* Write out various test values in LITTLE ENDIAN FORMAT */
     out.writeBytes("\uAAAA\uAABB\uAACC");
 

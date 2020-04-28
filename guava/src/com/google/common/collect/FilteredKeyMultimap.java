@@ -19,8 +19,7 @@ import static com.google.common.base.Preconditions.checkPositionIndex;
 
 import com.google.common.annotations.GwtCompatible;
 import com.google.common.base.Predicate;
-import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import com.google.j2objc.annotations.WeakOuter;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -28,7 +27,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import org.checkerframework.checker.nullness.qual.Nullable;
+
+import javax.annotation.Nullable;
 
 /**
  * Implementation of {@link Multimaps#filterKeys(Multimap, Predicate)}.
@@ -102,9 +102,9 @@ class FilteredKeyMultimap<K, V> extends AbstractMultimap<K, V> implements Filter
     if (keyPredicate.apply(key)) {
       return unfiltered.get(key);
     } else if (unfiltered instanceof SetMultimap) {
-      return new AddRejectingSet<>(key);
+      return new AddRejectingSet<K, V>(key);
     } else {
-      return new AddRejectingList<>(key);
+      return new AddRejectingList<K, V>(key);
     }
   }
 
@@ -146,18 +146,17 @@ class FilteredKeyMultimap<K, V> extends AbstractMultimap<K, V> implements Filter
     }
 
     @Override
-    public void add(int index, V element) {
-      checkPositionIndex(index, 0);
-      throw new IllegalArgumentException("Key does not satisfy predicate: " + key);
-    }
-
-    @Override
     public boolean addAll(Collection<? extends V> collection) {
       addAll(0, collection);
       return true;
     }
 
-    @CanIgnoreReturnValue
+    @Override
+    public void add(int index, V element) {
+      checkPositionIndex(index, 0);
+      throw new IllegalArgumentException("Key does not satisfy predicate: " + key);
+    }
+
     @Override
     public boolean addAll(int index, Collection<? extends V> elements) {
       checkNotNull(elements);
@@ -181,7 +180,6 @@ class FilteredKeyMultimap<K, V> extends AbstractMultimap<K, V> implements Filter
     return new Entries();
   }
 
-  @WeakOuter
   class Entries extends ForwardingCollection<Entry<K, V>> {
     @Override
     protected Collection<Entry<K, V>> delegate() {
@@ -202,10 +200,10 @@ class FilteredKeyMultimap<K, V> extends AbstractMultimap<K, V> implements Filter
       return false;
     }
   }
-
+  
   @Override
   Collection<V> createValues() {
-    return new FilteredMultimapValues<>(this);
+    return new FilteredMultimapValues<K, V>(this);
   }
 
   @Override

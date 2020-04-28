@@ -17,8 +17,10 @@
 package com.google.common.eventbus;
 
 import com.google.common.testing.AbstractPackageSanityTests;
+
 import java.lang.reflect.Method;
-import org.checkerframework.checker.nullness.qual.Nullable;
+
+import javax.annotation.Nullable;
 
 /**
  * Basic sanity tests for the entire package.
@@ -29,34 +31,21 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 public class PackageSanityTests extends AbstractPackageSanityTests {
 
   public PackageSanityTests() throws Exception {
-    DummySubscriber dummySubscriber = new DummySubscriber();
-    setDefault(Subscriber.class, dummySubscriber.toSubscriber());
+    setDefault(EventSubscriber.class, new DummySubscriber().toEventSubscriber());
     setDefault(Method.class, DummySubscriber.subscriberMethod());
-    setDefault(SubscriberExceptionContext.class, dummySubscriber.toContext());
-    setDefault(Dispatcher.class, Dispatcher.immediate());
   }
 
   private static class DummySubscriber {
 
-    private final EventBus eventBus = new EventBus();
-
-    @Subscribe
+    @SuppressWarnings("unused") // Used by reflection
     public void handle(@Nullable Object anything) {}
 
-    Subscriber toSubscriber() throws Exception {
-      return Subscriber.create(eventBus, this, subscriberMethod());
+    EventSubscriber toEventSubscriber() throws Exception {
+      return new EventSubscriber(this, subscriberMethod());
     }
 
-    SubscriberExceptionContext toContext() {
-      return new SubscriberExceptionContext(eventBus, new Object(), this, subscriberMethod());
-    }
-
-    private static Method subscriberMethod() {
-      try {
-        return DummySubscriber.class.getMethod("handle", Object.class);
-      } catch (NoSuchMethodException e) {
-        throw new AssertionError(e);
-      }
+    private static Method subscriberMethod() throws NoSuchMethodException {
+      return DummySubscriber.class.getMethod("handle", Object.class);
     }
   }
 }

@@ -26,7 +26,6 @@ import com.google.common.annotations.GwtCompatible;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.testing.features.CollectionSize;
 import com.google.common.collect.testing.features.MapFeature;
-import org.junit.Ignore;
 
 /**
  * Tester for {@link Multimap#containsEntry}.
@@ -34,34 +33,34 @@ import org.junit.Ignore;
  * @author Louis Wasserman
  */
 @GwtCompatible
-@Ignore // Affects only Android test runner, which respects JUnit 4 annotations on JUnit 3 tests.
 public class MultimapContainsEntryTester<K, V>
     extends AbstractMultimapTester<K, V, Multimap<K, V>> {
   @CollectionSize.Require(absent = ZERO)
   public void testContainsEntryYes() {
-    assertTrue(multimap().containsEntry(k0(), v0()));
+    assertTrue(multimap().containsEntry(sampleKeys().e0, sampleValues().e0));
   }
 
   public void testContainsEntryNo() {
-    assertFalse(multimap().containsEntry(k3(), v3()));
+    assertFalse(multimap().containsEntry(sampleKeys().e3, sampleValues().e3));
   }
 
   public void testContainsEntryAgreesWithGet() {
     for (K k : sampleKeys()) {
       for (V v : sampleValues()) {
-        assertEquals(multimap().get(k).contains(v), multimap().containsEntry(k, v));
+        assertEquals(multimap().get(k).contains(v),
+            multimap().containsEntry(k, v));
       }
     }
   }
 
   @CollectionSize.Require(absent = ZERO)
-  @MapFeature.Require({ALLOWS_NULL_KEYS, ALLOWS_NULL_VALUES})
+  @MapFeature.Require({ ALLOWS_NULL_KEYS, ALLOWS_NULL_VALUES })
   public void testContainsEntryNullYes() {
     initMultimapWithNullKeyAndValue();
     assertTrue(multimap().containsEntry(null, null));
   }
 
-  @MapFeature.Require({ALLOWS_NULL_KEY_QUERIES, ALLOWS_NULL_VALUE_QUERIES})
+  @MapFeature.Require({ ALLOWS_NULL_KEY_QUERIES, ALLOWS_NULL_VALUE_QUERIES })
   public void testContainsEntryNullNo() {
     assertFalse(multimap().containsEntry(null, null));
   }
@@ -69,17 +68,21 @@ public class MultimapContainsEntryTester<K, V>
   @MapFeature.Require(absent = ALLOWS_NULL_KEY_QUERIES)
   public void testContainsEntryNullDisallowedBecauseKeyQueriesDisallowed() {
     try {
-      multimap().containsEntry(null, v3());
+      multimap().containsEntry(null, sampleValues().e3);
       fail("Expected NullPointerException");
     } catch (NullPointerException expected) {
       // success
     }
   }
 
+  /**
+   * Copy of the {@link #testContainsEntryNullDisallowed} test. Needed because
+   * "optional" feature requirements are not supported.
+   */
   @MapFeature.Require(absent = ALLOWS_NULL_VALUE_QUERIES)
   public void testContainsEntryNullDisallowedBecauseValueQueriesDisallowed() {
     try {
-      multimap().containsEntry(k3(), null);
+      multimap().containsEntry(sampleKeys().e3, null);
       fail("Expected NullPointerException");
     } catch (NullPointerException expected) {
       // success

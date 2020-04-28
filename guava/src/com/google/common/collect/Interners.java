@@ -18,11 +18,11 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.annotations.Beta;
 import com.google.common.annotations.GwtIncompatible;
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Equivalence;
 import com.google.common.base.Function;
-import com.google.common.collect.MapMaker.Dummy;
-import com.google.common.collect.MapMakerInternalMap.InternalEntry;
+import com.google.common.collect.MapMakerInternalMap.ReferenceEntry;
+
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * Contains static methods pertaining to instances of {@link Interner}.
@@ -31,100 +31,49 @@ import com.google.common.collect.MapMakerInternalMap.InternalEntry;
  * @since 3.0
  */
 @Beta
-@GwtIncompatible
 public final class Interners {
   private Interners() {}
 
   /**
-   * Builder for {@link Interner} instances.
-   *
-   * @since 21.0
-   */
-  public static class InternerBuilder {
-    private final MapMaker mapMaker = new MapMaker();
-    private boolean strong = true;
-
-    private InternerBuilder() {}
-
-    /**
-     * Instructs the {@link InternerBuilder} to build a strong interner.
-     *
-     * @see Interners#newStrongInterner()
-     */
-    public InternerBuilder strong() {
-      this.strong = true;
-      return this;
-    }
-
-    /**
-     * Instructs the {@link InternerBuilder} to build a weak interner.
-     *
-     * @see Interners#newWeakInterner()
-     */
-    @GwtIncompatible("java.lang.ref.WeakReference")
-    public InternerBuilder weak() {
-      this.strong = false;
-      return this;
-    }
-
-    /**
-     * Sets the concurrency level that will be used by the to-be-built {@link Interner}.
-     *
-     * @see MapMaker#concurrencyLevel(int)
-     */
-    public InternerBuilder concurrencyLevel(int concurrencyLevel) {
-      this.mapMaker.concurrencyLevel(concurrencyLevel);
-      return this;
-    }
-
-    public <E> Interner<E> build() {
-      if (!strong) {
-        mapMaker.weakKeys();
-      }
-      return new InternerImpl<E>(mapMaker);
-    }
-  }
-
-  /** Returns a fresh {@link InternerBuilder} instance. */
-  public static InternerBuilder newBuilder() {
-    return new InternerBuilder();
-  }
-
-  /**
    * Returns a new thread-safe interner which retains a strong reference to each instance it has
    * interned, thus preventing these instances from being garbage-collected. If this retention is
-   * acceptable, this implementation may perform better than {@link #newWeakInterner}.
+   * acceptable, this implementation may perform better than {@link #newWeakInterner}. Note that
+   * unlike {@link String#intern}, using this interner does not consume memory in the permanent
+   * generation.
    */
   public static <E> Interner<E> newStrongInterner() {
-    return newBuilder().strong().build();
+    final ConcurrentMap<E, E> map = new MapMaker().makeMap();
+    return new Interner<E>() {
+      @Override public E intern(E sample) {
+        E canonical = map.putIfAbsent(checkNotNull(sample), sample);
+        return (canonical == null) ? sample : canonical;
+      }
+    };
   }
 
   /**
    * Returns a new thread-safe interner which retains a weak reference to each instance it has
    * interned, and so does not prevent these instances from being garbage-collected. This most
-   * likely does not perform as well as {@link #newStrongInterner}, but is the best alternative when
-   * the memory usage of that implementation is unacceptable.
+   * likely does not perform as well as {@link #newStrongInterner}, but is the best alternative
+   * when the memory usage of that implementation is unacceptable. Note that unlike {@link
+   * String#intern}, using this interner does not consume memory in the permanent generation.
    */
   @GwtIncompatible("java.lang.ref.WeakReference")
   public static <E> Interner<E> newWeakInterner() {
-    return newBuilder().weak().build();
+    return new WeakInterner<E>();
   }
 
-  @VisibleForTesting
-  static final class InternerImpl<E> implements Interner<E> {
+  private static class WeakInterner<E> implements Interner<E> {
     // MapMaker is our friend, we know about this type
-    @VisibleForTesting final MapMakerInternalMap<E, Dummy, ?, ?> map;
+    private final MapMakerInternalMap<E, Dummy> map = new MapMaker()
+          .weakKeys()
+          .keyEquivalence(Equivalence.equals())
+          .makeCustomMap();
 
-    private InternerImpl(MapMaker mapMaker) {
-      this.map =
-          MapMakerInternalMap.createWithDummyValues(mapMaker.keyEquivalence(Equivalence.equals()));
-    }
-
-    @Override
-    public E intern(E sample) {
+    @Override public E intern(E sample) {
       while (true) {
         // trying to read the canonical...
-        InternalEntry<E, Dummy, ?> entry = map.getEntry(sample);
+        ReferenceEntry<E, Dummy> entry = map.getEntry(sample);
         if (entry != null) {
           E canonical = entry.getKey();
           if (canonical != null) { // only matters if weak/soft keys are used
@@ -146,6 +95,8 @@ public final class Interners {
         }
       }
     }
+
+    private enum Dummy { VALUE }
   }
 
   /**
@@ -165,18 +116,15 @@ public final class Interners {
       this.interner = interner;
     }
 
-    @Override
-    public E apply(E input) {
+    @Override public E apply(E input) {
       return interner.intern(input);
     }
 
-    @Override
-    public int hashCode() {
+    @Override public int hashCode() {
       return interner.hashCode();
     }
 
-    @Override
-    public boolean equals(Object other) {
+    @Override public boolean equals(Object other) {
       if (other instanceof InternerFunction) {
         InternerFunction<?> that = (InternerFunction<?>) other;
         return interner.equals(that.interner);

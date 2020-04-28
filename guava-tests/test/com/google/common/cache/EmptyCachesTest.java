@@ -27,11 +27,13 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import com.google.common.testing.EqualsTester;
+
+import junit.framework.TestCase;
+
 import java.util.Collection;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
-import junit.framework.TestCase;
 
 /**
  * {@link LoadingCache} tests that deal with empty caches.
@@ -90,7 +92,8 @@ public class EmptyCachesTest extends TestCase {
       try {
         cache.get(null);
         fail("Expected NullPointerException");
-      } catch (NullPointerException expected) {
+      } catch (NullPointerException e) {
+        // expected
       }
       checkEmpty(cache);
     }
@@ -101,7 +104,8 @@ public class EmptyCachesTest extends TestCase {
       try {
         cache.getUnchecked(null);
         fail("Expected NullPointerException");
-      } catch (NullPointerException expected) {
+      } catch (NullPointerException e) {
+        // expected
       }
       checkEmpty(cache);
     }
@@ -113,9 +117,10 @@ public class EmptyCachesTest extends TestCase {
     for (LoadingCache<Object, Object> cache : caches()) {
       Set<Object> keys = cache.asMap().keySet();
       try {
-        keys.toArray((Object[]) null);
+        keys.toArray(null);
         fail();
-      } catch (NullPointerException expected) {
+      } catch (NullPointerException e) {
+        // expected
       }
       checkEmpty(cache);
     }
@@ -126,13 +131,15 @@ public class EmptyCachesTest extends TestCase {
       try {
         cache.asMap().keySet().add(1);
         fail();
-      } catch (UnsupportedOperationException expected) {
+      } catch (UnsupportedOperationException e) {
+        // expected
       }
 
       try {
         cache.asMap().keySet().addAll(asList(1, 2));
         fail();
-      } catch (UnsupportedOperationException expected) {
+      } catch (UnsupportedOperationException e) {
+        // expected
       }
     }
   }
@@ -187,9 +194,10 @@ public class EmptyCachesTest extends TestCase {
     for (LoadingCache<Object, Object> cache : caches()) {
       Collection<Object> values = cache.asMap().values();
       try {
-        values.toArray((Object[]) null);
+        values.toArray(null);
         fail();
-      } catch (NullPointerException expected) {
+      } catch (NullPointerException e) {
+        // expected
       }
       checkEmpty(cache);
     }
@@ -200,13 +208,15 @@ public class EmptyCachesTest extends TestCase {
       try {
         cache.asMap().values().add(1);
         fail();
-      } catch (UnsupportedOperationException expected) {
+      } catch (UnsupportedOperationException e) {
+        // expected
       }
 
       try {
         cache.asMap().values().addAll(asList(1, 2));
         fail();
-      } catch (UnsupportedOperationException expected) {
+      } catch (UnsupportedOperationException e) {
+        // expected
       }
     }
   }
@@ -261,9 +271,10 @@ public class EmptyCachesTest extends TestCase {
     for (LoadingCache<Object, Object> cache : caches()) {
       Set<Entry<Object, Object>> entries = cache.asMap().entrySet();
       try {
-        entries.toArray((Entry<Object, Object>[]) null);
+        entries.toArray(null);
         fail();
-      } catch (NullPointerException expected) {
+      } catch (NullPointerException e) {
+        // expected
       }
       checkEmpty(cache);
     }
@@ -274,13 +285,15 @@ public class EmptyCachesTest extends TestCase {
       try {
         cache.asMap().entrySet().add(entryOf(1, 1));
         fail();
-      } catch (UnsupportedOperationException expected) {
+      } catch (UnsupportedOperationException e) {
+        // expected
       }
 
       try {
         cache.asMap().values().addAll(asList(entryOf(1, 1), entryOf(2, 2)));
         fail();
-      } catch (UnsupportedOperationException expected) {
+      } catch (UnsupportedOperationException e) {
+        // expected
       }
     }
   }
@@ -331,15 +344,16 @@ public class EmptyCachesTest extends TestCase {
 
   /* ---------------- Local utilities -------------- */
 
-  /** Most of the tests in this class run against every one of these caches. */
+  /**
+   * Most of the tests in this class run against every one of these caches.
+   */
   private Iterable<LoadingCache<Object, Object>> caches() {
     // lots of different ways to configure a LoadingCache
     CacheBuilderFactory factory = cacheFactory();
-    return Iterables.transform(
-        factory.buildAllPermutations(),
+    return Iterables.transform(factory.buildAllPermutations(),
         new Function<CacheBuilder<Object, Object>, LoadingCache<Object, Object>>() {
-          @Override
-          public LoadingCache<Object, Object> apply(CacheBuilder<Object, Object> builder) {
+          @Override public LoadingCache<Object, Object> apply(
+              CacheBuilder<Object, Object> builder) {
             return builder.build(identityLoader());
           }
         });
@@ -352,16 +366,20 @@ public class EmptyCachesTest extends TestCase {
         .withConcurrencyLevels(ImmutableSet.of(1, 4, 16, 64))
         .withMaximumSizes(ImmutableSet.of(0, 1, 10, 100, 1000))
         .withInitialCapacities(ImmutableSet.of(0, 1, 10, 100, 1000))
-        .withExpireAfterWrites(
-            ImmutableSet.of(
-                DurationSpec.of(0, SECONDS), DurationSpec.of(1, SECONDS), DurationSpec.of(1, DAYS)))
-        .withExpireAfterAccesses(
-            ImmutableSet.of(
-                DurationSpec.of(0, SECONDS), DurationSpec.of(1, SECONDS), DurationSpec.of(1, DAYS)))
-        .withRefreshes(ImmutableSet.of(DurationSpec.of(1, SECONDS), DurationSpec.of(1, DAYS)));
+        .withExpireAfterWrites(ImmutableSet.of(
+            DurationSpec.of(0, SECONDS),
+            DurationSpec.of(1, SECONDS),
+            DurationSpec.of(1, DAYS)))
+        .withExpireAfterAccesses(ImmutableSet.of(
+            DurationSpec.of(0, SECONDS),
+            DurationSpec.of(1, SECONDS),
+            DurationSpec.of(1, DAYS)))
+        .withRefreshes(ImmutableSet.of(
+            DurationSpec.of(1, SECONDS),
+            DurationSpec.of(1, DAYS)));
   }
 
-  private static void warmUp(LoadingCache<Object, Object> cache, int minimum, int maximum) {
+  private void warmUp(LoadingCache<Object, Object> cache, int minimum, int maximum) {
     for (int i = minimum; i < maximum; i++) {
       cache.getUnchecked(i);
     }

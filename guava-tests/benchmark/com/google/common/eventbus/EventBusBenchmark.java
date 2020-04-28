@@ -34,8 +34,7 @@ public class EventBusBenchmark {
     eventBus.register(this);
   }
 
-  @Benchmark
-  void postStrings(int reps) {
+  @Benchmark void postStrings(int reps) {
     for (int i = 0; i < reps; i++) {
       eventBus.post("hello there");
     }

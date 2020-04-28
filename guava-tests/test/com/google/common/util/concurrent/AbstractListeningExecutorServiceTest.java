@@ -16,13 +16,13 @@
 
 package com.google.common.util.concurrent;
 
-import static com.google.common.truth.Truth.assertThat;
-
 import com.google.common.collect.ImmutableList;
+
+import junit.framework.TestCase;
+
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
-import junit.framework.TestCase;
 
 /**
  * Tests for {@link AbstractListeningExecutorService}.
@@ -33,26 +33,26 @@ public class AbstractListeningExecutorServiceTest extends TestCase {
 
   public void testSubmit() throws Exception {
     /*
-     * Mostly just tests that TrustedListenableFutureTask are created and run; tests for
-     * TrustedListenableFutureTask should ensure that listeners are called correctly.
+     * Mostly just tests that ListenableFutureTasks are created and run; tests for
+     * ListenableFutureTask should ensure that listeners are called correctly.
      */
 
     TestListeningExecutorService e = new TestListeningExecutorService();
 
     TestRunnable runnable = new TestRunnable();
     ListenableFuture<?> runnableFuture = e.submit(runnable);
-    assertThat(runnableFuture).isInstanceOf(TrustedListenableFutureTask.class);
+    assertTrue(runnableFuture instanceof ListenableFutureTask);
     assertTrue(runnableFuture.isDone());
     assertTrue(runnable.run);
 
     ListenableFuture<String> callableFuture = e.submit(new TestCallable());
-    assertThat(callableFuture).isInstanceOf(TrustedListenableFutureTask.class);
+    assertTrue(callableFuture instanceof ListenableFutureTask);
     assertTrue(callableFuture.isDone());
     assertEquals("foo", callableFuture.get());
 
     TestRunnable runnable2 = new TestRunnable();
     ListenableFuture<Integer> runnableFuture2 = e.submit(runnable2, 3);
-    assertThat(runnableFuture2).isInstanceOf(TrustedListenableFutureTask.class);
+    assertTrue(runnableFuture2 instanceof ListenableFutureTask);
     assertTrue(runnableFuture2.isDone());
     assertTrue(runnable2.run);
     assertEquals((Integer) 3, runnableFuture2.get());
@@ -74,17 +74,20 @@ public class AbstractListeningExecutorServiceTest extends TestCase {
     }
   }
 
-  /** Simple same thread listening executor service that doesn't handle shutdown. */
+  /**
+   * Simple same thread listening executor service that doesn't handle shutdown.
+   */
   private static class TestListeningExecutorService extends AbstractListeningExecutorService {
 
     @Override
     public void execute(Runnable runnable) {
-      assertThat(runnable).isInstanceOf(TrustedListenableFutureTask.class);
+      assertTrue(runnable instanceof ListenableFutureTask);
       runnable.run();
     }
 
     @Override
-    public void shutdown() {}
+    public void shutdown() {
+    }
 
     @Override
     public List<Runnable> shutdownNow() {

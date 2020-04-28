@@ -25,55 +25,59 @@ import com.google.common.collect.testing.AbstractMapTester;
 import com.google.common.collect.testing.WrongType;
 import com.google.common.collect.testing.features.CollectionSize;
 import com.google.common.collect.testing.features.MapFeature;
-import org.junit.Ignore;
 
 /**
- * A generic JUnit test which tests {@code containsKey()} operations on a map. Can't be invoked
- * directly; please see {@link com.google.common.collect.testing.MapTestSuiteBuilder}.
+ * A generic JUnit test which tests {@code containsKey()} operations on a map.
+ * Can't be invoked directly; please see
+ * {@link com.google.common.collect.testing.MapTestSuiteBuilder}.
  *
  * @author George van den Driessche
  */
 @GwtCompatible
-@Ignore // Affects only Android test runner, which respects JUnit 4 annotations on JUnit 3 tests.
 public class MapContainsKeyTester<K, V> extends AbstractMapTester<K, V> {
   @CollectionSize.Require(absent = ZERO)
   public void testContains_yes() {
-    assertTrue("containsKey(present) should return true", getMap().containsKey(k0()));
+    assertTrue("containsKey(present) should return true",
+        getMap().containsKey(samples.e0.getKey()));
   }
 
   public void testContains_no() {
-    assertFalse("containsKey(notPresent) should return false", getMap().containsKey(k3()));
+    assertFalse("containsKey(notPresent) should return false",
+        getMap().containsKey(samples.e3.getKey()));
   }
 
   @MapFeature.Require(ALLOWS_NULL_KEY_QUERIES)
   public void testContains_nullNotContainedButAllowed() {
-    assertFalse("containsKey(null) should return false", getMap().containsKey(null));
+    assertFalse("containsKey(null) should return false",
+        getMap().containsKey(null));
   }
 
   @MapFeature.Require(absent = ALLOWS_NULL_KEY_QUERIES)
   public void testContains_nullNotContainedAndUnsupported() {
-    expectNullKeyMissingWhenNullKeysUnsupported("containsKey(null) should return false or throw");
+    expectNullKeyMissingWhenNullKeysUnsupported(
+        "containsKey(null) should return false or throw");
   }
 
   @MapFeature.Require(ALLOWS_NULL_KEYS)
   @CollectionSize.Require(absent = ZERO)
   public void testContains_nonNullWhenNullContained() {
     initMapWithNullKey();
-    assertFalse("containsKey(notPresent) should return false", getMap().containsKey(k3()));
+    assertFalse("containsKey(notPresent) should return false",
+        getMap().containsKey(samples.e3.getKey()));
   }
 
   @MapFeature.Require(ALLOWS_NULL_KEYS)
   @CollectionSize.Require(absent = ZERO)
   public void testContains_nullContained() {
     initMapWithNullKey();
-    assertTrue("containsKey(null) should return true", getMap().containsKey(null));
+    assertTrue("containsKey(null) should return true",
+        getMap().containsKey(null));
   }
 
   public void testContains_wrongType() {
     try {
-      // noinspection SuspiciousMethodCalls
-      assertFalse(
-          "containsKey(wrongType) should return false or throw",
+      //noinspection SuspiciousMethodCalls
+      assertFalse("containsKey(wrongType) should return false or throw",
           getMap().containsKey(WrongType.VALUE));
     } catch (ClassCastException tolerated) {
     }

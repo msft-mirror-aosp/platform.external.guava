@@ -18,9 +18,12 @@ import static java.util.Arrays.asList;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+
 import junit.framework.TestCase;
 
-/** @author Charles Fry */
+/**
+ * @author Charles Fry
+ */
 public class CacheManualTest extends TestCase {
 
   public void testGetIfPresent() {
@@ -148,4 +151,5 @@ public class CacheManualTest extends TestCase {
     assertEquals(0, stats.loadExceptionCount());
     assertEquals(6, stats.hitCount());
   }
+
 }

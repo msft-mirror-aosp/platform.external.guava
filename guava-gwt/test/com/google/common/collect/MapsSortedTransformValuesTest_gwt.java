@@ -303,6 +303,11 @@ public void testTransformSingletonMapEquality() throws Exception {
   testCase.testTransformSingletonMapEquality();
 }
 
+public void testTransformValuesSecretlySortedMap() throws Exception {
+  com.google.common.collect.MapsSortedTransformValuesTest testCase = new com.google.common.collect.MapsSortedTransformValuesTest();
+  testCase.testTransformValuesSecretlySortedMap();
+}
+
 public void testValues() throws Exception {
   com.google.common.collect.MapsSortedTransformValuesTest testCase = new com.google.common.collect.MapsSortedTransformValuesTest();
   testCase.testValues();

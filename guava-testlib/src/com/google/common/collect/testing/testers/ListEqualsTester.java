@@ -22,10 +22,10 @@ import com.google.common.annotations.GwtCompatible;
 import com.google.common.collect.testing.MinimalSet;
 import com.google.common.collect.testing.features.CollectionFeature;
 import com.google.common.collect.testing.features.CollectionSize;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import org.junit.Ignore;
 
 /**
  * Tests {@link List#equals}.
@@ -33,7 +33,6 @@ import org.junit.Ignore;
  * @author George van den Driessche
  */
 @GwtCompatible
-@Ignore // Affects only Android test runner, which respects JUnit 4 annotations on JUnit 3 tests.
 public class ListEqualsTester<E> extends AbstractListTester<E> {
   public void testEquals_otherListWithSameElements() {
     assertTrue(
@@ -43,8 +42,8 @@ public class ListEqualsTester<E> extends AbstractListTester<E> {
 
   @CollectionSize.Require(absent = CollectionSize.ZERO)
   public void testEquals_otherListWithDifferentElements() {
-    ArrayList<E> other = new ArrayList<>(getSampleElements());
-    other.set(other.size() / 2, getSubjectGenerator().samples().e3());
+    ArrayList<E> other = new ArrayList<E>(getSampleElements());
+    other.set(other.size() / 2, getSubjectGenerator().samples().e3);
     assertFalse(
         "A List should not equal another List containing different elements.",
         getList().equals(other));
@@ -52,41 +51,40 @@ public class ListEqualsTester<E> extends AbstractListTester<E> {
 
   @CollectionSize.Require(absent = CollectionSize.ZERO)
   public void testEquals_otherListContainingNull() {
-    List<E> other = new ArrayList<>(getSampleElements());
+    List<E> other = new ArrayList<E>(getSampleElements());
     other.set(other.size() / 2, null);
-    assertFalse(
-        "Two Lists should not be equal if exactly one of them has null at a given index.",
+    assertFalse("Two Lists should not be equal if exactly one of them has "
+        + "null at a given index.",
         getList().equals(other));
   }
 
   @CollectionSize.Require(absent = CollectionSize.ZERO)
   @CollectionFeature.Require(ALLOWS_NULL_VALUES)
   public void testEquals_containingNull() {
-    ArrayList<E> elements = new ArrayList<>(getSampleElements());
+    ArrayList<E> elements = new ArrayList<E>(getSampleElements());
     elements.set(elements.size() / 2, null);
     collection = getSubjectGenerator().create(elements.toArray());
-    List<E> other = new ArrayList<>(getSampleElements());
-    assertFalse(
-        "Two Lists should not be equal if exactly one of them has null at a given index.",
+    List<E> other = new ArrayList<E>(getSampleElements());
+    assertFalse("Two Lists should not be equal if exactly one of them has "
+        + "null at a given index.",
         getList().equals(other));
   }
 
   @CollectionSize.Require(absent = CollectionSize.ZERO)
   public void testEquals_shorterList() {
     Collection<E> fewerElements = getSampleElements(getNumElements() - 1);
-    assertFalse(
-        "Lists of different sizes should not be equal.",
+    assertFalse("Lists of different sizes should not be equal.",
         getList().equals(new ArrayList<E>(fewerElements)));
   }
 
   public void testEquals_longerList() {
     Collection<E> moreElements = getSampleElements(getNumElements() + 1);
-    assertFalse(
-        "Lists of different sizes should not be equal.",
+    assertFalse("Lists of different sizes should not be equal.",
         getList().equals(new ArrayList<E>(moreElements)));
   }
 
   public void testEquals_set() {
-    assertFalse("A List should never equal a Set.", getList().equals(MinimalSet.from(getList())));
+    assertFalse("A List should never equal a Set.",
+        getList().equals(MinimalSet.from(getList())));
   }
 }

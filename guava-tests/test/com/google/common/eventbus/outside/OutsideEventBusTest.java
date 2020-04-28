@@ -18,9 +18,11 @@ package com.google.common.eventbus.outside;
 
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
+
+import junit.framework.TestCase;
+
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
-import junit.framework.TestCase;
 
 /**
  * Test cases for {@code EventBus} that must not be in the same package.
@@ -35,17 +37,16 @@ public class OutsideEventBusTest extends TestCase {
    * it can fail here.
    */
   public void testAnonymous() {
-    final AtomicReference<String> holder = new AtomicReference<>();
+    final AtomicReference<String> holder = new AtomicReference<String>();
     final AtomicInteger deliveries = new AtomicInteger();
     EventBus bus = new EventBus();
-    bus.register(
-        new Object() {
-          @Subscribe
-          public void accept(String str) {
-            holder.set(str);
-            deliveries.incrementAndGet();
-          }
-        });
+    bus.register(new Object() {
+      @Subscribe
+      public void accept(String str) {
+        holder.set(str);
+        deliveries.incrementAndGet();
+      }
+    });
 
     String EVENT = "Hello!";
     bus.post(EVENT);

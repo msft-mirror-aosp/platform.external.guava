@@ -18,6 +18,7 @@ package com.google.common.collect.testing.features;
 
 import com.google.common.annotations.GwtCompatible;
 import com.google.common.collect.testing.Helpers;
+
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -26,25 +27,28 @@ import java.util.Collections;
 import java.util.Set;
 
 /**
- * When describing the features of the collection produced by a given generator (i.e. in a call to
- * {@link
+ * When describing the features of the collection produced by a given generator
+ * (i.e. in a call to {@link
  * com.google.common.collect.testing.FeatureSpecificTestSuiteBuilder#withFeatures(Feature...)}),
- * this annotation specifies each of the different sizes for which a test suite should be built. (In
- * a typical case, the features should include {@link CollectionSize#ANY}.) These semantics are thus
- * a little different from those of other Collection-related features such as {@link
+ * this annotation specifies each of the different sizes for which a test suite
+ * should be built. (In a typical case, the features should include {@link
+ * CollectionSize#ANY}.) These semantics are thus a little different
+ * from those of other Collection-related features such as {@link
  * CollectionFeature} or {@link SetFeature}.
- *
- * <p>However, when {@link CollectionSize.Require} is used to annotate a test it behaves normally
- * (i.e. it requires the collection instance under test to be a certain size for the test to run).
- * Note that this means a test should not require more than one CollectionSize, since a particular
- * collection instance can only be one size at once.
+ * <p>
+ * However, when {@link CollectionSize.Require} is used to annotate a test it
+ * behaves normally (i.e. it requires the collection instance under test to be
+ * a certain size for the test to run). Note that this means a test should not
+ * require more than one CollectionSize, since a particular collection instance
+ * can only be one size at once.
  *
  * @author George van den Driessche
  */
 // Enum values use constructors with generic varargs.
 @SuppressWarnings("unchecked")
 @GwtCompatible
-public enum CollectionSize implements Feature<Collection>, Comparable<CollectionSize> {
+public enum CollectionSize implements Feature<Collection>,
+    Comparable<CollectionSize> {
   /** Test an empty collection. */
   ZERO(0),
   /** Test a one-element collection. */
@@ -56,7 +60,11 @@ public enum CollectionSize implements Feature<Collection>, Comparable<Collection
    * sample element is not in any collection
    */
 
-  ANY(ZERO, ONE, SEVERAL);
+  ANY(
+      ZERO,
+      ONE,
+      SEVERAL
+  );
 
   private final Set<Feature<? super Collection>> implied;
   private final Integer numElements;
@@ -66,7 +74,7 @@ public enum CollectionSize implements Feature<Collection>, Comparable<Collection
     this.numElements = numElements;
   }
 
-  CollectionSize(Feature<? super Collection>... implied) {
+  CollectionSize(Feature<? super Collection> ... implied) {
     // Keep the order here, so that PerCollectionSizeTestSuiteBuilder
     // gives a predictable order of test suites.
     this.implied = Helpers.copyToSet(implied);
@@ -91,7 +99,6 @@ public enum CollectionSize implements Feature<Collection>, Comparable<Collection
   @TesterAnnotation
   public @interface Require {
     CollectionSize[] value() default {};
-
     CollectionSize[] absent() default {};
   }
 }

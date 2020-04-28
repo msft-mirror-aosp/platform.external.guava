@@ -19,8 +19,10 @@ package com.google.common.base;
 import com.google.caliper.BeforeExperiment;
 import com.google.caliper.Benchmark;
 import com.google.caliper.Param;
+import com.google.common.base.Ascii;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Chars;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -32,23 +34,20 @@ import java.util.Random;
  * @author Kevin Bourrillion
  */
 public class AsciiBenchmark {
-  private static final String ALPHA = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-  private static final String NONALPHA = "0123456789`~-_=+[]{}|;:',.<>/?!@#$%^&*()\"\\";
+  private static String ALPHA =
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+  private static String NONALPHA =
+      "0123456789`~-_=+[]{}|;:',.<>/?!@#$%^&*()\"\\";
 
-  @Param({"20", "2000"})
-  int size;
-
-  @Param({"2", "20"})
-  int nonAlphaRatio; // one non-alpha char per this many chars
-
+  @Param({"20", "2000"}) int size;
+  @Param({"2", "20"}) int nonAlphaRatio; // one non-alpha char per this many chars
   @Param boolean noWorkToDo;
 
   Random random;
   String testString;
 
-  @BeforeExperiment
-  void setUp() {
-    random = new Random(0xdeadbeef); // fix the seed so results are comparable across runs
+  @BeforeExperiment void setUp() {
+    random = new Random();
 
     int nonAlpha = size / nonAlphaRatio;
     int alpha = size - nonAlpha;
@@ -73,9 +72,10 @@ public class AsciiBenchmark {
     return NONALPHA.charAt(random.nextInt(NONALPHA.length()));
   }
 
-  @Benchmark
-  int asciiStringToUpperCase(int reps) {
-    String string = noWorkToDo ? Ascii.toUpperCase(testString) : testString;
+  @Benchmark int asciiStringToUpperCase(int reps) {
+    String string = noWorkToDo
+        ? Ascii.toUpperCase(testString)
+        : testString;
 
     int dummy = 0;
     for (int i = 0; i < reps; i++) {
@@ -84,9 +84,10 @@ public class AsciiBenchmark {
     return dummy;
   }
 
-  @Benchmark
-  int asciiCharSequenceToUpperCase(int reps) {
-    String string = noWorkToDo ? charSequenceToUpperCase(testString) : testString;
+  @Benchmark int asciiCharSequenceToUpperCase(int reps) {
+    String string = noWorkToDo
+        ? charSequenceToUpperCase(testString)
+        : testString;
 
     int dummy = 0;
     for (int i = 0; i < reps; i++) {
@@ -95,9 +96,10 @@ public class AsciiBenchmark {
     return dummy;
   }
 
-  @Benchmark
-  int stringToUpperCase(int reps) {
-    String string = noWorkToDo ? testString.toUpperCase(Locale.US) : testString;
+  @Benchmark int stringToUpperCase(int reps) {
+    String string = noWorkToDo
+        ? testString.toUpperCase(Locale.US)
+        : testString;
 
     int dummy = 0;
     for (int i = 0; i < reps; i++) {
@@ -106,14 +108,13 @@ public class AsciiBenchmark {
     return dummy;
   }
 
-  @Benchmark
-  boolean equalsIgnoreCaseCharSequence(int reps) {
+  @Benchmark boolean equalsIgnoreCaseCharSequence(int reps) {
     // This benchmark has no concept of "noWorkToDo".
     String upperString = testString.toUpperCase();
     CharSequence testSeq = new StringBuilder(testString);
     CharSequence upperSeq = new StringBuilder(upperString);
-    CharSequence[] lhs = new CharSequence[] {testString, testSeq, testString, testSeq};
-    CharSequence[] rhs = new CharSequence[] {upperString, upperString, upperSeq, upperSeq};
+    CharSequence[] lhs = new CharSequence[] { testString, testSeq, testString, testSeq };
+    CharSequence[] rhs = new CharSequence[] { upperString, upperString, upperSeq, upperSeq };
 
     boolean dummy = false;
     for (int i = 0; i < reps; i++) {
@@ -122,8 +123,7 @@ public class AsciiBenchmark {
     return dummy;
   }
 
-  @Benchmark
-  boolean equalsIgnoreCaseStringOnly(int reps) {
+  @Benchmark boolean equalsIgnoreCaseStringOnly(int reps) {
     // This benchmark has no concept of "noWorkToDo".
     String lhs = testString;
     String rhs = testString.toUpperCase();
@@ -135,21 +135,19 @@ public class AsciiBenchmark {
     return dummy;
   }
 
-  @Benchmark
-  boolean equalsIgnoreCaseJDK(int reps) {
+  @Benchmark boolean equalsIgnoreCaseJDK(int reps) {
     // This benchmark has no concept of "noWorkToDo".
     String lhs = testString;
     String rhs = testString.toUpperCase();
 
     boolean dummy = false;
     for (int i = 0; i < reps; i++) {
-      dummy ^= lhs.equalsIgnoreCase(rhs);
+        dummy ^= lhs.equalsIgnoreCase(rhs);
     }
     return dummy;
   }
 
-  @Benchmark
-  boolean isUpperCase(int reps) {
+  @Benchmark boolean isUpperCase(int reps) {
     // This benchmark has no concept of "noWorkToDo".
     char[] chars = testString.toCharArray();
 
@@ -163,10 +161,11 @@ public class AsciiBenchmark {
   }
 
   static String charSequenceToUpperCase(CharSequence chars) {
-    char[] newChars = new char[chars.length()];
-    for (int i = 0; i < newChars.length; i++) {
-      newChars[i] = Ascii.toUpperCase(chars.charAt(i));
+    int length = chars.length();
+    StringBuilder builder = new StringBuilder(length);
+    for (int i = 0; i < length; i++) {
+      builder.append(Ascii.toUpperCase(chars.charAt(i)));
     }
-    return String.valueOf(newChars);
+    return builder.toString();
   }
 }

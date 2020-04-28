@@ -19,10 +19,12 @@ package com.google.common.base;
 import com.google.common.annotations.GwtCompatible;
 import com.google.common.annotations.GwtIncompatible;
 import com.google.common.testing.GcFinalization;
+
+import junit.framework.TestCase;
+
 import java.lang.ref.WeakReference;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-import junit.framework.TestCase;
 
 /**
  * Unit test for {@code AbstractIterator}.
@@ -30,31 +32,29 @@ import junit.framework.TestCase;
  * @author Kevin Bourrillion
  */
 @GwtCompatible(emulated = true)
+// TODO(cpovirk): why is this slow (>1m/test) under GWT when fully optimized?
 public class AbstractIteratorTest extends TestCase {
 
   public void testDefaultBehaviorOfNextAndHasNext() {
 
     // This sample AbstractIterator returns 0 on the first call, 1 on the
     // second, then signals that it's reached the end of the data
-    Iterator<Integer> iter =
-        new AbstractIterator<Integer>() {
-          private int rep;
-
-          @Override
-          public Integer computeNext() {
-            switch (rep++) {
-              case 0:
-                return 0;
-              case 1:
-                return 1;
-              case 2:
-                return endOfData();
-              default:
-                fail("Should not have been invoked again");
-                return null;
-            }
-          }
-        };
+    Iterator<Integer> iter = new AbstractIterator<Integer>() {
+      private int rep;
+      @Override public Integer computeNext() {
+        switch (rep++) {
+          case 0:
+            return 0;
+          case 1:
+            return 1;
+          case 2:
+            return endOfData();
+          default:
+            fail("Should not have been invoked again");
+            return null;
+        }
+      }
+    };
 
     assertTrue(iter.hasNext());
     assertEquals(0, (int) iter.next());
@@ -78,21 +78,18 @@ public class AbstractIteratorTest extends TestCase {
   }
 
   public void testSneakyThrow() throws Exception {
-    Iterator<Integer> iter =
-        new AbstractIterator<Integer>() {
-          boolean haveBeenCalled;
-
-          @Override
-          public Integer computeNext() {
-            if (haveBeenCalled) {
-              fail("Should not have been called again");
-            } else {
-              haveBeenCalled = true;
-              sneakyThrow(new SomeCheckedException());
-            }
-            return null; // never reached
-          }
-        };
+    Iterator<Integer> iter = new AbstractIterator<Integer>() {
+      boolean haveBeenCalled;
+      @Override public Integer computeNext() {
+        if (haveBeenCalled) {
+          fail("Should not have been called again");
+        } else {
+          haveBeenCalled = true;
+          sneakyThrow(new SomeCheckedException());
+        }
+        return null; // never reached
+      }
+    };
 
     // The first time, the sneakily-thrown exception comes out
     try {
@@ -114,13 +111,11 @@ public class AbstractIteratorTest extends TestCase {
 
   public void testException() {
     final SomeUncheckedException exception = new SomeUncheckedException();
-    Iterator<Integer> iter =
-        new AbstractIterator<Integer>() {
-          @Override
-          public Integer computeNext() {
-            throw exception;
-          }
-        };
+    Iterator<Integer> iter = new AbstractIterator<Integer>() {
+      @Override public Integer computeNext() {
+        throw exception;
+      }
+    };
 
     // It should pass through untouched
     try {
@@ -132,14 +127,12 @@ public class AbstractIteratorTest extends TestCase {
   }
 
   public void testExceptionAfterEndOfData() {
-    Iterator<Integer> iter =
-        new AbstractIterator<Integer>() {
-          @Override
-          public Integer computeNext() {
-            endOfData();
-            throw new SomeUncheckedException();
-          }
-        };
+    Iterator<Integer> iter = new AbstractIterator<Integer>() {
+      @Override public Integer computeNext() {
+        endOfData();
+        throw new SomeUncheckedException();
+      }
+    };
     try {
       iter.hasNext();
       fail("No exception thrown");
@@ -148,19 +141,16 @@ public class AbstractIteratorTest extends TestCase {
   }
 
   public void testCantRemove() {
-    Iterator<Integer> iter =
-        new AbstractIterator<Integer>() {
-          boolean haveBeenCalled;
-
-          @Override
-          public Integer computeNext() {
-            if (haveBeenCalled) {
-              endOfData();
-            }
-            haveBeenCalled = true;
-            return 0;
-          }
-        };
+    Iterator<Integer> iter = new AbstractIterator<Integer>() {
+      boolean haveBeenCalled;
+      @Override public Integer computeNext() {
+        if (haveBeenCalled) {
+          endOfData();
+        }
+        haveBeenCalled = true;
+        return 0;
+      }
+    };
 
     assertEquals(0, (int) iter.next());
 
@@ -171,28 +161,24 @@ public class AbstractIteratorTest extends TestCase {
     }
   }
 
-  @GwtIncompatible // weak references
+  @GwtIncompatible("weak references")
   public void testFreesNextReference() {
-    Iterator<Object> itr =
-        new AbstractIterator<Object>() {
-          @Override
-          public Object computeNext() {
-            return new Object();
-          }
-        };
-    WeakReference<Object> ref = new WeakReference<>(itr.next());
+    Iterator<Object> itr = new AbstractIterator<Object>() {
+      @Override public Object computeNext() {
+        return new Object();
+      }
+    };
+    WeakReference<Object> ref = new WeakReference<Object>(itr.next());
     GcFinalization.awaitClear(ref);
   }
 
   public void testReentrantHasNext() {
-    Iterator<Integer> iter =
-        new AbstractIterator<Integer>() {
-          @Override
-          protected Integer computeNext() {
-            boolean unused = hasNext();
-            return null;
-          }
-        };
+    Iterator<Integer> iter = new AbstractIterator<Integer>() {
+      @Override protected Integer computeNext() {
+        hasNext();
+        return null;
+      }
+    };
     try {
       iter.hasNext();
       fail();
@@ -204,7 +190,9 @@ public class AbstractIteratorTest extends TestCase {
   // hasNext/next), but we'll cop out for now, knowing that
   // next() both start by invoking hasNext() anyway.
 
-  /** Throws a undeclared checked exception. */
+  /**
+   * Throws a undeclared checked exception.
+   */
   private static void sneakyThrow(Throwable t) {
     class SneakyThrower<T extends Throwable> {
       @SuppressWarnings("unchecked") // intentionally unsafe for test
@@ -215,7 +203,9 @@ public class AbstractIteratorTest extends TestCase {
     new SneakyThrower<Error>().throwIt(t);
   }
 
-  private static class SomeCheckedException extends Exception {}
+  private static class SomeCheckedException extends Exception {
+  }
 
-  private static class SomeUncheckedException extends RuntimeException {}
+  private static class SomeUncheckedException extends RuntimeException {
+  }
 }

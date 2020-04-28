@@ -19,6 +19,7 @@ package com.google.common.collect.testing;
 import static com.google.common.collect.testing.Helpers.orderEntriesByKey;
 
 import com.google.common.annotations.GwtCompatible;
+
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.SortedMap;
@@ -29,7 +30,7 @@ import java.util.SortedMap;
  * @author Chris Povirk
  */
 @GwtCompatible
-public abstract class TestStringSortedMapGenerator extends TestStringMapGenerator
+public abstract class TestStringSortedMapGenerator extends TestStringMapGenerator 
     implements TestSortedMapGenerator<String, String> {
   @Override
   public Entry<String, String> belowSamplesLesser() {
@@ -58,7 +59,7 @@ public abstract class TestStringSortedMapGenerator extends TestStringMapGenerato
 
   @Override
   protected abstract SortedMap<String, String> create(Entry<String, String>[] entries);
-
+  
   @Override
   public SortedMap<String, String> create(Object... entries) {
     return (SortedMap<String, String>) super.create(entries);

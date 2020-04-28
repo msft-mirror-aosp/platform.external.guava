@@ -20,31 +20,30 @@ import com.google.caliper.BeforeExperiment;
 import com.google.caliper.Benchmark;
 import com.google.caliper.Param;
 import com.google.common.base.Preconditions;
+
 import java.util.Random;
 
 /**
  * Tests the speed of iteration of different iteration methods for collections.
- *
+ * 
  * @author David Richter
  */
 public class MultisetIteratorBenchmark {
-  @Param({"0", "1", "16", "256", "4096", "65536"})
-  int size;
+  @Param({"0", "1", "16", "256", "4096", "65536"}) int size;
 
   LinkedHashMultiset<Object> linkedHashMultiset;
   HashMultiset<Object> hashMultiset;
-
+  
   // TreeMultiset requires a Comparable element.
   TreeMultiset<Integer> treeMultiset;
 
-  @BeforeExperiment
-  void setUp() {
+  @BeforeExperiment void setUp() {
     hashMultiset = HashMultiset.create(size);
     linkedHashMultiset = LinkedHashMultiset.create(size);
     treeMultiset = TreeMultiset.create();
 
     Random random = new Random();
-
+    
     int sizeRemaining = size;
 
     // TODO(kevinb): generate better test contents for multisets
@@ -58,12 +57,11 @@ public class MultisetIteratorBenchmark {
       treeMultiset.add(value, count);
     }
 
-    // TODO(kevinb): convert to assert once benchmark tests enable asserts by default
+    //TODO(kevinb): convert to assert once benchmark tests enable asserts by default    
     Preconditions.checkState(hashMultiset.size() == size);
   }
 
-  @Benchmark
-  int hashMultiset(int reps) {
+  @Benchmark int hashMultiset(int reps) {
     int sum = 0;
     for (int i = 0; i < reps; i++) {
       for (Object value : hashMultiset) {
@@ -73,8 +71,7 @@ public class MultisetIteratorBenchmark {
     return sum;
   }
 
-  @Benchmark
-  int linkedHashMultiset(int reps) {
+  @Benchmark int linkedHashMultiset(int reps) {
     int sum = 0;
     for (int i = 0; i < reps; i++) {
       for (Object value : linkedHashMultiset) {
@@ -84,8 +81,7 @@ public class MultisetIteratorBenchmark {
     return sum;
   }
 
-  @Benchmark
-  int treeMultiset(int reps) {
+  @Benchmark int treeMultiset(int reps) {
     int sum = 0;
     for (int i = 0; i < reps; i++) {
       for (Object value : treeMultiset) {

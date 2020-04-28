@@ -17,6 +17,7 @@
 package com.google.common.testing;
 
 import com.google.common.testing.RelationshipTester.ItemReporter;
+
 import junit.framework.TestCase;
 
 /**

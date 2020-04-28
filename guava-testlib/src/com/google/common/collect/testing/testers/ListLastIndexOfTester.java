@@ -23,24 +23,21 @@ import static com.google.common.collect.testing.features.CollectionSize.ZERO;
 import com.google.common.annotations.GwtCompatible;
 import com.google.common.collect.testing.features.CollectionFeature;
 import com.google.common.collect.testing.features.CollectionSize;
-import org.junit.Ignore;
 
 /**
- * A generic JUnit test which tests {@code lastIndexOf()} operations on a list. Can't be invoked
- * directly; please see {@link com.google.common.collect.testing.ListTestSuiteBuilder}.
+ * A generic JUnit test which tests {@code lastIndexOf()} operations on a list.
+ * Can't be invoked directly; please see
+ * {@link com.google.common.collect.testing.ListTestSuiteBuilder}.
  *
  * @author Chris Povirk
  */
 @GwtCompatible
-@Ignore // Affects only Android test runner, which respects JUnit 4 annotations on JUnit 3 tests.
 public class ListLastIndexOfTester<E> extends AbstractListIndexOfTester<E> {
-  @Override
-  protected int find(Object o) {
+  @Override protected int find(Object o) {
     return getList().lastIndexOf(o);
   }
 
-  @Override
-  protected String getMethodName() {
+  @Override protected String getMethodName() {
     return "lastIndexOf";
   }
 
@@ -48,11 +45,10 @@ public class ListLastIndexOfTester<E> extends AbstractListIndexOfTester<E> {
   @CollectionSize.Require(absent = {ZERO, ONE})
   public void testLastIndexOf_duplicate() {
     E[] array = createSamplesArray();
-    array[getNumElements() / 2] = e0();
+    array[getNumElements() / 2] = samples.e0;
     collection = getSubjectGenerator().create(array);
     assertEquals(
         "lastIndexOf(duplicate) should return index of last occurrence",
-        getNumElements() / 2,
-        getList().lastIndexOf(e0()));
+        getNumElements() / 2, getList().lastIndexOf(samples.e0));
   }
 }

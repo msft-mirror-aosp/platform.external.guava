@@ -15,6 +15,7 @@
 package com.google.common.collect;
 
 import com.google.common.annotations.GwtCompatible;
+
 import junit.framework.TestCase;
 
 /**
@@ -30,8 +31,7 @@ public class CountTest extends TestCase {
 
   public void testGetAndAdd() {
     Count holder = new Count(20);
-    assertEquals(20, holder.get());
-    holder.add(1);
+    assertEquals(20, holder.getAndAdd(1));
     assertEquals(21, holder.get());
   }
 
@@ -45,7 +45,7 @@ public class CountTest extends TestCase {
     assertEquals(10, holder.getAndSet(20));
     assertEquals(20, holder.get());
   }
-
+  
   public void testSet() {
     Count holder = new Count(10);
     holder.set(20);

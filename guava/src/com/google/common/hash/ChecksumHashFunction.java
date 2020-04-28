@@ -17,7 +17,8 @@ package com.google.common.hash;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.errorprone.annotations.Immutable;
+import com.google.common.base.Supplier;
+
 import java.io.Serializable;
 import java.util.zip.Checksum;
 
@@ -26,14 +27,13 @@ import java.util.zip.Checksum;
  *
  * @author Colin Decker
  */
-@Immutable
-final class ChecksumHashFunction extends AbstractHashFunction implements Serializable {
-  private final ImmutableSupplier<? extends Checksum> checksumSupplier;
+final class ChecksumHashFunction extends AbstractStreamingHashFunction implements Serializable {
+
+  private final Supplier<? extends Checksum> checksumSupplier;
   private final int bits;
   private final String toString;
 
-  ChecksumHashFunction(
-      ImmutableSupplier<? extends Checksum> checksumSupplier, int bits, String toString) {
+  ChecksumHashFunction(Supplier<? extends Checksum> checksumSupplier, int bits, String toString) {
     this.checksumSupplier = checkNotNull(checksumSupplier);
     checkArgument(bits == 32 || bits == 64, "bits (%s) must be either 32 or 64", bits);
     this.bits = bits;
@@ -55,8 +55,11 @@ final class ChecksumHashFunction extends AbstractHashFunction implements Seriali
     return toString;
   }
 
-  /** Hasher that updates a checksum. */
+  /**
+   * Hasher that updates a checksum.
+   */
   private final class ChecksumHasher extends AbstractByteHasher {
+
     private final Checksum checksum;
 
     private ChecksumHasher(Checksum checksum) {

@@ -17,6 +17,7 @@ package com.google.common.collect;
 import com.google.gwt.user.client.rpc.SerializationException;
 import com.google.gwt.user.client.rpc.SerializationStreamReader;
 import com.google.gwt.user.client.rpc.SerializationStreamWriter;
+
 import java.util.Comparator;
 
 /**
@@ -25,14 +26,17 @@ import java.util.Comparator;
  * @author Hayward Chan
  */
 public class TreeBasedTable_CustomFieldSerializer {
-  public static void deserialize(SerializationStreamReader reader, TreeBasedTable<?, ?, ?> table) {}
+  public static void deserialize(SerializationStreamReader reader, TreeBasedTable<?, ?, ?> table) {
+  }
 
   public static TreeBasedTable<Object, Object, Object> instantiate(SerializationStreamReader reader)
       throws SerializationException {
     @SuppressWarnings("unchecked") // The comparator isn't used statically.
-    Comparator<Object> rowComparator = (Comparator<Object>) reader.readObject();
+    Comparator<Object> rowComparator
+        = (Comparator<Object>) reader.readObject();
     @SuppressWarnings("unchecked") // The comparator isn't used statically.
-    Comparator<Object> columnComparator = (Comparator<Object>) reader.readObject();
+    Comparator<Object> columnComparator
+        = (Comparator<Object>) reader.readObject();
 
     TreeBasedTable<Object, Object, Object> table =
         TreeBasedTable.create(rowComparator, columnComparator);

@@ -26,22 +26,22 @@ import com.google.common.collect.testing.Helpers;
 import com.google.common.collect.testing.features.CollectionFeature;
 import com.google.common.collect.testing.features.CollectionSize;
 import com.google.common.collect.testing.features.ListFeature;
+
 import java.lang.reflect.Method;
-import org.junit.Ignore;
 
 /**
- * A generic JUnit test which tests {@code set()} operations on a list. Can't be invoked directly;
- * please see {@link com.google.common.collect.testing.ListTestSuiteBuilder}.
+ * A generic JUnit test which tests {@code set()} operations on a list. Can't be
+ * invoked directly; please see
+ * {@link com.google.common.collect.testing.ListTestSuiteBuilder}.
  *
  * @author George van den Driessche
  */
 @GwtCompatible(emulated = true)
-@Ignore // Affects only Android test runner, which respects JUnit 4 annotations on JUnit 3 tests.
 public class ListSetTester<E> extends AbstractListTester<E> {
   @ListFeature.Require(SUPPORTS_SET)
   @CollectionSize.Require(absent = ZERO)
   public void testSet() {
-    doTestSet(e3());
+    doTestSet(samples.e3);
   }
 
   @CollectionSize.Require(absent = ZERO)
@@ -60,24 +60,24 @@ public class ListSetTester<E> extends AbstractListTester<E> {
     elements[i] = null;
     collection = getSubjectGenerator().create(elements);
 
-    doTestSet(e3());
+    doTestSet(samples.e3);
   }
 
   private void doTestSet(E newValue) {
     int index = aValidIndex();
     E initialValue = getList().get(index);
-    assertEquals(
-        "set(i, x) should return the old element at position i.",
-        initialValue,
-        getList().set(index, newValue));
-    assertEquals("After set(i, x), get(i) should return x", newValue, getList().get(index));
-    assertEquals("set() should not change the size of a list.", getNumElements(), getList().size());
+    assertEquals("set(i, x) should return the old element at position i.",
+        initialValue, getList().set(index, newValue));
+    assertEquals("After set(i, x), get(i) should return x",
+        newValue, getList().get(index));
+    assertEquals("set() should not change the size of a list.",
+        getNumElements(), getList().size());
   }
 
   @ListFeature.Require(SUPPORTS_SET)
   public void testSet_indexTooLow() {
     try {
-      getList().set(-1, e3());
+      getList().set(-1, samples.e3);
       fail("set(-1) should throw IndexOutOfBoundsException");
     } catch (IndexOutOfBoundsException expected) {
     }
@@ -88,7 +88,7 @@ public class ListSetTester<E> extends AbstractListTester<E> {
   public void testSet_indexTooHigh() {
     int index = getNumElements();
     try {
-      getList().set(index, e3());
+      getList().set(index, samples.e3);
       fail("set(size) should throw IndexOutOfBoundsException");
     } catch (IndexOutOfBoundsException expected) {
     }
@@ -99,7 +99,7 @@ public class ListSetTester<E> extends AbstractListTester<E> {
   @ListFeature.Require(absent = SUPPORTS_SET)
   public void testSet_unsupported() {
     try {
-      getList().set(aValidIndex(), e3());
+      getList().set(aValidIndex(), samples.e3);
       fail("set() should throw UnsupportedOperationException");
     } catch (UnsupportedOperationException expected) {
     }
@@ -110,9 +110,11 @@ public class ListSetTester<E> extends AbstractListTester<E> {
   @ListFeature.Require(absent = SUPPORTS_SET)
   public void testSet_unsupportedByEmptyList() {
     try {
-      getList().set(0, e3());
-      fail("set() should throw UnsupportedOperationException or IndexOutOfBoundsException");
-    } catch (UnsupportedOperationException | IndexOutOfBoundsException tolerated) {
+      getList().set(0, samples.e3);
+      fail("set() should throw UnsupportedOperationException "
+          + "or IndexOutOfBoundsException");
+    } catch (UnsupportedOperationException tolerated) {
+    } catch (IndexOutOfBoundsException tolerated) {
     }
     expectUnchanged();
   }
@@ -134,15 +136,18 @@ public class ListSetTester<E> extends AbstractListTester<E> {
   }
 
   /**
-   * Returns the {@link java.lang.reflect.Method} instance for {@link #testSet_null()} so that tests
-   * of {@link java.util.Collections#checkedCollection(java.util.Collection, Class)} can suppress it
-   * with {@code FeatureSpecificTestSuiteBuilder.suppressing()} until <a
-   * href="http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6409434">Sun bug 6409434</a> is fixed.
-   * It's unclear whether nulls were to be permitted or forbidden, but presumably the eventual fix
-   * will be to permit them, as it seems more likely that code would depend on that behavior than on
-   * the other. Thus, we say the bug is in set(), which fails to support null.
+   * Returns the {@link java.lang.reflect.Method} instance for
+   * {@link #testSet_null()} so that tests of {@link
+   * java.util.Collections#checkedCollection(java.util.Collection, Class)} can
+   * suppress it with {@code FeatureSpecificTestSuiteBuilder.suppressing()}
+   * until <a
+   * href="http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6409434">Sun bug
+   * 6409434</a> is fixed. It's unclear whether nulls were to be permitted or
+   * forbidden, but presumably the eventual fix will be to permit them, as it
+   * seems more likely that code would depend on that behavior than on the
+   * other. Thus, we say the bug is in set(), which fails to support null.
    */
-  @GwtIncompatible // reflection
+  @GwtIncompatible("reflection")
   public static Method getSetNullSupportedMethod() {
     return Helpers.getMethod(ListSetTester.class, "testSet_null");
   }

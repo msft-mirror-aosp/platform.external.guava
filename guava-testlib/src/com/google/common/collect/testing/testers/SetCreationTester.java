@@ -24,28 +24,29 @@ import static com.google.common.collect.testing.features.CollectionSize.ZERO;
 import com.google.common.annotations.GwtCompatible;
 import com.google.common.collect.testing.features.CollectionFeature;
 import com.google.common.collect.testing.features.CollectionSize;
+
 import java.util.Arrays;
 import java.util.List;
-import org.junit.Ignore;
 
 /**
- * A generic JUnit test which tests creation (typically through a constructor or static factory
- * method) of a set. Can't be invoked directly; please see {@link
- * com.google.common.collect.testing.SetTestSuiteBuilder}.
+ * A generic JUnit test which tests creation (typically through a constructor or
+ * static factory method) of a set. Can't be invoked directly; please see
+ * {@link com.google.common.collect.testing.SetTestSuiteBuilder}.
  *
  * @author Chris Povirk
  */
 @GwtCompatible
-@Ignore // Affects only Android test runner, which respects JUnit 4 annotations on JUnit 3 tests.
 public class SetCreationTester<E> extends AbstractSetTester<E> {
-  @CollectionFeature.Require(value = ALLOWS_NULL_VALUES, absent = REJECTS_DUPLICATES_AT_CREATION)
+  @CollectionFeature.Require(value = ALLOWS_NULL_VALUES,
+      absent = REJECTS_DUPLICATES_AT_CREATION)
   @CollectionSize.Require(absent = {ZERO, ONE})
   public void testCreateWithDuplicates_nullDuplicatesNotRejected() {
     E[] array = createArrayWithNullElement();
     array[0] = null;
     collection = getSubjectGenerator().create(array);
 
-    List<E> expectedWithDuplicateRemoved = Arrays.asList(array).subList(1, getNumElements());
+    List<E> expectedWithDuplicateRemoved =
+        Arrays.asList(array).subList(1, getNumElements());
     expectContents(expectedWithDuplicateRemoved);
   }
 
@@ -53,14 +54,16 @@ public class SetCreationTester<E> extends AbstractSetTester<E> {
   @CollectionSize.Require(absent = {ZERO, ONE})
   public void testCreateWithDuplicates_nonNullDuplicatesNotRejected() {
     E[] array = createSamplesArray();
-    array[1] = e0();
+    array[1] = samples.e0;
     collection = getSubjectGenerator().create(array);
 
-    List<E> expectedWithDuplicateRemoved = Arrays.asList(array).subList(1, getNumElements());
+    List<E> expectedWithDuplicateRemoved =
+        Arrays.asList(array).subList(1, getNumElements());
     expectContents(expectedWithDuplicateRemoved);
   }
 
-  @CollectionFeature.Require({ALLOWS_NULL_VALUES, REJECTS_DUPLICATES_AT_CREATION})
+  @CollectionFeature.Require(
+      {ALLOWS_NULL_VALUES, REJECTS_DUPLICATES_AT_CREATION})
   @CollectionSize.Require(absent = {ZERO, ONE})
   public void testCreateWithDuplicates_nullDuplicatesRejected() {
     E[] array = createArrayWithNullElement();
@@ -76,7 +79,7 @@ public class SetCreationTester<E> extends AbstractSetTester<E> {
   @CollectionSize.Require(absent = {ZERO, ONE})
   public void testCreateWithDuplicates_nonNullDuplicatesRejected() {
     E[] array = createSamplesArray();
-    array[1] = e0();
+    array[1] = samples.e0;
     try {
       collection = getSubjectGenerator().create(array);
       fail("Should reject duplicate non-null elements at creation");

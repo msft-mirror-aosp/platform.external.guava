@@ -17,10 +17,12 @@
 package com.google.common.reflect;
 
 import com.google.common.testing.NullPointerTester;
+
+import junit.framework.TestCase;
+
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.util.Map;
-import junit.framework.TestCase;
 
 /** Tests for {@link Reflection} */
 public class ReflectionTest extends TestCase {
@@ -46,28 +48,25 @@ public class ReflectionTest extends TestCase {
     }
   }
 
-  private static final InvocationHandler X_RETURNER =
-      new InvocationHandler() {
-        @Override
-        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-          return "x";
-        }
-      };
+  private static final InvocationHandler X_RETURNER = new InvocationHandler() {
+    @Override
+    public Object invoke(Object proxy, Method method, Object[] args)
+        throws Throwable {
+      return "x";
+    }
+  };
 
   private static int classesInitialized = 0;
-
   private static class A {
     static {
       ++classesInitialized;
     }
   }
-
   private static class B {
     static {
       ++classesInitialized;
     }
   }
-
   private static class C {
     static {
       ++classesInitialized;
@@ -81,8 +80,9 @@ public class ReflectionTest extends TestCase {
     assertEquals(1, classesInitialized);
 
     Reflection.initialize(
-        A.class, // Already initialized (above)
-        B.class, C.class);
+        A.class,  // Already initialized (above)
+        B.class,
+        C.class);
     assertEquals(3, classesInitialized);
   }
 

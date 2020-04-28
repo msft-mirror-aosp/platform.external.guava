@@ -19,8 +19,10 @@ import com.google.common.annotations.GwtCompatible;
 import com.google.common.collect.SetMultimap;
 import com.google.common.collect.testing.Helpers;
 import com.google.common.collect.testing.SampleElements;
+
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 /**
@@ -33,8 +35,8 @@ public abstract class TestStringSetMultimapGenerator
     implements TestSetMultimapGenerator<String, String> {
 
   @Override
-  public SampleElements<Entry<String, String>> samples() {
-    return new SampleElements<>(
+  public SampleElements<Map.Entry<String, String>> samples() {
+    return new SampleElements<Map.Entry<String, String>>(
         Helpers.mapEntry("one", "January"),
         Helpers.mapEntry("two", "February"),
         Helpers.mapEntry("three", "March"),
@@ -44,12 +46,12 @@ public abstract class TestStringSetMultimapGenerator
 
   @Override
   public SampleElements<String> sampleKeys() {
-    return new SampleElements<>("one", "two", "three", "four", "five");
+    return new SampleElements<String>("one", "two", "three", "four", "five");
   }
 
   @Override
   public SampleElements<String> sampleValues() {
-    return new SampleElements<>("January", "February", "March", "April", "May");
+    return new SampleElements<String>("January", "February", "March", "April", "May");
   }
 
   @Override
@@ -70,7 +72,8 @@ public abstract class TestStringSetMultimapGenerator
     return create(array);
   }
 
-  protected abstract SetMultimap<String, String> create(Entry<String, String>[] entries);
+  protected abstract SetMultimap<String, String> create(
+      Entry<String, String>[] entries);
 
   @Override
   @SuppressWarnings("unchecked")
@@ -90,7 +93,8 @@ public abstract class TestStringSetMultimapGenerator
 
   /** Returns the original element list, unchanged. */
   @Override
-  public Iterable<Entry<String, String>> order(List<Entry<String, String>> insertionOrder) {
+  public Iterable<Entry<String, String>> order(
+      List<Entry<String, String>> insertionOrder) {
     return insertionOrder;
   }
 }

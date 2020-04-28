@@ -18,6 +18,9 @@ package com.google.common.collect;
 
 import com.google.common.base.Function;
 import com.google.common.primitives.Ints;
+
+import junit.framework.TestCase;
+
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Callable;
@@ -29,11 +32,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
-import junit.framework.TestCase;
 
 /**
- * Basher test for {@link ConcurrentHashMultiset}: start a bunch of threads, have each of them do
- * operations at random. Each thread keeps track of the per-key deltas that it's directly
+ * Basher test for {@link ConcurrentHashMultiset}: start a bunch of threads, have each of them
+ * do operations at random. Each thread keeps track of the per-key deltas that it's directly
  * responsible for; after all threads have completed, we sum the per-key deltas and compare to the
  * existing multiset values.
  *
@@ -60,7 +62,7 @@ public class ConcurrentHashMultisetBasherTest extends TestCase {
   private void testAddAndRemove(ConcurrentMap<String, AtomicInteger> map)
       throws ExecutionException, InterruptedException {
 
-    final ConcurrentHashMultiset<String> multiset = new ConcurrentHashMultiset<>(map);
+    final ConcurrentHashMultiset<String> multiset = new ConcurrentHashMultiset<String>(map);
     int nThreads = 20;
     int tasksPerThread = 10;
     int nTasks = nThreads * tasksPerThread;
@@ -80,15 +82,12 @@ public class ConcurrentHashMultisetBasherTest extends TestCase {
         }
       }
 
-      List<Integer> actualCounts =
-          Lists.transform(
-              keys,
-              new Function<String, Integer>() {
-                @Override
-                public Integer apply(String key) {
-                  return multiset.count(key);
-                }
-              });
+      List<Integer> actualCounts = Lists.transform(keys,
+          new Function<String, Integer>() {
+            @Override public Integer apply(String key) {
+              return multiset.count(key);
+            }
+          });
       assertEquals("Counts not as expected", Ints.asList(deltas), actualCounts);
     } finally {
       pool.shutdownNow();
@@ -110,8 +109,7 @@ public class ConcurrentHashMultisetBasherTest extends TestCase {
       this.keys = keys;
     }
 
-    @Override
-    public int[] call() throws Exception {
+    @Override public int[] call() throws Exception {
       int iterations = 100000;
       int nKeys = keys.size();
       int[] deltas = new int[nKeys];
@@ -121,44 +119,39 @@ public class ConcurrentHashMultisetBasherTest extends TestCase {
         String key = keys.get(keyIndex);
         Operation op = operations[random.nextInt(operations.length)];
         switch (op) {
-          case ADD:
-            {
-              int delta = random.nextInt(10);
-              multiset.add(key, delta);
-              deltas[keyIndex] += delta;
-              break;
-            }
-          case SET_COUNT:
-            {
-              int newValue = random.nextInt(3);
-              int oldValue = multiset.setCount(key, newValue);
+          case ADD: {
+            int delta = random.nextInt(10);
+            multiset.add(key, delta);
+            deltas[keyIndex] += delta;
+            break;
+          }
+          case SET_COUNT: {
+            int newValue = random.nextInt(3);
+            int oldValue = multiset.setCount(key, newValue);
+            deltas[keyIndex] += (newValue - oldValue);
+            break;
+          }
+          case SET_COUNT_IF: {
+            int newValue = random.nextInt(3);
+            int oldValue = multiset.count(key);
+            if (multiset.setCount(key, oldValue, newValue)) {
               deltas[keyIndex] += (newValue - oldValue);
-              break;
             }
-          case SET_COUNT_IF:
-            {
-              int newValue = random.nextInt(3);
-              int oldValue = multiset.count(key);
-              if (multiset.setCount(key, oldValue, newValue)) {
-                deltas[keyIndex] += (newValue - oldValue);
-              }
-              break;
+            break;
+          }
+          case REMOVE: {
+            int delta = random.nextInt(6);  // [0, 5]
+            int oldValue = multiset.remove(key, delta);
+            deltas[keyIndex] -= Math.min(delta, oldValue);
+            break;
+          }
+          case REMOVE_EXACTLY: {
+            int delta = random.nextInt(5);  // [0, 4]
+            if (multiset.removeExactly(key, delta)) {
+              deltas[keyIndex] -= delta;
             }
-          case REMOVE:
-            {
-              int delta = random.nextInt(6); // [0, 5]
-              int oldValue = multiset.remove(key, delta);
-              deltas[keyIndex] -= Math.min(delta, oldValue);
-              break;
-            }
-          case REMOVE_EXACTLY:
-            {
-              int delta = random.nextInt(5); // [0, 4]
-              if (multiset.removeExactly(key, delta)) {
-                deltas[keyIndex] -= delta;
-              }
-              break;
-            }
+            break;
+          }
         }
       }
       return deltas;

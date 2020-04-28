@@ -17,6 +17,7 @@
 package com.google.common.collect.testing;
 
 import com.google.common.annotations.GwtCompatible;
+
 import java.io.Serializable;
 
 /**
@@ -32,13 +33,11 @@ public class BaseComparable implements Comparable<BaseComparable>, Serializable 
     this.s = s;
   }
 
-  @Override
-  public int hashCode() { // delegate to 's'
+  @Override public int hashCode() { // delegate to 's'
     return s.hashCode();
   }
 
-  @Override
-  public boolean equals(Object other) {
+  @Override public boolean equals(Object other) {
     if (other == null) {
       return false;
     } else if (other instanceof BaseComparable) {

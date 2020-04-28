@@ -18,30 +18,30 @@ package com.google.common.collect;
 
 import com.google.common.annotations.GwtCompatible;
 import com.google.common.collect.testing.MapInterfaceTest;
+
 import java.util.Collection;
 import java.util.Map;
 
 /**
- * Test {@link Multimap#asMap()} for a {@link Multimaps#forMap} multimap with {@link
- * MapInterfaceTest}.
+ * Test {@link Multimap#asMap()} for a {@link Multimaps#forMap} multimap with
+ * {@link MapInterfaceTest}.
  *
  * @author Jared Levy
  */
 @GwtCompatible
-public class ForMapMultimapAsMapImplementsMapTest extends AbstractMultimapAsMapImplementsMapTest {
+public class ForMapMultimapAsMapImplementsMapTest
+    extends AbstractMultimapAsMapImplementsMapTest {
 
   public ForMapMultimapAsMapImplementsMapTest() {
     super(true, true, true);
   }
 
-  @Override
-  protected Map<String, Collection<Integer>> makeEmptyMap() {
+  @Override protected Map<String, Collection<Integer>> makeEmptyMap() {
     Map<String, Integer> map = Maps.newHashMap();
     return Multimaps.forMap(map).asMap();
   }
 
-  @Override
-  protected Map<String, Collection<Integer>> makePopulatedMap() {
+  @Override protected Map<String, Collection<Integer>> makePopulatedMap() {
     Map<String, Integer> map = Maps.newHashMap();
     map.put("foo", 1);
     map.put("bar", 2);
@@ -49,8 +49,7 @@ public class ForMapMultimapAsMapImplementsMapTest extends AbstractMultimapAsMapI
     return Multimaps.forMap(map).asMap();
   }
 
-  @Override
-  public void testEntrySetRemoveAllNullFromEmpty() {
+  @Override public void testEntrySetRemoveAllNullFromEmpty() {
     try {
       super.testEntrySetRemoveAllNullFromEmpty();
     } catch (RuntimeException tolerated) {
@@ -58,8 +57,7 @@ public class ForMapMultimapAsMapImplementsMapTest extends AbstractMultimapAsMapI
     }
   }
 
-  @Override
-  public void testEntrySetRetainAllNullFromEmpty() {
+  @Override public void testEntrySetRetainAllNullFromEmpty() {
     try {
       super.testEntrySetRetainAllNullFromEmpty();
     } catch (RuntimeException tolerated) {
@@ -67,8 +65,7 @@ public class ForMapMultimapAsMapImplementsMapTest extends AbstractMultimapAsMapI
     }
   }
 
-  @Override
-  public void testKeySetRemoveAllNullFromEmpty() {
+  @Override public void testKeySetRemoveAllNullFromEmpty() {
     try {
       super.testKeySetRemoveAllNullFromEmpty();
     } catch (RuntimeException tolerated) {
@@ -76,8 +73,7 @@ public class ForMapMultimapAsMapImplementsMapTest extends AbstractMultimapAsMapI
     }
   }
 
-  @Override
-  public void testKeySetRetainAllNullFromEmpty() {
+  @Override public void testKeySetRetainAllNullFromEmpty() {
     try {
       super.testKeySetRetainAllNullFromEmpty();
     } catch (RuntimeException tolerated) {
@@ -85,8 +81,7 @@ public class ForMapMultimapAsMapImplementsMapTest extends AbstractMultimapAsMapI
     }
   }
 
-  @Override
-  public void testValuesRemoveAllNullFromEmpty() {
+  @Override public void testValuesRemoveAllNullFromEmpty() {
     try {
       super.testValuesRemoveAllNullFromEmpty();
     } catch (RuntimeException tolerated) {
@@ -94,8 +89,7 @@ public class ForMapMultimapAsMapImplementsMapTest extends AbstractMultimapAsMapI
     }
   }
 
-  @Override
-  public void testValuesRetainAllNullFromEmpty() {
+  @Override public void testValuesRetainAllNullFromEmpty() {
     try {
       super.testValuesRemoveAllNullFromEmpty();
     } catch (RuntimeException tolerated) {

@@ -18,8 +18,10 @@ package com.google.common.reflect;
 
 import com.google.common.testing.EqualsTester;
 import com.google.common.testing.NullPointerTester;
-import java.lang.reflect.Method;
+
 import junit.framework.TestCase;
+
+import java.lang.reflect.Method;
 
 /**
  * Tests for {@link Parameter}.

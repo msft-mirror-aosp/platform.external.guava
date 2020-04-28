@@ -21,10 +21,12 @@ import com.google.common.annotations.GwtIncompatible;
 import com.google.common.collect.testing.Helpers;
 import com.google.common.testing.NullPointerTester;
 import com.google.common.testing.SerializableTester;
+
+import junit.framework.TestCase;
+
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
-import junit.framework.TestCase;
 
 /**
  * Unit test for {@link SignedBytes}.
@@ -40,7 +42,8 @@ public class SignedBytesTest extends TestCase {
   private static final byte LEAST = Byte.MIN_VALUE;
   private static final byte GREATEST = Byte.MAX_VALUE;
 
-  private static final byte[] VALUES = {LEAST, -1, 0, 1, GREATEST};
+  private static final byte[] VALUES =
+      {LEAST, -1, 0, 1, GREATEST};
 
   public void testCheckedCast() {
     for (byte value : VALUES) {
@@ -67,8 +70,7 @@ public class SignedBytesTest extends TestCase {
       SignedBytes.checkedCast(value);
       fail("Cast to byte should have failed: " + value);
     } catch (IllegalArgumentException ex) {
-      assertTrue(
-          value + " not found in exception text: " + ex.getMessage(),
+      assertTrue(value + " not found in exception text: " + ex.getMessage(),
           ex.getMessage().contains(String.valueOf(value)));
     }
   }
@@ -82,11 +84,11 @@ public class SignedBytesTest extends TestCase {
         if (expected == 0) {
           assertEquals(x + ", " + y, expected, actual);
         } else if (expected < 0) {
-          assertTrue(
-              x + ", " + y + " (expected: " + expected + ", actual" + actual + ")", actual < 0);
+          assertTrue(x + ", " + y + " (expected: " + expected + ", actual" + actual + ")",
+              actual < 0);
         } else {
-          assertTrue(
-              x + ", " + y + " (expected: " + expected + ", actual" + actual + ")", actual > 0);
+          assertTrue(x + ", " + y + " (expected: " + expected + ", actual" + actual + ")",
+              actual > 0);
         }
       }
     }
@@ -103,8 +105,8 @@ public class SignedBytesTest extends TestCase {
   public void testMax() {
     assertEquals(LEAST, SignedBytes.max(LEAST));
     assertEquals(GREATEST, SignedBytes.max(GREATEST));
-    assertEquals(
-        (byte) 127, SignedBytes.max((byte) 0, (byte) -128, (byte) -1, (byte) 127, (byte) 1));
+    assertEquals((byte) 127, SignedBytes.max(
+        (byte) 0, (byte) -128, (byte) -1, (byte) 127, (byte) 1));
   }
 
   public void testMin_noArgs() {
@@ -118,8 +120,8 @@ public class SignedBytesTest extends TestCase {
   public void testMin() {
     assertEquals(LEAST, SignedBytes.min(LEAST));
     assertEquals(GREATEST, SignedBytes.min(GREATEST));
-    assertEquals(
-        (byte) -128, SignedBytes.min((byte) 0, (byte) -128, (byte) -1, (byte) 127, (byte) 1));
+    assertEquals((byte) -128, SignedBytes.min(
+        (byte) 0, (byte) -128, (byte) -1, (byte) 127, (byte) 1));
   }
 
   public void testJoin() {
@@ -131,59 +133,28 @@ public class SignedBytesTest extends TestCase {
   }
 
   public void testLexicographicalComparator() {
-    List<byte[]> ordered =
-        Arrays.asList(
-            new byte[] {},
-            new byte[] {LEAST},
-            new byte[] {LEAST, LEAST},
-            new byte[] {LEAST, (byte) 1},
-            new byte[] {(byte) 1},
-            new byte[] {(byte) 1, LEAST},
-            new byte[] {GREATEST, GREATEST - (byte) 1},
-            new byte[] {GREATEST, GREATEST},
-            new byte[] {GREATEST, GREATEST, GREATEST});
+    List<byte[]> ordered = Arrays.asList(
+        new byte[] {},
+        new byte[] {LEAST},
+        new byte[] {LEAST, LEAST},
+        new byte[] {LEAST, (byte) 1},
+        new byte[] {(byte) 1},
+        new byte[] {(byte) 1, LEAST},
+        new byte[] {GREATEST, GREATEST - (byte) 1},
+        new byte[] {GREATEST, GREATEST},
+        new byte[] {GREATEST, GREATEST, GREATEST});
 
     Comparator<byte[]> comparator = SignedBytes.lexicographicalComparator();
     Helpers.testComparator(comparator, ordered);
   }
 
-  @GwtIncompatible // SerializableTester
+  @GwtIncompatible("SerializableTester")
   public void testLexicographicalComparatorSerializable() {
     Comparator<byte[]> comparator = SignedBytes.lexicographicalComparator();
     assertSame(comparator, SerializableTester.reserialize(comparator));
   }
 
-  public void testSortDescending() {
-    testSortDescending(new byte[] {}, new byte[] {});
-    testSortDescending(new byte[] {1}, new byte[] {1});
-    testSortDescending(new byte[] {1, 2}, new byte[] {2, 1});
-    testSortDescending(new byte[] {1, 3, 1}, new byte[] {3, 1, 1});
-    testSortDescending(new byte[] {-1, 1, -2, 2}, new byte[] {2, 1, -1, -2});
-  }
-
-  private static void testSortDescending(byte[] input, byte[] expectedOutput) {
-    input = Arrays.copyOf(input, input.length);
-    SignedBytes.sortDescending(input);
-    assertTrue(Arrays.equals(expectedOutput, input));
-  }
-
-  private static void testSortDescending(
-      byte[] input, int fromIndex, int toIndex, byte[] expectedOutput) {
-    input = Arrays.copyOf(input, input.length);
-    SignedBytes.sortDescending(input, fromIndex, toIndex);
-    assertTrue(Arrays.equals(expectedOutput, input));
-  }
-
-  public void testSortDescendingIndexed() {
-    testSortDescending(new byte[] {}, 0, 0, new byte[] {});
-    testSortDescending(new byte[] {1}, 0, 1, new byte[] {1});
-    testSortDescending(new byte[] {1, 2}, 0, 2, new byte[] {2, 1});
-    testSortDescending(new byte[] {1, 3, 1}, 0, 2, new byte[] {3, 1, 1});
-    testSortDescending(new byte[] {1, 3, 1}, 0, 1, new byte[] {1, 3, 1});
-    testSortDescending(new byte[] {-1, -2, 1, 2}, 1, 3, new byte[] {-1, 1, -2, 2});
-  }
-
-  @GwtIncompatible // NullPointerTester
+  @GwtIncompatible("NullPointerTester")
   public void testNulls() {
     new NullPointerTester().testAllPublicStaticMethods(SignedBytes.class);
   }

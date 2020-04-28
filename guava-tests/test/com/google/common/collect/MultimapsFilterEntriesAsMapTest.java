@@ -18,6 +18,7 @@ package com.google.common.collect;
 
 import com.google.common.annotations.GwtIncompatible;
 import com.google.common.base.Predicate;
+
 import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -28,11 +29,11 @@ import java.util.Map.Entry;
  * @author Jared Levy
  */
 @GwtIncompatible(value = "untested")
-public class MultimapsFilterEntriesAsMapTest extends AbstractMultimapAsMapImplementsMapTest {
-  private static final Predicate<Entry<String, Integer>> PREDICATE =
-      new Predicate<Entry<String, Integer>>() {
-        @Override
-        public boolean apply(Entry<String, Integer> entry) {
+public class MultimapsFilterEntriesAsMapTest
+    extends AbstractMultimapAsMapImplementsMapTest {
+  private static final Predicate<Map.Entry<String, Integer>> PREDICATE
+      = new Predicate<Map.Entry<String, Integer>>() {
+        @Override public boolean apply(Entry<String, Integer> entry) {
           return !"badkey".equals(entry.getKey()) && 55556 != entry.getValue();
         }
       };
@@ -49,14 +50,12 @@ public class MultimapsFilterEntriesAsMapTest extends AbstractMultimapAsMapImplem
     return Multimaps.filterEntries(unfiltered, PREDICATE);
   }
 
-  @Override
-  protected Map<String, Collection<Integer>> makeEmptyMap() {
+  @Override protected Map<String, Collection<Integer>> makeEmptyMap() {
     Multimap<String, Integer> multimap = createMultimap();
     return multimap.asMap();
   }
 
-  @Override
-  protected Map<String, Collection<Integer>> makePopulatedMap() {
+  @Override protected Map<String, Collection<Integer>> makePopulatedMap() {
     Multimap<String, Integer> multimap = createMultimap();
     populate(multimap);
     return multimap.asMap();

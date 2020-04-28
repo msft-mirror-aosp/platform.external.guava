@@ -24,7 +24,6 @@ import com.google.common.annotations.GwtCompatible;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.testing.features.CollectionSize;
 import com.google.common.collect.testing.features.MapFeature;
-import org.junit.Ignore;
 
 /**
  * Tester for the {@code containsKey} methods of {@code Multimap} and its {@code asMap()} view.
@@ -32,15 +31,15 @@ import org.junit.Ignore;
  * @author Louis Wasserman
  */
 @GwtCompatible
-@Ignore // Affects only Android test runner, which respects JUnit 4 annotations on JUnit 3 tests.
-public class MultimapContainsKeyTester<K, V> extends AbstractMultimapTester<K, V, Multimap<K, V>> {
+public class MultimapContainsKeyTester<K, V>
+    extends AbstractMultimapTester<K, V, Multimap<K, V>> {
   @CollectionSize.Require(absent = ZERO)
   public void testContainsKeyYes() {
-    assertTrue(multimap().containsKey(k0()));
+    assertTrue(multimap().containsKey(sampleKeys().e0));
   }
 
   public void testContainsKeyNo() {
-    assertFalse(multimap().containsKey(k3()));
+    assertFalse(multimap().containsKey(sampleKeys().e3));
   }
 
   public void testContainsKeysFromKeySet() {

@@ -16,19 +16,20 @@
 
 package com.google.common.base;
 
-import static com.google.common.testing.SerializableTester.reserialize;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.annotations.GwtCompatible;
 import com.google.common.annotations.GwtIncompatible;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
-import com.google.common.testing.EqualsTester;
 import com.google.common.testing.NullPointerTester;
+import com.google.common.testing.SerializableTester;
+
+import junit.framework.TestCase;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import junit.framework.TestCase;
 
 /**
  * Unit test for {@link Optional}.
@@ -37,23 +38,6 @@ import junit.framework.TestCase;
  */
 @GwtCompatible(emulated = true)
 public final class OptionalTest extends TestCase {
-  public void testToJavaUtil_static() {
-    assertNull(Optional.toJavaUtil(null));
-    assertEquals(java.util.Optional.empty(), Optional.toJavaUtil(Optional.absent()));
-    assertEquals(java.util.Optional.of("abc"), Optional.toJavaUtil(Optional.of("abc")));
-  }
-
-  public void testToJavaUtil_instance() {
-    assertEquals(java.util.Optional.empty(), Optional.absent().toJavaUtil());
-    assertEquals(java.util.Optional.of("abc"), Optional.of("abc").toJavaUtil());
-  }
-
-  public void testFromJavaUtil() {
-    assertNull(Optional.fromJavaUtil(null));
-    assertEquals(Optional.absent(), Optional.fromJavaUtil(java.util.Optional.empty()));
-    assertEquals(Optional.of("abc"), Optional.fromJavaUtil(java.util.Optional.of("abc")));
-  }
-
   public void testAbsent() {
     Optional<String> optionalName = Optional.absent();
     assertFalse(optionalName.isPresent());
@@ -191,39 +175,39 @@ public final class OptionalTest extends TestCase {
 
   public void testTransform_present_functionReturnsNull() {
     try {
-      Optional<String> unused =
-          Optional.of("a")
-              .transform(
-                  new Function<String, String>() {
-                    @Override
-                    public String apply(String input) {
-                      return null;
-                    }
-                  });
+      Optional.of("a").transform(
+          new Function<String, String>() {
+            @Override public String apply(String input) {
+              return null;
+            }
+          });
       fail("Should throw if Function returns null.");
     } catch (NullPointerException expected) {
     }
   }
 
-  public void testTransform_absent_functionReturnsNull() {
-    assertEquals(
-        Optional.absent(),
-        Optional.absent()
-            .transform(
-                new Function<Object, Object>() {
-                  @Override
-                  public Object apply(Object input) {
-                    return null;
-                  }
-                }));
+  public void testTransform_abssent_functionReturnsNull() {
+    assertEquals(Optional.absent(),
+        Optional.absent().transform(
+          new Function<Object, Object>() {
+            @Override public Object apply(Object input) {
+              return null;
+            }
+          }));
   }
 
-  public void testEqualsAndHashCode() {
-    new EqualsTester()
-        .addEqualityGroup(Optional.absent(), reserialize(Optional.absent()))
-        .addEqualityGroup(Optional.of(new Long(5)), reserialize(Optional.of(new Long(5))))
-        .addEqualityGroup(Optional.of(new Long(42)), reserialize(Optional.of(new Long(42))))
-        .testEquals();
+  // TODO(kevinb): use EqualsTester
+
+  public void testEqualsAndHashCode_absent() {
+    assertEquals(Optional.<String>absent(), Optional.<Integer>absent());
+    assertEquals(Optional.absent().hashCode(), Optional.absent().hashCode());
+  }
+
+  public void testEqualsAndHashCode_present() {
+    assertEquals(Optional.of("training"), Optional.of("training"));
+    assertFalse(Optional.of("a").equals(Optional.of("b")));
+    assertFalse(Optional.of("a").equals(Optional.absent()));
+    assertEquals(Optional.of("training").hashCode(), Optional.of("training").hashCode());
   }
 
   public void testToString_absent() {
@@ -237,33 +221,34 @@ public final class OptionalTest extends TestCase {
   public void testPresentInstances_allPresent() {
     List<Optional<String>> optionals =
         ImmutableList.of(Optional.of("a"), Optional.of("b"), Optional.of("c"));
-    assertThat(Optional.presentInstances(optionals)).containsExactly("a", "b", "c").inOrder();
+    assertThat(Optional.presentInstances(optionals)).iteratesAs("a", "b", "c");
   }
 
   public void testPresentInstances_allAbsent() {
-    List<Optional<Object>> optionals = ImmutableList.of(Optional.absent(), Optional.absent());
+    List<Optional<Object>> optionals =
+        ImmutableList.of(Optional.absent(), Optional.absent());
     assertThat(Optional.presentInstances(optionals)).isEmpty();
   }
 
   public void testPresentInstances_somePresent() {
     List<Optional<String>> optionals =
         ImmutableList.of(Optional.of("a"), Optional.<String>absent(), Optional.of("c"));
-    assertThat(Optional.presentInstances(optionals)).containsExactly("a", "c").inOrder();
+    assertThat(Optional.presentInstances(optionals)).iteratesAs("a", "c");
   }
 
   public void testPresentInstances_callingIteratorTwice() {
     List<Optional<String>> optionals =
         ImmutableList.of(Optional.of("a"), Optional.<String>absent(), Optional.of("c"));
     Iterable<String> onlyPresent = Optional.presentInstances(optionals);
-    assertThat(onlyPresent).containsExactly("a", "c").inOrder();
-    assertThat(onlyPresent).containsExactly("a", "c").inOrder();
+    assertThat(onlyPresent).iteratesAs("a", "c");
+    assertThat(onlyPresent).iteratesAs("a", "c");
   }
 
   public void testPresentInstances_wildcards() {
     List<Optional<? extends Number>> optionals =
         ImmutableList.<Optional<? extends Number>>of(Optional.<Double>absent(), Optional.of(2));
     Iterable<Number> onlyPresent = Optional.presentInstances(optionals);
-    assertThat(onlyPresent).containsExactly(2).inOrder();
+    assertThat(onlyPresent).iteratesAs(2);
   }
 
   private static Optional<Integer> getSomeOptionalInt() {
@@ -309,7 +294,13 @@ public final class OptionalTest extends TestCase {
     Number value = first.or(0.5); // fine
   }
 
-  @GwtIncompatible // NullPointerTester
+  @GwtIncompatible("SerializableTester")
+  public void testSerialization() {
+    SerializableTester.reserializeAndAssert(Optional.absent());
+    SerializableTester.reserializeAndAssert(Optional.of("foo"));
+  }
+
+  @GwtIncompatible("NullPointerTester")
   public void testNullPointers() {
     NullPointerTester npTester = new NullPointerTester();
     npTester.testAllPublicConstructors(Optional.class);

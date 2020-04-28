@@ -17,25 +17,28 @@
 package com.google.common.collect;
 
 import com.google.common.annotations.GwtCompatible;
+
 import java.io.Serializable;
 import java.util.Arrays;
 
 /**
- * A class that implements {@code Comparable} without generics, such as those found in libraries
- * that support Java 1.4 and before. Our library needs to do the bare minimum to accommodate such
- * types, though their use may still require an explicit type parameter and/or warning suppression.
+ * A class that implements {@code Comparable} without generics, such as those
+ * found in libraries that support Java 1.4 and before. Our library needs to
+ * do the bare minimum to accommodate such types, though their use may still
+ * require an explicit type parameter and/or warning suppression.
  *
  * @author Kevin Bourrillion
  */
-@SuppressWarnings("ComparableType")
 @GwtCompatible
 class LegacyComparable implements Comparable, Serializable {
   static final LegacyComparable X = new LegacyComparable("x");
   static final LegacyComparable Y = new LegacyComparable("y");
   static final LegacyComparable Z = new LegacyComparable("z");
 
-  static final Iterable<LegacyComparable> VALUES_FORWARD = Arrays.asList(X, Y, Z);
-  static final Iterable<LegacyComparable> VALUES_BACKWARD = Arrays.asList(Z, Y, X);
+  static final Iterable<LegacyComparable> VALUES_FORWARD
+      = Arrays.asList(X, Y, Z);
+  static final Iterable<LegacyComparable> VALUES_BACKWARD
+      = Arrays.asList(Z, Y, X);
 
   private final String value;
 
@@ -50,8 +53,7 @@ class LegacyComparable implements Comparable, Serializable {
     return this.value.compareTo(that.value);
   }
 
-  @Override
-  public boolean equals(Object object) {
+  @Override public boolean equals(Object object) {
     if (object instanceof LegacyComparable) {
       LegacyComparable that = (LegacyComparable) object;
       return this.value.equals(that.value);
@@ -59,8 +61,7 @@ class LegacyComparable implements Comparable, Serializable {
     return false;
   }
 
-  @Override
-  public int hashCode() {
+  @Override public int hashCode() {
     return value.hashCode();
   }
 

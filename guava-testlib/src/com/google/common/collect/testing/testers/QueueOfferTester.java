@@ -21,22 +21,22 @@ import static com.google.common.collect.testing.features.CollectionFeature.SUPPO
 
 import com.google.common.annotations.GwtCompatible;
 import com.google.common.collect.testing.features.CollectionFeature;
-import org.junit.Ignore;
 
 /**
- * A generic JUnit test which tests offer operations on a queue. Can't be invoked directly; please
- * see {@link com.google.common.collect.testing.CollectionTestSuiteBuilder}.
+ * A generic JUnit test which tests offer operations on a queue. Can't be
+ * invoked directly; please see
+ * {@link com.google.common.collect.testing.CollectionTestSuiteBuilder}.
  *
  * @author Jared Levy
  */
 @SuppressWarnings("unchecked") // too many "unchecked generic array creations"
 @GwtCompatible
-@Ignore // Affects only Android test runner, which respects JUnit 4 annotations on JUnit 3 tests.
 public class QueueOfferTester<E> extends AbstractQueueTester<E> {
   @CollectionFeature.Require(SUPPORTS_ADD)
   public void testOffer_supportedNotPresent() {
-    assertTrue("offer(notPresent) should return true", getQueue().offer(e3()));
-    expectAdded(e3());
+    assertTrue("offer(notPresent) should return true",
+        getQueue().offer(samples.e3));
+    expectAdded(samples.e3);
   }
 
   @CollectionFeature.Require({SUPPORTS_ADD, ALLOWS_NULL_VALUES})
@@ -53,6 +53,7 @@ public class QueueOfferTester<E> extends AbstractQueueTester<E> {
     } catch (NullPointerException expected) {
     }
     expectUnchanged();
-    expectNullMissingWhenNullUnsupported("Should not contain null after unsupported offer(null)");
+    expectNullMissingWhenNullUnsupported(
+        "Should not contain null after unsupported offer(null)");
   }
 }

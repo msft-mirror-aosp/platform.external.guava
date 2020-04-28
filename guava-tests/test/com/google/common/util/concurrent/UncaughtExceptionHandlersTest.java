@@ -16,25 +16,30 @@
 
 package com.google.common.util.concurrent;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
 
 import com.google.common.util.concurrent.UncaughtExceptionHandlers.Exiter;
+
 import junit.framework.TestCase;
 
-/** @author Gregory Kick */
+/**
+ * @author Gregory Kick
+ */
 
 public class UncaughtExceptionHandlersTest extends TestCase {
 
   private Runtime runtimeMock;
 
-  @Override
-  protected void setUp() {
-    runtimeMock = mock(Runtime.class);
+  @Override protected void setUp() {
+    runtimeMock = createMock(Runtime.class);
   }
 
   public void testExiter() {
+    runtimeMock.exit(1);
+    replay(runtimeMock);
     new Exiter(runtimeMock).uncaughtException(new Thread(), new Exception());
-    verify(runtimeMock).exit(1);
+    verify(runtimeMock);
   }
 }

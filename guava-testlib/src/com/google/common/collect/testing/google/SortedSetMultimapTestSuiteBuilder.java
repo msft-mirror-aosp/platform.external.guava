@@ -16,7 +16,6 @@
 
 package com.google.common.collect.testing.google;
 
-import com.google.common.annotations.GwtIncompatible;
 import com.google.common.collect.SetMultimap;
 import com.google.common.collect.testing.AbstractTester;
 import com.google.common.collect.testing.FeatureSpecificTestSuiteBuilder;
@@ -25,32 +24,32 @@ import com.google.common.collect.testing.OneSizeTestContainerGenerator;
 import com.google.common.collect.testing.SortedSetTestSuiteBuilder;
 import com.google.common.collect.testing.features.CollectionSize;
 import com.google.common.collect.testing.features.Feature;
+
+import junit.framework.TestSuite;
+
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
-import junit.framework.TestSuite;
 
 /**
- * Creates, based on your criteria, a JUnit test suite that exhaustively tests a {@code
- * SortedSetMultimap} implementation.
+ * Creates, based on your criteria, a JUnit test suite that exhaustively tests
+ * a {@code SortedSetMultimap} implementation.
  *
  * @author Louis Wasserman
  */
-@GwtIncompatible
 public class SortedSetMultimapTestSuiteBuilder<K, V>
     extends MultimapTestSuiteBuilder<K, V, SetMultimap<K, V>> {
 
   public static <K, V> SortedSetMultimapTestSuiteBuilder<K, V> using(
       TestSetMultimapGenerator<K, V> generator) {
-    SortedSetMultimapTestSuiteBuilder<K, V> result = new SortedSetMultimapTestSuiteBuilder<>();
+    SortedSetMultimapTestSuiteBuilder<K, V> result = new SortedSetMultimapTestSuiteBuilder<K, V>();
     result.usingGenerator(generator);
     return result;
   }
 
-  @Override
-  protected List<Class<? extends AbstractTester>> getTesters() {
+  @Override protected List<Class<? extends AbstractTester>> getTesters() {
     List<Class<? extends AbstractTester>> testers = Helpers.copyToList(super.getTesters());
     testers.add(SetMultimapAsMapTester.class);
     testers.add(SetMultimapEqualsTester.class);
@@ -64,12 +63,11 @@ public class SortedSetMultimapTestSuiteBuilder<K, V>
 
   @Override
   TestSuite computeMultimapGetTestSuite(
-      FeatureSpecificTestSuiteBuilder<
-              ?, ? extends OneSizeTestContainerGenerator<SetMultimap<K, V>, Entry<K, V>>>
-          parentBuilder) {
+      FeatureSpecificTestSuiteBuilder<?, ? extends
+      OneSizeTestContainerGenerator<SetMultimap<K, V>, Entry<K, V>>> parentBuilder) {
     return SortedSetTestSuiteBuilder.using(
-            new SetMultimapTestSuiteBuilder.MultimapGetGenerator<K, V>(
-                parentBuilder.getSubjectGenerator()))
+        new SetMultimapTestSuiteBuilder.MultimapGetGenerator<K, V>(
+            parentBuilder.getSubjectGenerator()))
         .withFeatures(computeMultimapGetFeatures(parentBuilder.getFeatures()))
         .named(parentBuilder.getName() + ".get[key]")
         .suppressing(parentBuilder.getSuppressedTests())
@@ -78,16 +76,15 @@ public class SortedSetMultimapTestSuiteBuilder<K, V>
 
   @Override
   TestSuite computeMultimapAsMapGetTestSuite(
-      FeatureSpecificTestSuiteBuilder<
-              ?, ? extends OneSizeTestContainerGenerator<SetMultimap<K, V>, Entry<K, V>>>
-          parentBuilder) {
+      FeatureSpecificTestSuiteBuilder<?, ? extends
+      OneSizeTestContainerGenerator<SetMultimap<K, V>, Entry<K, V>>> parentBuilder) {
     Set<Feature<?>> features = computeMultimapAsMapGetFeatures(parentBuilder.getFeatures());
     if (Collections.disjoint(features, EnumSet.allOf(CollectionSize.class))) {
       return new TestSuite();
     } else {
       return SortedSetTestSuiteBuilder.using(
-              new SetMultimapTestSuiteBuilder.MultimapAsMapGetGenerator<K, V>(
-                  parentBuilder.getSubjectGenerator()))
+          new SetMultimapTestSuiteBuilder.MultimapAsMapGetGenerator<K, V>(
+              parentBuilder.getSubjectGenerator()))
           .withFeatures(features)
           .named(parentBuilder.getName() + ".asMap[].get[key]")
           .suppressing(parentBuilder.getSuppressedTests())

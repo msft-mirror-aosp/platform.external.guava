@@ -24,28 +24,29 @@ import com.google.common.collect.Lists;
 import com.google.common.primitives.Longs;
 import com.google.common.testing.EqualsTester;
 import com.google.common.testing.SerializableTester;
-import java.util.Iterator;
-import java.util.List;
+
 import junit.framework.TestCase;
 
-/** Unit tests for {@link Converter}. */
+import java.util.Iterator;
+import java.util.List;
+
+/**
+ * Unit tests for {@link Converter}.
+ */
 @GwtCompatible
 public class ConverterTest extends TestCase {
 
   private static final Converter<String, Long> STR_TO_LONG =
       new Converter<String, Long>() {
-        @Override
-        protected Long doForward(String object) {
+        @Override public Long doForward(String object) {
           return Long.valueOf(object);
         }
 
-        @Override
-        protected String doBackward(Long object) {
+        @Override public String doBackward(Long object) {
           return String.valueOf(object);
         }
 
-        @Override
-        public String toString() {
+        @Override public String toString() {
           return "string2long";
         }
       };
@@ -112,23 +113,19 @@ public class ConverterTest extends TestCase {
   }
 
   public void testAndThen() {
-    Converter<StringWrapper, String> first =
-        new Converter<StringWrapper, String>() {
-          @Override
-          protected String doForward(StringWrapper object) {
-            return object.value;
-          }
+    Converter<StringWrapper, String> first = new Converter<StringWrapper, String>() {
+      @Override public String doForward(StringWrapper object) {
+        return object.value;
+      }
 
-          @Override
-          protected StringWrapper doBackward(String object) {
-            return new StringWrapper(object);
-          }
+      @Override public StringWrapper doBackward(String object) {
+        return new StringWrapper(object);
+      }
 
-          @Override
-          public String toString() {
-            return "StringWrapper";
-          }
-        };
+      @Override public String toString() {
+        return "StringWrapper";
+      }
+    };
 
     Converter<StringWrapper, Long> converter = first.andThen(STR_TO_LONG);
 
@@ -155,13 +152,11 @@ public class ConverterTest extends TestCase {
   }
 
   public void testFrom() {
-    Function<String, Integer> forward =
-        new Function<String, Integer>() {
-          @Override
-          public Integer apply(String input) {
-            return Integer.parseInt(input);
-          }
-        };
+    Function<String, Integer> forward = new Function<String, Integer>() {
+      @Override public Integer apply(String input) {
+        return Integer.parseInt(input);
+      }
+    };
     Function<Object, String> backward = toStringFunction();
 
     Converter<String, Number> converter = Converter.<String, Number>from(forward, backward);
@@ -191,13 +186,10 @@ public class ConverterTest extends TestCase {
 
   private static Converter<String, String> sillyConverter(final boolean handleNullAutomatically) {
     return new Converter<String, String>(handleNullAutomatically) {
-      @Override
-      protected String doForward(String string) {
+      @Override public String doForward(String string) {
         return "forward";
       }
-
-      @Override
-      protected String doBackward(String string) {
+      @Override public String doBackward(String string) {
         return "backward";
       }
     };

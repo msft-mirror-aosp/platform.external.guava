@@ -21,16 +21,19 @@ import com.google.common.collect.Multiset;
 import com.google.common.collect.testing.AnEnum;
 import com.google.common.collect.testing.SampleElements;
 import com.google.common.collect.testing.SampleElements.Enums;
+
 import java.util.Collections;
 import java.util.List;
 
 /**
- * An abstract {@code TestMultisetGenerator} for generating multisets containing enum values.
+ * An abstract {@code TestMultisetGenerator} for generating multisets containing
+ * enum values.
  *
  * @author Jared Levy
  */
 @GwtCompatible
-public abstract class TestEnumMultisetGenerator implements TestMultisetGenerator<AnEnum> {
+public abstract class TestEnumMultisetGenerator
+    implements TestMultisetGenerator<AnEnum> {
   @Override
   public SampleElements<AnEnum> samples() {
     return new Enums();
@@ -53,7 +56,9 @@ public abstract class TestEnumMultisetGenerator implements TestMultisetGenerator
     return new AnEnum[length];
   }
 
-  /** Sorts the enums according to their natural ordering. */
+  /**
+   * Sorts the enums according to their natural ordering.
+   */
   @Override
   public List<AnEnum> order(List<AnEnum> insertionOrder) {
     Collections.sort(insertionOrder);

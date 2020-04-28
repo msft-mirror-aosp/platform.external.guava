@@ -14,15 +14,13 @@
 
 package com.google.common.collect;
 
-import com.google.common.annotations.GwtIncompatible;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import javax.annotation.Nullable;
 
 /**
  * A skeletal implementation of {@code RangeSet}.
  *
  * @author Louis Wasserman
  */
-@GwtIncompatible
 abstract class AbstractRangeSet<C extends Comparable> implements RangeSet<C> {
   AbstractRangeSet() {}
 
@@ -48,7 +46,7 @@ abstract class AbstractRangeSet<C extends Comparable> implements RangeSet<C> {
   public void remove(Range<C> range) {
     throw new UnsupportedOperationException();
   }
-
+  
   @Override
   public void clear() {
     remove(Range.<C>all());
@@ -56,22 +54,26 @@ abstract class AbstractRangeSet<C extends Comparable> implements RangeSet<C> {
 
   @Override
   public boolean enclosesAll(RangeSet<C> other) {
-    return enclosesAll(other.asRanges());
+    for (Range<C> range : other.asRanges()) {
+      if (!encloses(range)) {
+        return false;
+      }
+    }
+    return true;
   }
 
   @Override
   public void addAll(RangeSet<C> other) {
-    addAll(other.asRanges());
+    for (Range<C> range : other.asRanges()) {
+      add(range);
+    }
   }
 
   @Override
   public void removeAll(RangeSet<C> other) {
-    removeAll(other.asRanges());
-  }
-
-  @Override
-  public boolean intersects(Range<C> otherRange) {
-    return !subRangeSet(otherRange).isEmpty();
+    for (Range<C> range : other.asRanges()) {
+      remove(range);
+    }
   }
 
   @Override

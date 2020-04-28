@@ -18,11 +18,13 @@ package com.google.common.collect;
 
 import com.google.common.annotations.GwtCompatible;
 import com.google.common.collect.testing.MapInterfaceTest;
+
 import java.util.Collection;
 import java.util.Map;
 
 /**
- * Test {@link Multimap#asMap()} for an arbitrary multimap with {@link MapInterfaceTest}.
+ * Test {@link Multimap#asMap()} for an arbitrary multimap with
+ * {@link MapInterfaceTest}.
  *
  * @author George van den Driessche
  * @author Jared Levy
@@ -45,24 +47,24 @@ public abstract class AbstractMultimapAsMapImplementsMapTest
     multimap.put("three", 333);
   }
 
-  @Override
-  protected String getKeyNotInPopulatedMap() throws UnsupportedOperationException {
+  @Override protected String getKeyNotInPopulatedMap()
+      throws UnsupportedOperationException {
     return "zero";
   }
 
-  @Override
-  protected Collection<Integer> getValueNotInPopulatedMap() throws UnsupportedOperationException {
+  @Override protected Collection<Integer> getValueNotInPopulatedMap()
+      throws UnsupportedOperationException {
     return Lists.newArrayList(0);
   }
 
   /**
-   * The version of this test supplied by {@link MapInterfaceTest} fails for this particular Map
-   * implementation, because {@code map.get()} returns a view collection that changes in the course
-   * of a call to {@code remove()}. Thus, the expectation doesn't hold that {@code map.remove(x)}
-   * returns the same value which {@code map.get(x)} did immediately beforehand.
+   * The version of this test supplied by {@link MapInterfaceTest} fails for
+   * this particular Map implementation, because {@code map.get()} returns a
+   * view collection that changes in the course of a call to {@code remove()}.
+   * Thus, the expectation doesn't hold that {@code map.remove(x)} returns the
+   * same value which {@code map.get(x)} did immediately beforehand.
    */
-  @Override
-  public void testRemove() {
+  @Override public void testRemove() {
     final Map<String, Collection<Integer>> map;
     final String keyToRemove;
     try {
@@ -83,7 +85,8 @@ public abstract class AbstractMultimapAsMapImplementsMapTest
       try {
         map.remove(keyToRemove);
         fail("Expected UnsupportedOperationException.");
-      } catch (UnsupportedOperationException expected) {
+      } catch (UnsupportedOperationException e) {
+        // Expected.
       }
     }
     assertInvariants(map);

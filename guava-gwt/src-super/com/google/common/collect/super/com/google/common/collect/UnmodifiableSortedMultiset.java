@@ -17,17 +17,19 @@
 package com.google.common.collect;
 
 import com.google.common.collect.Multisets.UnmodifiableMultiset;
+
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.SortedSet;
 
 /**
- * Implementation of {@link Multisets#unmodifiableSortedMultiset(SortedMultiset)} for GWT.
- *
+ * Implementation of {@link Multisets#unmodifiableSortedMultiset(SortedMultiset)}
+ * for GWT.
+ * 
  * @author Louis Wasserman
  */
-final class UnmodifiableSortedMultiset<E> extends UnmodifiableMultiset<E>
-    implements SortedMultiset<E> {
+final class UnmodifiableSortedMultiset<E>
+    extends UnmodifiableMultiset<E> implements SortedMultiset<E> {
   UnmodifiableSortedMultiset(SortedMultiset<E> delegate) {
     super(delegate);
   }
@@ -58,7 +60,8 @@ final class UnmodifiableSortedMultiset<E> extends UnmodifiableMultiset<E>
   public SortedMultiset<E> descendingMultiset() {
     UnmodifiableSortedMultiset<E> result = descendingMultiset;
     if (result == null) {
-      result = new UnmodifiableSortedMultiset<E>(delegate().descendingMultiset());
+      result = new UnmodifiableSortedMultiset<E>(
+          delegate().descendingMultiset());
       result.descendingMultiset = this;
       return descendingMultiset = result;
     }
@@ -87,19 +90,22 @@ final class UnmodifiableSortedMultiset<E> extends UnmodifiableMultiset<E>
 
   @Override
   public SortedMultiset<E> headMultiset(E upperBound, BoundType boundType) {
-    return Multisets.unmodifiableSortedMultiset(delegate().headMultiset(upperBound, boundType));
+    return Multisets.unmodifiableSortedMultiset(
+        delegate().headMultiset(upperBound, boundType));
   }
 
   @Override
   public SortedMultiset<E> subMultiset(
-      E lowerBound, BoundType lowerBoundType, E upperBound, BoundType upperBoundType) {
-    return Multisets.unmodifiableSortedMultiset(
-        delegate().subMultiset(lowerBound, lowerBoundType, upperBound, upperBoundType));
+      E lowerBound, BoundType lowerBoundType,
+      E upperBound, BoundType upperBoundType) {
+    return Multisets.unmodifiableSortedMultiset(delegate().subMultiset(
+        lowerBound, lowerBoundType, upperBound, upperBoundType));
   }
 
   @Override
   public SortedMultiset<E> tailMultiset(E lowerBound, BoundType boundType) {
-    return Multisets.unmodifiableSortedMultiset(delegate().tailMultiset(lowerBound, boundType));
+    return Multisets.unmodifiableSortedMultiset(
+        delegate().tailMultiset(lowerBound, boundType));
   }
 
   private static final long serialVersionUID = 0;

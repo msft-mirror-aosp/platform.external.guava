@@ -18,13 +18,14 @@ package com.google.common.util.concurrent;
 
 import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
 
+import junit.framework.TestCase;
+
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import junit.framework.TestCase;
 
 /**
  * Test case for {@link ListenableFutureTask}.
@@ -42,18 +43,17 @@ public class ListenableFutureTaskTest extends TestCase {
   protected volatile boolean throwException = false;
 
   protected final ListenableFutureTask<Integer> task =
-      ListenableFutureTask.create(
-          new Callable<Integer>() {
-            @Override
-            public Integer call() throws Exception {
-              runLatch.countDown();
-              taskLatch.await();
-              if (throwException) {
-                throw new IllegalStateException("Fail");
-              }
-              return 25;
-            }
-          });
+      ListenableFutureTask.create(new Callable<Integer>() {
+    @Override
+    public Integer call() throws Exception {
+      runLatch.countDown();
+      taskLatch.await();
+      if (throwException) {
+        throw new IllegalStateException("Fail");
+      }
+      return 25;
+    }
+  });
 
   @Override
   protected void setUp() throws Exception {
@@ -61,14 +61,12 @@ public class ListenableFutureTaskTest extends TestCase {
 
     exec = Executors.newCachedThreadPool();
 
-    task.addListener(
-        new Runnable() {
-          @Override
-          public void run() {
-            listenerLatch.countDown();
-          }
-        },
-        directExecutor());
+    task.addListener(new Runnable() {
+      @Override
+      public void run() {
+        listenerLatch.countDown();
+      }
+    }, directExecutor());
   }
 
   @Override

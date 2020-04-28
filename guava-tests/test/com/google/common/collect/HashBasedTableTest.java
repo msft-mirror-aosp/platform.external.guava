@@ -16,8 +16,6 @@
 
 package com.google.common.collect;
 
-import static com.google.common.truth.Truth.assertThat;
-
 import com.google.common.annotations.GwtCompatible;
 import com.google.common.annotations.GwtIncompatible;
 import com.google.common.testing.NullPointerTester;
@@ -31,24 +29,14 @@ import com.google.common.testing.SerializableTester;
 @GwtCompatible(emulated = true)
 public class HashBasedTableTest extends AbstractTableTest {
 
-  @Override
-  protected Table<String, Integer, Character> create(Object... data) {
+  @Override protected Table<String, Integer, Character> create(
+      Object... data) {
     Table<String, Integer, Character> table = HashBasedTable.create();
     table.put("foo", 4, 'a');
     table.put("cat", 1, 'b');
     table.clear();
     populate(table, data);
     return table;
-  }
-
-  public void testIterationOrder() {
-    Table<String, String, String> table = HashBasedTable.create();
-    for (int i = 0; i < 5; i++) {
-      table.put("r" + i, "c" + i, "v" + i);
-    }
-    assertThat(table.rowKeySet()).containsExactly("r0", "r1", "r2", "r3", "r4").inOrder();
-    assertThat(table.columnKeySet()).containsExactly("c0", "c1", "c2", "c3", "c4").inOrder();
-    assertThat(table.values()).containsExactly("v0", "v1", "v2", "v3", "v4").inOrder();
   }
 
   public void testCreateWithValidSizes() {
@@ -73,31 +61,29 @@ public class HashBasedTableTest extends AbstractTableTest {
     try {
       HashBasedTable.create(100, -5);
       fail();
-    } catch (IllegalArgumentException expected) {
-    }
+    } catch (IllegalArgumentException expected) {}
 
     try {
       HashBasedTable.create(-5, 20);
       fail();
-    } catch (IllegalArgumentException expected) {
-    }
+    } catch (IllegalArgumentException expected) {}
   }
 
   public void testCreateCopy() {
-    Table<String, Integer, Character> original =
-        create("foo", 1, 'a', "bar", 1, 'b', "foo", 3, 'c');
+    Table<String, Integer, Character> original
+        = create("foo", 1, 'a', "bar", 1, 'b', "foo", 3, 'c');
     Table<String, Integer, Character> copy = HashBasedTable.create(original);
     assertEquals(original, copy);
     assertEquals((Character) 'a', copy.get("foo", 1));
   }
 
-  @GwtIncompatible // SerializableTester
+  @GwtIncompatible("SerializableTester")
   public void testSerialization() {
     table = create("foo", 1, 'a', "bar", 1, 'b', "foo", 3, 'c');
     SerializableTester.reserializeAndAssert(table);
   }
 
-  @GwtIncompatible // NullPointerTester
+  @GwtIncompatible("NullPointerTester")
   public void testNullPointerStatic() {
     new NullPointerTester().testAllPublicStaticMethods(HashBasedTable.class);
   }

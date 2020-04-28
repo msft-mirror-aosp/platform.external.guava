@@ -43,11 +43,6 @@ public void testCombinationsExhaustively_startingFromNatural() throws Exception 
   testCase.testCombinationsExhaustively_startingFromNatural();
 }
 
-public void testComplicatedOrderingExample() throws Exception {
-  com.google.common.collect.OrderingTest testCase = new com.google.common.collect.OrderingTest();
-  testCase.testComplicatedOrderingExample();
-}
-
 public void testCompound_instance() throws Exception {
   com.google.common.collect.OrderingTest testCase = new com.google.common.collect.OrderingTest();
   testCase.testCompound_instance();

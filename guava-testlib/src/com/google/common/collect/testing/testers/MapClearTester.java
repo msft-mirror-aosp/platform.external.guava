@@ -25,30 +25,30 @@ import com.google.common.annotations.GwtCompatible;
 import com.google.common.collect.testing.AbstractMapTester;
 import com.google.common.collect.testing.features.CollectionSize;
 import com.google.common.collect.testing.features.MapFeature;
+
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.Map.Entry;
-import org.junit.Ignore;
 
 /**
- * A generic JUnit test which tests {@code clear()} operations on a map. Can't be invoked directly;
- * please see {@link com.google.common.collect.testing.MapTestSuiteBuilder}.
+ * A generic JUnit test which tests {@code clear()} operations on a map.
+ * Can't be invoked directly; please see
+ * {@link com.google.common.collect.testing.MapTestSuiteBuilder}.
  *
  * @author George van den Driessche
  * @author Chris Povirk
  */
 @GwtCompatible
-@Ignore // Affects only Android test runner, which respects JUnit 4 annotations on JUnit 3 tests.
 public class MapClearTester<K, V> extends AbstractMapTester<K, V> {
   @MapFeature.Require(SUPPORTS_REMOVE)
   public void testClear() {
     getMap().clear();
-    assertTrue("After clear(), a map should be empty.", getMap().isEmpty());
-    assertEquals(0, getMap().size());
-    assertFalse(getMap().entrySet().iterator().hasNext());
+    assertTrue("After clear(), a map should be empty.",
+        getMap().isEmpty());
   }
 
-  @MapFeature.Require({FAILS_FAST_ON_CONCURRENT_MODIFICATION, SUPPORTS_REMOVE})
+  @MapFeature.Require({FAILS_FAST_ON_CONCURRENT_MODIFICATION,
+      SUPPORTS_REMOVE})
   @CollectionSize.Require(SEVERAL)
   public void testClearConcurrentWithEntrySetIteration() {
     try {
@@ -61,7 +61,8 @@ public class MapClearTester<K, V> extends AbstractMapTester<K, V> {
     }
   }
 
-  @MapFeature.Require({FAILS_FAST_ON_CONCURRENT_MODIFICATION, SUPPORTS_REMOVE})
+  @MapFeature.Require({FAILS_FAST_ON_CONCURRENT_MODIFICATION,
+      SUPPORTS_REMOVE})
   @CollectionSize.Require(SEVERAL)
   public void testClearConcurrentWithKeySetIteration() {
     try {
@@ -74,7 +75,8 @@ public class MapClearTester<K, V> extends AbstractMapTester<K, V> {
     }
   }
 
-  @MapFeature.Require({FAILS_FAST_ON_CONCURRENT_MODIFICATION, SUPPORTS_REMOVE})
+  @MapFeature.Require({FAILS_FAST_ON_CONCURRENT_MODIFICATION,
+      SUPPORTS_REMOVE})
   @CollectionSize.Require(SEVERAL)
   public void testClearConcurrentWithValuesIteration() {
     try {
@@ -92,9 +94,8 @@ public class MapClearTester<K, V> extends AbstractMapTester<K, V> {
   public void testClear_unsupported() {
     try {
       getMap().clear();
-      fail(
-          "clear() should throw UnsupportedOperation if a map does "
-              + "not support it and is not empty.");
+      fail("clear() should throw UnsupportedOperation if a map does "
+          + "not support it and is not empty.");
     } catch (UnsupportedOperationException expected) {
     }
     expectUnchanged();

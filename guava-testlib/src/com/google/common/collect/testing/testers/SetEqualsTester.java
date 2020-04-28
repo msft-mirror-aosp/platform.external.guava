@@ -23,9 +23,9 @@ import com.google.common.collect.testing.Helpers;
 import com.google.common.collect.testing.MinimalSet;
 import com.google.common.collect.testing.features.CollectionFeature;
 import com.google.common.collect.testing.features.CollectionSize;
+
 import java.util.Collection;
 import java.util.Set;
-import org.junit.Ignore;
 
 /**
  * Tests {@link java.util.Set#equals}.
@@ -33,7 +33,6 @@ import org.junit.Ignore;
  * @author George van den Driessche
  */
 @GwtCompatible
-@Ignore // Affects only Android test runner, which respects JUnit 4 annotations on JUnit 3 tests.
 public class SetEqualsTester<E> extends AbstractSetTester<E> {
   public void testEquals_otherSetWithSameElements() {
     assertTrue(
@@ -44,11 +43,12 @@ public class SetEqualsTester<E> extends AbstractSetTester<E> {
   @CollectionSize.Require(absent = CollectionSize.ZERO)
   public void testEquals_otherSetWithDifferentElements() {
     Collection<E> elements = getSampleElements(getNumElements() - 1);
-    elements.add(getSubjectGenerator().samples().e3());
+    elements.add(getSubjectGenerator().samples().e3);
 
     assertFalse(
         "A Set should not equal another Set containing different elements.",
-        getSet().equals(MinimalSet.from(elements)));
+        getSet().equals(MinimalSet.from(elements))
+    );
   }
 
   @CollectionSize.Require(absent = CollectionSize.ZERO)
@@ -58,9 +58,8 @@ public class SetEqualsTester<E> extends AbstractSetTester<E> {
     elements.add(null);
 
     collection = getSubjectGenerator().create(elements.toArray());
-    assertTrue(
-        "A Set should equal any other Set containing the same elements,"
-            + " even if some elements are null.",
+    assertTrue("A Set should equal any other Set containing the same elements,"
+        + " even if some elements are null.",
         getSet().equals(MinimalSet.from(elements)));
   }
 
@@ -78,19 +77,18 @@ public class SetEqualsTester<E> extends AbstractSetTester<E> {
   @CollectionSize.Require(absent = CollectionSize.ZERO)
   public void testEquals_smallerSet() {
     Collection<E> fewerElements = getSampleElements(getNumElements() - 1);
-    assertFalse(
-        "Sets of different sizes should not be equal.",
+    assertFalse("Sets of different sizes should not be equal.",
         getSet().equals(MinimalSet.from(fewerElements)));
   }
 
   public void testEquals_largerSet() {
     Collection<E> moreElements = getSampleElements(getNumElements() + 1);
-    assertFalse(
-        "Sets of different sizes should not be equal.",
+    assertFalse("Sets of different sizes should not be equal.",
         getSet().equals(MinimalSet.from(moreElements)));
   }
 
   public void testEquals_list() {
-    assertFalse("A List should never equal a Set.", getSet().equals(Helpers.copyToList(getSet())));
+    assertFalse("A List should never equal a Set.",
+        getSet().equals(Helpers.copyToList(getSet())));
   }
 }

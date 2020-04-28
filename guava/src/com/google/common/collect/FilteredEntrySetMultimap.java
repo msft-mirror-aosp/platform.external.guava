@@ -18,12 +18,13 @@ package com.google.common.collect;
 
 import com.google.common.annotations.GwtCompatible;
 import com.google.common.base.Predicate;
+
 import java.util.Map.Entry;
 import java.util.Set;
 
 /**
  * Implementation of {@link Multimaps#filterEntries(SetMultimap, Predicate)}.
- *
+ * 
  * @author Louis Wasserman
  */
 @GwtCompatible
@@ -33,7 +34,7 @@ final class FilteredEntrySetMultimap<K, V> extends FilteredEntryMultimap<K, V>
   FilteredEntrySetMultimap(SetMultimap<K, V> unfiltered, Predicate<? super Entry<K, V>> predicate) {
     super(unfiltered, predicate);
   }
-
+  
   @Override
   public SetMultimap<K, V> unfiltered() {
     return (SetMultimap<K, V>) unfiltered;
@@ -43,7 +44,7 @@ final class FilteredEntrySetMultimap<K, V> extends FilteredEntryMultimap<K, V>
   public Set<V> get(K key) {
     return (Set<V>) super.get(key);
   }
-
+  
   @Override
   public Set<V> removeAll(Object key) {
     return (Set<V>) super.removeAll(key);

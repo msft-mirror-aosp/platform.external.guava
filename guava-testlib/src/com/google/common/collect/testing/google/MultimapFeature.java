@@ -21,6 +21,7 @@ import com.google.common.collect.Multimap;
 import com.google.common.collect.testing.Helpers;
 import com.google.common.collect.testing.features.Feature;
 import com.google.common.collect.testing.features.TesterAnnotation;
+
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -39,7 +40,7 @@ public enum MultimapFeature implements Feature<Multimap> {
 
   private final Set<Feature<? super Multimap>> implied;
 
-  MultimapFeature(Feature<? super Multimap>... implied) {
+  MultimapFeature(Feature<? super Multimap> ... implied) {
     this.implied = Helpers.copyToSet(implied);
   }
 
@@ -53,7 +54,6 @@ public enum MultimapFeature implements Feature<Multimap> {
   @TesterAnnotation
   public @interface Require {
     public abstract MultimapFeature[] value() default {};
-
     public abstract MultimapFeature[] absent() default {};
   }
 }

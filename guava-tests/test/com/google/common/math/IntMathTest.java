@@ -31,11 +31,12 @@ import static java.math.RoundingMode.UNNECESSARY;
 import com.google.common.annotations.GwtCompatible;
 import com.google.common.annotations.GwtIncompatible;
 import com.google.common.testing.NullPointerTester;
+
+import junit.framework.TestCase;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
-import java.util.Random;
-import junit.framework.TestCase;
 
 /**
  * Tests for {@link IntMath}.
@@ -44,88 +45,21 @@ import junit.framework.TestCase;
  */
 @GwtCompatible(emulated = true)
 public class IntMathTest extends TestCase {
-  public void testMaxSignedPowerOfTwo() {
-    assertTrue(IntMath.isPowerOfTwo(IntMath.MAX_SIGNED_POWER_OF_TWO));
-
-    // Extra work required to make GWT happy.
-    long value = IntMath.MAX_SIGNED_POWER_OF_TWO * 2L;
-    assertFalse(IntMath.isPowerOfTwo((int) value));
-  }
-
-  public void testCeilingPowerOfTwo() {
-    for (int x : POSITIVE_INTEGER_CANDIDATES) {
-      BigInteger expectedResult = BigIntegerMath.ceilingPowerOfTwo(BigInteger.valueOf(x));
-      if (fitsInInt(expectedResult)) {
-        assertEquals(expectedResult.intValue(), IntMath.ceilingPowerOfTwo(x));
-      } else {
-        try {
-          IntMath.ceilingPowerOfTwo(x);
-          fail("Expected ArithmeticException");
-        } catch (ArithmeticException expected) {
-        }
-      }
-    }
-  }
-
-  public void testFloorPowerOfTwo() {
-    for (int x : POSITIVE_INTEGER_CANDIDATES) {
-      BigInteger expectedResult = BigIntegerMath.floorPowerOfTwo(BigInteger.valueOf(x));
-      assertEquals(expectedResult.intValue(), IntMath.floorPowerOfTwo(x));
-    }
-  }
-
-  public void testCeilingPowerOfTwoNegative() {
-    for (int x : NEGATIVE_INTEGER_CANDIDATES) {
-      try {
-        IntMath.ceilingPowerOfTwo(x);
-        fail("Expected IllegalArgumentException");
-      } catch (IllegalArgumentException expected) {
-      }
-    }
-  }
-
-  public void testFloorPowerOfTwoNegative() {
-    for (int x : NEGATIVE_INTEGER_CANDIDATES) {
-      try {
-        IntMath.floorPowerOfTwo(x);
-        fail("Expected IllegalArgumentException");
-      } catch (IllegalArgumentException expected) {
-      }
-    }
-  }
-
-  public void testCeilingPowerOfTwoZero() {
-    try {
-      IntMath.ceilingPowerOfTwo(0);
-      fail("Expected IllegalArgumentException");
-    } catch (IllegalArgumentException expected) {
-    }
-  }
-
-  public void testFloorPowerOfTwoZero() {
-    try {
-      IntMath.floorPowerOfTwo(0);
-      fail("Expected IllegalArgumentException");
-    } catch (IllegalArgumentException expected) {
-    }
-  }
-
-  @GwtIncompatible // BigIntegerMath // TODO(cpovirk): GWT-enable BigIntegerMath
+  @GwtIncompatible("BigIntegerMath") // TODO(cpovirk): GWT-enable BigIntegerMath
   public void testConstantMaxPowerOfSqrt2Unsigned() {
     assertEquals(
-        /*expected=*/ BigIntegerMath.sqrt(BigInteger.ZERO.setBit(2 * Integer.SIZE - 1), FLOOR)
-            .intValue(),
-        /*actual=*/ IntMath.MAX_POWER_OF_SQRT2_UNSIGNED);
+        BigIntegerMath.sqrt(BigInteger.ZERO.setBit(2 * Integer.SIZE - 1), FLOOR).intValue(),
+        IntMath.MAX_POWER_OF_SQRT2_UNSIGNED);
   }
 
-  @GwtIncompatible // pow()
+  @GwtIncompatible("pow()")
   public void testConstantsPowersOf10() {
     for (int i = 0; i < IntMath.powersOf10.length - 1; i++) {
       assertEquals(IntMath.pow(10, i), IntMath.powersOf10[i]);
     }
   }
 
-  @GwtIncompatible // BigIntegerMath // TODO(cpovirk): GWT-enable BigIntegerMath
+  @GwtIncompatible("BigIntegerMath") // TODO(cpovirk): GWT-enable BigIntegerMath
   public void testMaxLog10ForLeadingZeros() {
     for (int i = 0; i < Integer.SIZE; i++) {
       assertEquals(
@@ -134,39 +68,34 @@ public class IntMathTest extends TestCase {
     }
   }
 
-  @GwtIncompatible // BigIntegerMath // TODO(cpovirk): GWT-enable BigIntegerMath
+  @GwtIncompatible("BigIntegerMath") // TODO(cpovirk): GWT-enable BigIntegerMath
   public void testConstantsHalfPowersOf10() {
     for (int i = 0; i < IntMath.halfPowersOf10.length; i++) {
       assert IntMath.halfPowersOf10[i]
-          == Math.min(
-              Integer.MAX_VALUE,
+          == Math.min(Integer.MAX_VALUE,
               BigIntegerMath.sqrt(BigInteger.TEN.pow(2 * i + 1), FLOOR).longValue());
     }
   }
 
+  @GwtIncompatible("BigIntegerMath") // TODO(cpovirk): GWT-enable BigIntegerMath
   public void testConstantsBiggestBinomials() {
     for (int k = 0; k < IntMath.biggestBinomials.length; k++) {
       assertTrue(fitsInInt(BigIntegerMath.binomial(IntMath.biggestBinomials[k], k)));
-      assertTrue(
-          IntMath.biggestBinomials[k] == Integer.MAX_VALUE
-              || !fitsInInt(BigIntegerMath.binomial(IntMath.biggestBinomials[k] + 1, k)));
+      assertTrue(IntMath.biggestBinomials[k] == Integer.MAX_VALUE
+          || !fitsInInt(BigIntegerMath.binomial(IntMath.biggestBinomials[k] + 1, k)));
       // In the first case, any int is valid; in the second, we want to test that the next-bigger
       // int overflows.
     }
     assertFalse(
-        fitsInInt(
-            BigIntegerMath.binomial(
-                2 * IntMath.biggestBinomials.length, IntMath.biggestBinomials.length)));
+        fitsInInt(BigIntegerMath.binomial(
+            2 * IntMath.biggestBinomials.length, IntMath.biggestBinomials.length)));
   }
 
-  @GwtIncompatible // sqrt
+  @GwtIncompatible("sqrt")
   public void testPowersSqrtMaxInt() {
-    assertEquals(
-        /*expected=*/ IntMath.sqrt(Integer.MAX_VALUE, FLOOR),
-        /*actual=*/ IntMath.FLOOR_SQRT_MAX_INT);
+    assertEquals(IntMath.sqrt(Integer.MAX_VALUE, FLOOR), IntMath.FLOOR_SQRT_MAX_INT);
   }
 
-  @AndroidIncompatible // presumably slow
   public void testLessThanBranchFree() {
     for (int x : ALL_INTEGER_CANDIDATES) {
       for (int y : ALL_INTEGER_CANDIDATES) {
@@ -179,7 +108,7 @@ public class IntMathTest extends TestCase {
     }
   }
 
-  @GwtIncompatible // java.math.BigInteger
+  @GwtIncompatible("java.math.BigInteger")
   public void testIsPowerOfTwo() {
     for (int x : ALL_INTEGER_CANDIDATES) {
       // Checks for a single bit set.
@@ -194,8 +123,7 @@ public class IntMathTest extends TestCase {
       try {
         IntMath.log2(0, mode);
         fail("Expected IllegalArgumentException");
-      } catch (IllegalArgumentException expected) {
-      }
+      } catch (IllegalArgumentException expected) {}
     }
   }
 
@@ -205,8 +133,7 @@ public class IntMathTest extends TestCase {
         try {
           IntMath.log2(x, mode);
           fail("Expected IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-        }
+        } catch (IllegalArgumentException expected) {}
       }
     }
   }
@@ -234,32 +161,30 @@ public class IntMathTest extends TestCase {
     }
   }
 
-  @GwtIncompatible // log10
+  @GwtIncompatible("log10")
   public void testLog10ZeroAlwaysThrows() {
     for (RoundingMode mode : ALL_ROUNDING_MODES) {
       try {
         IntMath.log10(0, mode);
         fail("Expected IllegalArgumentException");
-      } catch (IllegalArgumentException expected) {
-      }
+      } catch (IllegalArgumentException expected) {}
     }
   }
 
-  @GwtIncompatible // log10
+  @GwtIncompatible("log10")
   public void testLog10NegativeAlwaysThrows() {
     for (int x : NEGATIVE_INTEGER_CANDIDATES) {
       for (RoundingMode mode : ALL_ROUNDING_MODES) {
         try {
           IntMath.log10(x, mode);
           fail("Expected IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-        }
+        } catch (IllegalArgumentException expected) {}
       }
     }
   }
 
   // Relies on the correctness of BigIntegerMath.log10 for all modes except UNNECESSARY.
-  @GwtIncompatible // BigIntegerMath // TODO(cpovirk): GWT-enable BigIntegerMath
+  @GwtIncompatible("BigIntegerMath") // TODO(cpovirk): GWT-enable BigIntegerMath
   public void testLog10MatchesBigInteger() {
     for (int x : POSITIVE_INTEGER_CANDIDATES) {
       for (RoundingMode mode : ALL_SAFE_ROUNDING_MODES) {
@@ -270,7 +195,7 @@ public class IntMathTest extends TestCase {
   }
 
   // Relies on the correctness of log10(int, FLOOR) and of pow(int, int).
-  @GwtIncompatible // pow()
+  @GwtIncompatible("pow()")
   public void testLog10Exact() {
     for (int x : POSITIVE_INTEGER_CANDIDATES) {
       int floor = IntMath.log10(x, FLOOR);
@@ -284,7 +209,7 @@ public class IntMathTest extends TestCase {
     }
   }
 
-  @GwtIncompatible // log10
+  @GwtIncompatible("log10")
   public void testLog10TrivialOnPowerOfTen() {
     int x = 1000000;
     for (RoundingMode mode : ALL_ROUNDING_MODES) {
@@ -293,28 +218,27 @@ public class IntMathTest extends TestCase {
   }
 
   // Simple test to cover sqrt(0) for all types and all modes.
-  @GwtIncompatible // sqrt
+  @GwtIncompatible("sqrt")
   public void testSqrtZeroAlwaysZero() {
     for (RoundingMode mode : ALL_ROUNDING_MODES) {
       assertEquals(0, IntMath.sqrt(0, mode));
     }
   }
 
-  @GwtIncompatible // sqrt
+  @GwtIncompatible("sqrt")
   public void testSqrtNegativeAlwaysThrows() {
     for (int x : NEGATIVE_INTEGER_CANDIDATES) {
       for (RoundingMode mode : RoundingMode.values()) {
         try {
           IntMath.sqrt(x, mode);
           fail("Expected IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-        }
+        } catch (IllegalArgumentException expected) {}
       }
     }
   }
 
   /* Relies on the correctness of BigIntegerMath.sqrt for all modes except UNNECESSARY. */
-  @GwtIncompatible // BigIntegerMath // TODO(cpovirk): GWT-enable BigIntegerMath
+  @GwtIncompatible("BigIntegerMath") // TODO(cpovirk): GWT-enable BigIntegerMath
   public void testSqrtMatchesBigInteger() {
     for (int x : POSITIVE_INTEGER_CANDIDATES) {
       for (RoundingMode mode : ALL_SAFE_ROUNDING_MODES) {
@@ -327,7 +251,7 @@ public class IntMathTest extends TestCase {
   }
 
   /* Relies on the correctness of sqrt(int, FLOOR). */
-  @GwtIncompatible // sqrt
+  @GwtIncompatible("sqrt")
   public void testSqrtExactMatchesFloorOrThrows() {
     for (int x : POSITIVE_INTEGER_CANDIDATES) {
       int floor = IntMath.sqrt(x, FLOOR);
@@ -342,7 +266,7 @@ public class IntMathTest extends TestCase {
     }
   }
 
-  @GwtIncompatible // 2147483646^2 expected=4
+  @GwtIncompatible("2147483646^2 expected=4")
   public void testPow() {
     for (int i : ALL_INTEGER_CANDIDATES) {
       for (int pow : EXPONENTS) {
@@ -351,7 +275,6 @@ public class IntMathTest extends TestCase {
     }
   }
 
-  @AndroidIncompatible // slow
   public void testDivNonZero() {
     for (int p : NONZERO_INTEGER_CANDIDATES) {
       for (int q : NONZERO_INTEGER_CANDIDATES) {
@@ -369,7 +292,6 @@ public class IntMathTest extends TestCase {
     }
   }
 
-  @AndroidIncompatible // presumably slow
   public void testDivNonZeroExact() {
     for (int p : NONZERO_INTEGER_CANDIDATES) {
       for (int q : NONZERO_INTEGER_CANDIDATES) {
@@ -402,8 +324,7 @@ public class IntMathTest extends TestCase {
         try {
           IntMath.divide(p, 0, mode);
           fail("Expected ArithmeticException");
-        } catch (ArithmeticException expected) {
-        }
+        } catch (ArithmeticException expected) {}
       }
     }
   }
@@ -422,8 +343,7 @@ public class IntMathTest extends TestCase {
         try {
           IntMath.mod(x, m);
           fail("Expected ArithmeticException");
-        } catch (ArithmeticException expected) {
-        }
+        } catch (ArithmeticException expected) {}
       }
     }
   }
@@ -433,8 +353,7 @@ public class IntMathTest extends TestCase {
       try {
         IntMath.mod(x, 0);
         fail("Expected ArithmeticException");
-      } catch (ArithmeticException expected) {
-      }
+      } catch (ArithmeticException expected) {}
     }
   }
 
@@ -459,13 +378,11 @@ public class IntMathTest extends TestCase {
       try {
         IntMath.gcd(a, 3);
         fail("Expected IllegalArgumentException");
-      } catch (IllegalArgumentException expected) {
-      }
+      } catch (IllegalArgumentException expected) {}
       try {
         IntMath.gcd(3, a);
         fail("Expected IllegalArgumentException");
-      } catch (IllegalArgumentException expected) {
-      }
+      } catch (IllegalArgumentException expected) {}
     }
   }
 
@@ -474,17 +391,14 @@ public class IntMathTest extends TestCase {
       try {
         IntMath.gcd(a, 0);
         fail("Expected IllegalArgumentException");
-      } catch (IllegalArgumentException expected) {
-      }
+      } catch (IllegalArgumentException expected) {}
       try {
         IntMath.gcd(0, a);
         fail("Expected IllegalArgumentException");
-      } catch (IllegalArgumentException expected) {
-      }
+      } catch (IllegalArgumentException expected) {}
     }
   }
 
-  @AndroidIncompatible // slow
   public void testCheckedAdd() {
     for (int a : ALL_INTEGER_CANDIDATES) {
       for (int b : ALL_INTEGER_CANDIDATES) {
@@ -500,7 +414,6 @@ public class IntMathTest extends TestCase {
     }
   }
 
-  @AndroidIncompatible // slow
   public void testCheckedSubtract() {
     for (int a : ALL_INTEGER_CANDIDATES) {
       for (int b : ALL_INTEGER_CANDIDATES) {
@@ -516,7 +429,6 @@ public class IntMathTest extends TestCase {
     }
   }
 
-  @AndroidIncompatible // presumably slow
   public void testCheckedMultiply() {
     for (int a : ALL_INTEGER_CANDIDATES) {
       for (int b : ALL_INTEGER_CANDIDATES) {
@@ -547,76 +459,6 @@ public class IntMathTest extends TestCase {
     }
   }
 
-  @AndroidIncompatible // slow
-  @GwtIncompatible // TODO
-  public void testSaturatedAdd() {
-    for (int a : ALL_INTEGER_CANDIDATES) {
-      for (int b : ALL_INTEGER_CANDIDATES) {
-        assertOperationEquals(
-            a, b, "s+", saturatedCast(valueOf(a).add(valueOf(b))), IntMath.saturatedAdd(a, b));
-      }
-    }
-  }
-
-  @AndroidIncompatible // slow
-  @GwtIncompatible // TODO
-  public void testSaturatedSubtract() {
-    for (int a : ALL_INTEGER_CANDIDATES) {
-      for (int b : ALL_INTEGER_CANDIDATES) {
-        assertOperationEquals(
-            a,
-            b,
-            "s-",
-            saturatedCast(valueOf(a).subtract(valueOf(b))),
-            IntMath.saturatedSubtract(a, b));
-      }
-    }
-  }
-
-  @AndroidIncompatible // slow
-  @GwtIncompatible // TODO
-  public void testSaturatedMultiply() {
-    for (int a : ALL_INTEGER_CANDIDATES) {
-      for (int b : ALL_INTEGER_CANDIDATES) {
-        assertOperationEquals(
-            a,
-            b,
-            "s*",
-            saturatedCast(valueOf(a).multiply(valueOf(b))),
-            IntMath.saturatedMultiply(a, b));
-      }
-    }
-  }
-
-  @GwtIncompatible // TODO
-  public void testSaturatedPow() {
-    for (int a : ALL_INTEGER_CANDIDATES) {
-      for (int b : EXPONENTS) {
-        assertOperationEquals(
-            a, b, "s^", saturatedCast(valueOf(a).pow(b)), IntMath.saturatedPow(a, b));
-      }
-    }
-  }
-
-  private static final BigInteger MAX_INT = BigInteger.valueOf(Integer.MAX_VALUE);
-  private static final BigInteger MIN_INT = BigInteger.valueOf(Integer.MIN_VALUE);
-
-  private static int saturatedCast(BigInteger big) {
-    if (big.compareTo(MAX_INT) > 0) {
-      return Integer.MAX_VALUE;
-    }
-    if (big.compareTo(MIN_INT) < 0) {
-      return Integer.MIN_VALUE;
-    }
-    return big.intValue();
-  }
-
-  private void assertOperationEquals(int a, int b, String op, int expected, int actual) {
-    if (expected != actual) {
-      fail("Expected for " + a + " " + op + " " + b + " = " + expected + ", but got " + actual);
-    }
-  }
-
   // Depends on the correctness of BigIntegerMath.factorial.
   public void testFactorial() {
     for (int n = 0; n <= 50; n++) {
@@ -631,12 +473,12 @@ public class IntMathTest extends TestCase {
       try {
         IntMath.factorial(n);
         fail("Expected IllegalArgumentException");
-      } catch (IllegalArgumentException expected) {
-      }
+      } catch (IllegalArgumentException expected) {}
     }
   }
 
   // Depends on the correctness of BigIntegerMath.binomial.
+  @GwtIncompatible("BigIntegerMath") // TODO(cpovirk): GWT-enable BigIntegerMath
   public void testBinomial() {
     for (int n = 0; n <= 50; n++) {
       for (int k = 0; k <= n; k++) {
@@ -647,33 +489,31 @@ public class IntMathTest extends TestCase {
     }
   }
 
+  @GwtIncompatible("binomial")
   public void testBinomialOutside() {
     for (int n = 0; n <= 50; n++) {
       try {
         IntMath.binomial(n, -1);
         fail("Expected IllegalArgumentException");
-      } catch (IllegalArgumentException expected) {
-      }
+      } catch (IllegalArgumentException expected) {}
       try {
         IntMath.binomial(n, n + 1);
         fail("Expected IllegalArgumentException");
-      } catch (IllegalArgumentException expected) {
-      }
+      } catch (IllegalArgumentException expected) {}
     }
   }
 
+  @GwtIncompatible("binomial")
   public void testBinomialNegative() {
     for (int n : NEGATIVE_INTEGER_CANDIDATES) {
       try {
         IntMath.binomial(n, 0);
         fail("Expected IllegalArgumentException");
-      } catch (IllegalArgumentException expected) {
-      }
+      } catch (IllegalArgumentException expected) {}
     }
   }
 
-  @AndroidIncompatible // slow
-  @GwtIncompatible // java.math.BigInteger
+  @GwtIncompatible("java.math.BigInteger")
   public void testMean() {
     // Odd-sized ranges have an obvious mean
     assertMean(2, 1, 3);
@@ -707,35 +547,36 @@ public class IntMathTest extends TestCase {
     }
   }
 
-  /** Helper method that asserts the arithmetic mean of x and y is equal to the expectedMean. */
+  /**
+   * Helper method that asserts the arithmetic mean of x and y is equal
+   * to the expectedMean.
+   */
   private static void assertMean(int expectedMean, int x, int y) {
-    assertEquals(
-        "The expectedMean should be the same as computeMeanSafely",
-        expectedMean,
-        computeMeanSafely(x, y));
+    assertEquals("The expectedMean should be the same as computeMeanSafely",
+        expectedMean, computeMeanSafely(x, y));
     assertMean(x, y);
   }
 
   /**
-   * Helper method that asserts the arithmetic mean of x and y is equal to the result of
-   * computeMeanSafely.
+   * Helper method that asserts the arithmetic mean of x and y is equal
+   * to the result of computeMeanSafely.
    */
   private static void assertMean(int x, int y) {
     int expectedMean = computeMeanSafely(x, y);
     assertEquals(expectedMean, IntMath.mean(x, y));
-    assertEquals(
-        "The mean of x and y should equal the mean of y and x", expectedMean, IntMath.mean(y, x));
+    assertEquals("The mean of x and y should equal the mean of y and x",
+        expectedMean, IntMath.mean(y, x));
   }
 
   /**
-   * Computes the mean in a way that is obvious and resilient to overflow by using BigInteger
-   * arithmetic.
+   * Computes the mean in a way that is obvious and resilient to
+   * overflow by using BigInteger arithmetic.
    */
   private static int computeMeanSafely(int x, int y) {
     BigInteger bigX = BigInteger.valueOf(x);
     BigInteger bigY = BigInteger.valueOf(y);
-    BigDecimal bigMean =
-        new BigDecimal(bigX.add(bigY)).divide(BigDecimal.valueOf(2), BigDecimal.ROUND_FLOOR);
+    BigDecimal bigMean = new BigDecimal(bigX.add(bigY))
+        .divide(BigDecimal.valueOf(2), BigDecimal.ROUND_FLOOR);
     // parseInt blows up on overflow as opposed to intValue() which does not.
     return Integer.parseInt(bigMean.toString());
   }
@@ -744,28 +585,11 @@ public class IntMathTest extends TestCase {
     return big.bitLength() <= 31;
   }
 
-  @GwtIncompatible // NullPointerTester
+  @GwtIncompatible("NullPointerTester")
   public void testNullPointers() {
     NullPointerTester tester = new NullPointerTester();
     tester.setDefault(int.class, 1);
     tester.testAllPublicStaticMethods(IntMath.class);
-  }
-
-  @GwtIncompatible // isPrime is GWT-incompatible
-  public void testIsPrime() {
-    // Defer correctness tests to Long.isPrime
-
-    // Check the first 100,000 integers
-    for (int i = 0; i < 100000; i++) {
-      assertEquals(LongMath.isPrime(i), IntMath.isPrime(i));
-    }
-
-    // Then check 1000 deterministic pseudo-random int values.
-    Random rand = new Random(1);
-    for (int i = 0; i < 1000; i++) {
-      int n = rand.nextInt(Integer.MAX_VALUE);
-      assertEquals(LongMath.isPrime(n), IntMath.isPrime(n));
-    }
   }
 
   private static int force32(int value) {

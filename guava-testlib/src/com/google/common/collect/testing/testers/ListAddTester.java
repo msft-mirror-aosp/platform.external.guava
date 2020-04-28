@@ -25,25 +25,25 @@ import com.google.common.annotations.GwtIncompatible;
 import com.google.common.collect.testing.Helpers;
 import com.google.common.collect.testing.features.CollectionFeature;
 import com.google.common.collect.testing.features.CollectionSize;
+
 import java.lang.reflect.Method;
 import java.util.List;
-import org.junit.Ignore;
 
 /**
- * A generic JUnit test which tests {@code add(Object)} operations on a list. Can't be invoked
- * directly; please see {@link com.google.common.collect.testing.ListTestSuiteBuilder}.
+ * A generic JUnit test which tests {@code add(Object)} operations on a list.
+ * Can't be invoked directly; please see
+ * {@link com.google.common.collect.testing.ListTestSuiteBuilder}.
  *
  * @author Chris Povirk
  */
 @SuppressWarnings("unchecked") // too many "unchecked generic array creations"
 @GwtCompatible(emulated = true)
-@Ignore // Affects only Android test runner, which respects JUnit 4 annotations on JUnit 3 tests.
 public class ListAddTester<E> extends AbstractListTester<E> {
   @CollectionFeature.Require(SUPPORTS_ADD)
   @CollectionSize.Require(absent = ZERO)
   public void testAdd_supportedPresent() {
-    assertTrue("add(present) should return true", getList().add(e0()));
-    expectAdded(e0());
+    assertTrue("add(present) should return true", getList().add(samples.e0));
+    expectAdded(samples.e0);
   }
 
   @CollectionFeature.Require(absent = SUPPORTS_ADD)
@@ -54,7 +54,7 @@ public class ListAddTester<E> extends AbstractListTester<E> {
    */
   public void testAdd_unsupportedPresent() {
     try {
-      getList().add(e0());
+      getList().add(samples.e0);
       fail("add(present) should throw");
     } catch (UnsupportedOperationException expected) {
     }
@@ -73,10 +73,11 @@ public class ListAddTester<E> extends AbstractListTester<E> {
   }
 
   /**
-   * Returns the {@link Method} instance for {@link #testAdd_supportedNullPresent()} so that tests
-   * can suppress it. See {@link CollectionAddTester#getAddNullSupportedMethod()} for details.
+   * Returns the {@link Method} instance for
+   * {@link #testAdd_supportedNullPresent()} so that tests can suppress it. See
+   * {@link CollectionAddTester#getAddNullSupportedMethod()} for details.
    */
-  @GwtIncompatible // reflection
+  @GwtIncompatible("reflection")
   public static Method getAddSupportedNullPresentMethod() {
     return Helpers.getMethod(ListAddTester.class, "testAdd_supportedNullPresent");
   }

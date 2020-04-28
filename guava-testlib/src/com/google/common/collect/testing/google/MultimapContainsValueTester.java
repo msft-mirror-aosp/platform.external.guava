@@ -24,7 +24,6 @@ import com.google.common.annotations.GwtCompatible;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.testing.features.CollectionSize;
 import com.google.common.collect.testing.features.MapFeature;
-import org.junit.Ignore;
 
 /**
  * Tester for {@link Multimap#containsValue}.
@@ -32,16 +31,15 @@ import org.junit.Ignore;
  * @author Louis Wasserman
  */
 @GwtCompatible
-@Ignore // Affects only Android test runner, which respects JUnit 4 annotations on JUnit 3 tests.
 public class MultimapContainsValueTester<K, V>
     extends AbstractMultimapTester<K, V, Multimap<K, V>> {
   @CollectionSize.Require(absent = ZERO)
   public void testContainsValueYes() {
-    assertTrue(multimap().containsValue(v0()));
+    assertTrue(multimap().containsValue(sampleValues().e0));
   }
 
   public void testContainsValueNo() {
-    assertFalse(multimap().containsValue(v3()));
+    assertFalse(multimap().containsValue(sampleValues().e3));
   }
 
   @MapFeature.Require(ALLOWS_NULL_VALUES)

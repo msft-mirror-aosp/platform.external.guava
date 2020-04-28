@@ -108,12 +108,6 @@ public void testIsEmpty() throws Exception {
   testCase.testIsEmpty();
 }
 
-public void testIterationOrder() throws Exception {
-  com.google.common.collect.HashBasedTableTest testCase = new com.google.common.collect.HashBasedTableTest();
-  testCase.setUp();
-  testCase.testIterationOrder();
-}
-
 public void testPut() throws Exception {
   com.google.common.collect.HashBasedTableTest testCase = new com.google.common.collect.HashBasedTableTest();
   testCase.setUp();

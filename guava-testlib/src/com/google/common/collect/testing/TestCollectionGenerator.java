@@ -17,6 +17,7 @@
 package com.google.common.collect.testing;
 
 import com.google.common.annotations.GwtCompatible;
+
 import java.util.Collection;
 
 /**
@@ -25,4 +26,6 @@ import java.util.Collection;
  * @author Kevin Bourrillion
  */
 @GwtCompatible
-public interface TestCollectionGenerator<E> extends TestContainerGenerator<Collection<E>, E> {}
+public interface TestCollectionGenerator<E>
+    extends TestContainerGenerator<Collection<E>, E> {
+}

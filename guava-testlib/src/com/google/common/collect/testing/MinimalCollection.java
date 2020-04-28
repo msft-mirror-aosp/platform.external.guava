@@ -17,14 +17,15 @@
 package com.google.common.collect.testing;
 
 import com.google.common.annotations.GwtCompatible;
+
 import java.util.AbstractCollection;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 
 /**
- * A simplistic collection which implements only the bare minimum allowed by the spec, and throws
- * exceptions whenever it can.
+ * A simplistic collection which implements only the bare minimum allowed by the
+ * spec, and throws exceptions whenever it can.
  *
  * @author Kevin Bourrillion
  */
@@ -37,7 +38,8 @@ public class MinimalCollection<E> extends AbstractCollection<E> {
   }
 
   // TODO: use this
-  public static <E> MinimalCollection<E> ofClassAndContents(Class<? super E> type, E... contents) {
+  public static <E> MinimalCollection<E> ofClassAndContents(
+      Class<? super E> type, E... contents) {
     return new MinimalCollection<E>(type, true, contents);
   }
 
@@ -61,25 +63,22 @@ public class MinimalCollection<E> extends AbstractCollection<E> {
     }
   }
 
-  @Override
-  public int size() {
+  @Override public int size() {
     return contents.length;
   }
 
-  @Override
-  public boolean contains(Object object) {
+  @Override public boolean contains(Object object) {
     if (!allowNulls) {
       // behave badly
       if (object == null) {
         throw new NullPointerException();
       }
     }
-    Platform.checkCast(type, object); // behave badly
+    Platform.checkCast(type, object);  // behave badly
     return Arrays.asList(contents).contains(object);
   }
 
-  @Override
-  public boolean containsAll(Collection<?> collection) {
+  @Override public boolean containsAll(Collection<?> collection) {
     if (!allowNulls) {
       for (Object object : collection) {
         // behave badly
@@ -91,13 +90,11 @@ public class MinimalCollection<E> extends AbstractCollection<E> {
     return super.containsAll(collection);
   }
 
-  @Override
-  public Iterator<E> iterator() {
+  @Override public Iterator<E> iterator() {
     return Arrays.asList(contents).iterator();
   }
 
-  @Override
-  public Object[] toArray() {
+  @Override public Object[] toArray() {
     Object[] result = new Object[contents.length];
     System.arraycopy(contents, 0, result, 0, contents.length);
     return result;
@@ -108,26 +105,18 @@ public class MinimalCollection<E> extends AbstractCollection<E> {
    * wasn't going to be any actual work to do anyway
    */
 
-  @Override
-  public boolean addAll(Collection<? extends E> elementsToAdd) {
+  @Override public boolean addAll(Collection<? extends E> elementsToAdd) {
     throw up();
   }
-
-  @Override
-  public boolean removeAll(Collection<?> elementsToRemove) {
+  @Override public boolean removeAll(Collection<?> elementsToRemove) {
     throw up();
   }
-
-  @Override
-  public boolean retainAll(Collection<?> elementsToRetain) {
+  @Override public boolean retainAll(Collection<?> elementsToRetain) {
     throw up();
   }
-
-  @Override
-  public void clear() {
+  @Override public void clear() {
     throw up();
   }
-
   private static UnsupportedOperationException up() {
     throw new UnsupportedOperationException();
   }

@@ -26,24 +26,27 @@ import com.google.common.collect.testing.AbstractCollectionTester;
 import com.google.common.collect.testing.MinimalCollection;
 import com.google.common.collect.testing.features.CollectionFeature;
 import com.google.common.collect.testing.features.CollectionSize;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import org.junit.Ignore;
 
 /**
- * A generic JUnit test which tests {@code retainAll} operations on a collection. Can't be invoked
- * directly; please see {@link com.google.common.collect.testing.CollectionTestSuiteBuilder}.
+ * A generic JUnit test which tests {@code retainAll} operations on a
+ * collection. Can't be invoked directly; please see
+ * {@link com.google.common.collect.testing.CollectionTestSuiteBuilder}.
  *
  * @author Chris Povirk
  */
 @SuppressWarnings("unchecked") // too many "unchecked generic array creations"
 @GwtCompatible
-@Ignore // Affects only Android test runner, which respects JUnit 4 annotations on JUnit 3 tests.
 public class CollectionRetainAllTester<E> extends AbstractCollectionTester<E> {
 
-  /** A collection of elements to retain, along with a description for use in failure messages. */
+  /**
+   * A collection of elements to retain, along with a description for use in
+   * failure messages.
+   */
   private class Target {
     private final Collection<E> toRetain;
     private final String description;
@@ -53,8 +56,7 @@ public class CollectionRetainAllTester<E> extends AbstractCollectionTester<E> {
       this.description = description;
     }
 
-    @Override
-    public String toString() {
+    @Override public String toString() {
       return description;
     }
   }
@@ -68,8 +70,7 @@ public class CollectionRetainAllTester<E> extends AbstractCollectionTester<E> {
   private Target containsDuplicates;
   private Target nullSingleton;
 
-  @Override
-  public void setUp() throws Exception {
+  @Override public void setUp() throws Exception {
     super.setUp();
 
     empty = new Target(emptyCollection(), "empty");
@@ -79,15 +80,25 @@ public class CollectionRetainAllTester<E> extends AbstractCollectionTester<E> {
      * MinimalCollection, which throws NullPointerException on calls to
      * contains(null).
      */
-    List<E> disjointList = Arrays.asList(e3(), e4());
-    disjoint = new Target(disjointList, "disjoint");
-    superset = new Target(MinimalCollection.of(e0(), e1(), e2(), e3(), e4()), "superset");
-    nonEmptyProperSubset = new Target(MinimalCollection.of(e1()), "subset");
-    sameElements = new Target(Arrays.asList(createSamplesArray()), "sameElements");
-    containsDuplicates =
-        new Target(MinimalCollection.of(e0(), e0(), e3(), e3()), "containsDuplicates");
-    partialOverlap = new Target(MinimalCollection.of(e2(), e3()), "partialOverlap");
-    nullSingleton = new Target(Collections.<E>singleton(null), "nullSingleton");
+    List<E> disjointList = Arrays.asList(samples.e3, samples.e4);
+    disjoint
+        = new Target(disjointList, "disjoint");
+    superset
+        = new Target(MinimalCollection.of(
+            samples.e0, samples.e1, samples.e2, samples.e3, samples.e4),
+            "superset");
+    nonEmptyProperSubset
+        = new Target(MinimalCollection.of(samples.e1), "subset");
+    sameElements
+        = new Target(Arrays.asList(createSamplesArray()), "sameElements");
+    containsDuplicates = new Target(
+        MinimalCollection.of(samples.e0, samples.e0, samples.e3, samples.e3),
+        "containsDuplicates");
+    partialOverlap
+        = new Target(MinimalCollection.of(samples.e2, samples.e3),
+            "partialOverlap");
+    nullSingleton
+        = new Target(Collections.<E>singleton(null), "nullSingleton");
   }
 
   // retainAll(empty)
@@ -111,7 +122,7 @@ public class CollectionRetainAllTester<E> extends AbstractCollectionTester<E> {
   public void testRetainAll_emptyPreviouslyNonEmpty() {
     expectReturnsTrue(empty);
     expectContents();
-    expectMissing(e0(), e1(), e2());
+    expectMissing(samples.e0, samples.e1, samples.e2);
   }
 
   @CollectionFeature.Require(absent = SUPPORTS_REMOVE)
@@ -142,7 +153,7 @@ public class CollectionRetainAllTester<E> extends AbstractCollectionTester<E> {
   public void testRetainAll_disjointPreviouslyNonEmpty() {
     expectReturnsTrue(disjoint);
     expectContents();
-    expectMissing(e0(), e1(), e2());
+    expectMissing(samples.e0, samples.e1, samples.e2);
   }
 
   @CollectionFeature.Require(absent = SUPPORTS_REMOVE)
@@ -202,7 +213,7 @@ public class CollectionRetainAllTester<E> extends AbstractCollectionTester<E> {
   @CollectionSize.Require(absent = {ZERO, ONE})
   public void testRetainAll_partialOverlap() {
     expectReturnsTrue(partialOverlap);
-    expectContents(e2());
+    expectContents(samples.e2);
   }
 
   @CollectionFeature.Require(absent = SUPPORTS_REMOVE)
@@ -218,14 +229,14 @@ public class CollectionRetainAllTester<E> extends AbstractCollectionTester<E> {
   @CollectionSize.Require(ONE)
   public void testRetainAll_containsDuplicatesSizeOne() {
     expectReturnsFalse(containsDuplicates);
-    expectContents(e0());
+    expectContents(samples.e0);
   }
 
   @CollectionFeature.Require(SUPPORTS_REMOVE)
   @CollectionSize.Require(absent = {ZERO, ONE})
   public void testRetainAll_containsDuplicatesSizeSeveral() {
     expectReturnsTrue(containsDuplicates);
-    expectContents(e0());
+    expectContents(samples.e0);
   }
 
   // retainAll(nullSingleton)
@@ -285,7 +296,7 @@ public class CollectionRetainAllTester<E> extends AbstractCollectionTester<E> {
     try {
       collection.retainAll(null);
       // Returning successfully is not ideal, but tolerated.
-    } catch (NullPointerException tolerated) {
+    } catch (NullPointerException expected) {
     }
   }
 
@@ -300,12 +311,14 @@ public class CollectionRetainAllTester<E> extends AbstractCollectionTester<E> {
   }
 
   private void expectReturnsTrue(Target target) {
-    String message = Platform.format("retainAll(%s) should return true", target);
+    String message
+        = Platform.format("retainAll(%s) should return true", target);
     assertTrue(message, collection.retainAll(target.toRetain));
   }
 
   private void expectReturnsFalse(Target target) {
-    String message = Platform.format("retainAll(%s) should return false", target);
+    String message
+        = Platform.format("retainAll(%s) should return false", target);
     assertFalse(message, collection.retainAll(target.toRetain));
   }
 
@@ -319,7 +332,8 @@ public class CollectionRetainAllTester<E> extends AbstractCollectionTester<E> {
   }
 
   private void expectReturnsFalseOrThrows(Target target) {
-    String message = Platform.format("retainAll(%s) should return false or throw", target);
+    String message
+        = Platform.format("retainAll(%s) should return false or throw", target);
     try {
       assertFalse(message, collection.retainAll(target.toRetain));
     } catch (UnsupportedOperationException tolerated) {

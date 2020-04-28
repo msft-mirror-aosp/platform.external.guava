@@ -20,8 +20,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.annotations.Beta;
 import com.google.common.annotations.GwtCompatible;
-import com.google.common.collect.Lists;
-import com.google.errorprone.annotations.concurrent.GuardedBy;
+
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -31,8 +30,6 @@ import java.util.logging.Logger;
 /**
  * A {@code TearDownStack} contains a stack of {@link TearDown} instances.
  *
- * <p>This class is thread-safe.
- *
  * @author Kevin Bourrillion
  * @since 10.0
  */
@@ -41,8 +38,7 @@ import java.util.logging.Logger;
 public class TearDownStack implements TearDownAccepter {
   private static final Logger logger = Logger.getLogger(TearDownStack.class.getName());
 
-  @GuardedBy("stack")
-  final LinkedList<TearDown> stack = new LinkedList<>();
+  final LinkedList<TearDown> stack = new LinkedList<TearDown>();
 
   private final boolean suppressThrows;
 
@@ -56,20 +52,15 @@ public class TearDownStack implements TearDownAccepter {
 
   @Override
   public final void addTearDown(TearDown tearDown) {
-    synchronized (stack) {
-      stack.addFirst(checkNotNull(tearDown));
-    }
+    stack.addFirst(checkNotNull(tearDown));
   }
 
-  /** Causes teardown to execute. */
+  /**
+   * Causes teardown to execute.
+   */
   public final void runTearDown() {
-    List<Throwable> exceptions = new ArrayList<>();
-    List<TearDown> stackCopy;
-    synchronized (stack) {
-      stackCopy = Lists.newArrayList(stack);
-      stack.clear();
-    }
-    for (TearDown tearDown : stackCopy) {
+    List<Throwable> exceptions = new ArrayList<Throwable>();
+    for (TearDown tearDown : stack) {
       try {
         tearDown.tearDown();
       } catch (Throwable t) {
@@ -80,7 +71,8 @@ public class TearDownStack implements TearDownAccepter {
         }
       }
     }
-    if (!suppressThrows && (exceptions.size() > 0)) {
+    stack.clear();
+    if ((!suppressThrows) && (exceptions.size() > 0)) {
       throw ClusterException.create(exceptions);
     }
   }

@@ -16,10 +16,11 @@
 
 package com.google.common.io;
 
+import junit.framework.TestCase;
+
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.regex.PatternSyntaxException;
-import junit.framework.TestCase;
 
 /**
  * Unit test for {@link PatternFilenameFilter}.
@@ -32,7 +33,8 @@ public class PatternFilenameFilterTest extends TestCase {
     try {
       new PatternFilenameFilter("(");
       fail("expected exception");
-    } catch (PatternSyntaxException expected) {
+    } catch (PatternSyntaxException e) {
+      // expected
     }
   }
 

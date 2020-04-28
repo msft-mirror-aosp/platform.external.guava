@@ -14,15 +14,17 @@
 
 package com.google.common.hash;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.easymock.EasyMock.aryEq;
+import static org.easymock.EasyMock.eq;
 
 import com.google.common.testing.NullPointerTester;
+
+import junit.framework.TestCase;
+
+import org.easymock.EasyMock;
+
 import java.io.ByteArrayInputStream;
 import java.util.Arrays;
-import junit.framework.TestCase;
 
 /**
  * Tests for {@link HashingInputStream}.
@@ -35,28 +37,32 @@ public class HashingInputStreamTest extends TestCase {
   private static final byte[] testBytes = new byte[] {'y', 'a', 'm', 's'};
   private ByteArrayInputStream buffer;
 
-  @Override
-  protected void setUp() throws Exception {
+  @Override protected void setUp() throws Exception {
     super.setUp();
-    hasher = mock(Hasher.class);
-    hashFunction = mock(HashFunction.class);
+    hasher = EasyMock.createMock(Hasher.class);
+    hashFunction = EasyMock.createMock(HashFunction.class);
     buffer = new ByteArrayInputStream(testBytes);
 
-    when(hashFunction.newHasher()).thenReturn(hasher);
+    EasyMock.expect(hashFunction.newHasher()).andReturn(hasher).once();
+    EasyMock.replay(hashFunction);
   }
 
   public void testRead_putSingleByte() throws Exception {
+    EasyMock.expect(hasher.putByte((byte) 'y')).andReturn(hasher).once();
+    EasyMock.replay(hasher);
     HashingInputStream in = new HashingInputStream(hashFunction, buffer);
 
     int b = in.read();
     assertEquals('y', b);
 
-    verify(hasher).putByte((byte) 'y');
-    verify(hashFunction).newHasher();
-    verifyNoMoreInteractions(hashFunction, hasher);
+    EasyMock.verify(hashFunction);
+    EasyMock.verify(hasher);
   }
 
   public void testRead_putByteArray() throws Exception {
+    EasyMock.expect(hasher.putBytes(aryEq(testBytes), eq(0), eq(testBytes.length)))
+        .andReturn(hasher).once();
+    EasyMock.replay(hasher);
     HashingInputStream in = new HashingInputStream(hashFunction, buffer);
 
     byte[] buf = new byte[4];
@@ -66,12 +72,14 @@ public class HashingInputStreamTest extends TestCase {
       assertEquals(testBytes[i], buf[i]);
     }
 
-    verify(hasher).putBytes(testBytes, 0, testBytes.length);
-    verify(hashFunction).newHasher();
-    verifyNoMoreInteractions(hashFunction, hasher);
+    EasyMock.verify(hashFunction);
+    EasyMock.verify(hasher);
   }
 
   public void testRead_putByteArrayAtPos() throws Exception {
+    EasyMock.expect(hasher.putBytes(aryEq(Arrays.copyOfRange(testBytes, 0, 3)), eq(0), eq(3)))
+        .andReturn(hasher).once();
+    EasyMock.replay(hasher);
     HashingInputStream in = new HashingInputStream(hashFunction, buffer);
 
     byte[] buf = new byte[3];
@@ -81,9 +89,8 @@ public class HashingInputStreamTest extends TestCase {
       assertEquals(testBytes[i], buf[i]);
     }
 
-    verify(hasher).putBytes(Arrays.copyOf(testBytes, 3), 0, 3);
-    verify(hashFunction).newHasher();
-    verifyNoMoreInteractions(hashFunction, hasher);
+    EasyMock.verify(hashFunction);
+    EasyMock.verify(hasher);
   }
 
   public void testRead_putByteArrayOutOfBound() throws Exception {
@@ -91,6 +98,9 @@ public class HashingInputStreamTest extends TestCase {
     byte[] expectedBytes = buf.clone();
     System.arraycopy(testBytes, 0, expectedBytes, 0, testBytes.length);
 
+    EasyMock.expect(hasher.putBytes(aryEq(expectedBytes), eq(0), eq(4)))
+        .andReturn(hasher).once();
+    EasyMock.replay(hasher);
     HashingInputStream in = new HashingInputStream(hashFunction, buffer);
 
     int numOfByteRead = in.read(buf, 0, 100);
@@ -99,9 +109,8 @@ public class HashingInputStreamTest extends TestCase {
       assertEquals(testBytes[i], buf[i]);
     }
 
-    verify(hasher).putBytes(expectedBytes, 0, 4);
-    verify(hashFunction).newHasher();
-    verifyNoMoreInteractions(hashFunction, hasher);
+    EasyMock.verify(hashFunction);
+    EasyMock.verify(hasher);
   }
 
   public void testHash_hashesCorrectly() throws Exception {

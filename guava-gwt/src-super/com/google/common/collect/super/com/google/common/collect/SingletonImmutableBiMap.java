@@ -44,7 +44,8 @@ final class SingletonImmutableBiMap<K, V> extends ImmutableBiMap<K, V> {
     this.singleValue = value;
   }
 
-  private SingletonImmutableBiMap(K key, V value, SingletonImmutableBiMap<V, K> inverse) {
+  private SingletonImmutableBiMap(
+      K key, V value, SingletonImmutableBiMap<V, K> inverse) {
     super(Collections.singletonMap(checkNotNull(key), checkNotNull(value)));
     this.singleKey = key;
     this.singleValue = value;

@@ -27,6 +27,9 @@ import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
 import com.google.common.testing.GcFinalization;
 import com.google.common.testing.NullPointerTester;
+
+import junit.framework.TestCase;
+
 import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.Map;
@@ -36,7 +39,6 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import junit.framework.TestCase;
 
 /**
  * Tests for Striped.
@@ -50,49 +52,28 @@ public class StripedTest extends TestCase {
         Striped.readWriteLock(256),
         Striped.lock(100),
         Striped.lock(256),
-        Striped.custom(
-            100,
-            new Supplier<Lock>() {
-              @Override
-              public Lock get() {
-                return new ReentrantLock(true);
-              }
-            }),
-        Striped.custom(
-            256,
-            new Supplier<Lock>() {
-              @Override
-              public Lock get() {
-                return new ReentrantLock(true);
-              }
-            }),
         Striped.semaphore(100, 1),
         Striped.semaphore(256, 1));
   }
 
   private static final Supplier<ReadWriteLock> READ_WRITE_LOCK_SUPPLIER =
       new Supplier<ReadWriteLock>() {
-        @Override
-        public ReadWriteLock get() {
-          return new ReentrantReadWriteLock();
-        }
-      };
+    @Override public ReadWriteLock get() {
+      return new ReentrantReadWriteLock();
+    }
+  };
 
-  private static final Supplier<Lock> LOCK_SUPPLER =
-      new Supplier<Lock>() {
-        @Override
-        public Lock get() {
-          return new ReentrantLock();
-        }
-      };
+  private static final Supplier<Lock> LOCK_SUPPLER = new Supplier<Lock>() {
+    @Override public Lock get() {
+      return new ReentrantLock();
+    }
+  };
 
-  private static final Supplier<Semaphore> SEMAPHORE_SUPPLER =
-      new Supplier<Semaphore>() {
-        @Override
-        public Semaphore get() {
-          return new Semaphore(1, false);
-        }
-      };
+  private static final Supplier<Semaphore> SEMAPHORE_SUPPLER = new Supplier<Semaphore>() {
+    @Override public Semaphore get() {
+      return new Semaphore(1, false);
+    }
+  };
 
   private static List<Striped<?>> weakImplementations() {
     return ImmutableList.<Striped<?>>builder()
@@ -131,27 +112,15 @@ public class StripedTest extends TestCase {
 
   public void testWeakImplementations() {
     for (Striped<?> striped : weakImplementations()) {
-      WeakReference<Object> weakRef = new WeakReference<>(striped.get(new Object()));
+      WeakReference<Object> weakRef = new WeakReference<Object>(striped.get(new Object()));
       GcFinalization.awaitClear(weakRef);
     }
   }
 
-  public void testWeakReadWrite() {
-    Striped<ReadWriteLock> striped = Striped.lazyWeakReadWriteLock(1000);
-    Object key = new Object();
-    Lock readLock = striped.get(key).readLock();
-    WeakReference<Object> garbage = new WeakReference<>(new Object());
-    GcFinalization.awaitClear(garbage);
-    Lock writeLock = striped.get(key).writeLock();
-    readLock.lock();
-    assertFalse(writeLock.tryLock());
-    readLock.unlock();
-  }
-
   public void testStrongImplementations() {
     for (Striped<?> striped : strongImplementations()) {
-      WeakReference<Object> weakRef = new WeakReference<>(striped.get(new Object()));
-      WeakReference<Object> garbage = new WeakReference<>(new Object());
+      WeakReference<Object> weakRef = new WeakReference<Object>(striped.get(new Object()));
+      WeakReference<Object> garbage = new WeakReference<Object>(new Object());
       GcFinalization.awaitClear(garbage);
       assertNotNull(weakRef.get());
     }
@@ -189,7 +158,9 @@ public class StripedTest extends TestCase {
     }
   }
 
-  /** Checks idempotency, and that we observe the promised number of stripes. */
+  /**
+   * Checks idempotency, and that we observe the promised number of stripes.
+   */
   public void testBasicInvariants() {
     for (Striped<?> striped : allImplementations()) {
       assertBasicInvariants(striped);
@@ -215,25 +186,22 @@ public class StripedTest extends TestCase {
     try {
       striped.getAt(-1);
       fail();
-    } catch (RuntimeException expected) {
-    }
+    } catch (RuntimeException expected) {}
 
     try {
       striped.getAt(striped.size());
       fail();
-    } catch (RuntimeException expected) {
-    }
+    } catch (RuntimeException expected) {}
   }
 
   public void testMaxSize() {
-    for (Striped<?> striped :
-        ImmutableList.of(
-            Striped.lazyWeakLock(Integer.MAX_VALUE),
-            Striped.lazyWeakSemaphore(Integer.MAX_VALUE, Integer.MAX_VALUE),
-            Striped.lazyWeakReadWriteLock(Integer.MAX_VALUE))) {
+    for (Striped<?> striped : ImmutableList.of(
+        Striped.lazyWeakLock(Integer.MAX_VALUE),
+        Striped.lazyWeakSemaphore(Integer.MAX_VALUE, Integer.MAX_VALUE),
+        Striped.lazyWeakReadWriteLock(Integer.MAX_VALUE))) {
       for (int i = 0; i < 3; i++) {
         // doesn't throw exception
-        Object unused = striped.getAt(Integer.MAX_VALUE - i);
+        striped.getAt(Integer.MAX_VALUE - i);
       }
     }
   }

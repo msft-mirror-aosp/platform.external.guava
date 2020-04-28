@@ -16,13 +16,15 @@ package com.google.common.base;
 
 import static com.google.common.base.Verify.verify;
 import static com.google.common.base.Verify.verifyNotNull;
-import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.annotations.GwtCompatible;
+
 import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
 
-/** Unit test for {@link com.google.common.base.Verify}. */
+/**
+ * Unit test for {@link com.google.common.base.Verify}.
+ */
 @GwtCompatible
 public class VerifyTest extends TestCase {
   public void testVerify_simple_success() {
@@ -46,7 +48,7 @@ public class VerifyTest extends TestCase {
       verify(false, "message");
       fail();
     } catch (VerifyException expected) {
-      assertThat(expected).hasMessageThat().isEqualTo("message");
+      assertEquals("message", expected.getMessage());
     }
   }
 
@@ -92,17 +94,15 @@ public class VerifyTest extends TestCase {
     }
   }
 
-  private static final Object IGNORE_ME =
-      new Object() {
-        @Override
-        public String toString() {
-          throw new AssertionFailedError();
-        }
-      };
+  private static final Object IGNORE_ME = new Object() {
+    @Override public String toString() {
+      throw new AssertionFailedError();
+    }
+  };
 
   private static final String FORMAT = "I ate %s pies.";
 
   private static void checkMessage(Exception e) {
-    assertThat(e).hasMessageThat().isEqualTo("I ate 5 pies.");
+    assertEquals("I ate 5 pies.", e.getMessage());
   }
 }

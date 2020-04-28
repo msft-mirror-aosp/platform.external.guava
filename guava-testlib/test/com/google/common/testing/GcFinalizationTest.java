@@ -16,15 +16,15 @@
 
 package com.google.common.testing;
 
-import static com.google.common.truth.Truth.assertThat;
-
 import com.google.common.testing.GcFinalization.FinalizationPredicate;
 import com.google.common.util.concurrent.SettableFuture;
+
+import junit.framework.TestCase;
+
 import java.lang.ref.WeakReference;
 import java.util.WeakHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
-import junit.framework.TestCase;
 
 /**
  * Tests for {@link GcFinalization}.
@@ -35,34 +35,26 @@ import junit.framework.TestCase;
 
 public class GcFinalizationTest extends TestCase {
 
-  // ----------------------------------------------------------------
+  //----------------------------------------------------------------
   // Ordinary tests of successful method execution
-  // ----------------------------------------------------------------
+  //----------------------------------------------------------------
 
   public void testAwait_CountDownLatch() {
     final CountDownLatch latch = new CountDownLatch(1);
-    Object x =
-        new Object() {
-          @Override
-          protected void finalize() {
-            latch.countDown();
-          }
-        };
-    x = null; // Hint to the JIT that x is unreachable
+    Object x = new Object() {
+      @Override protected void finalize() { latch.countDown(); }
+    };
+    x = null;  // Hint to the JIT that x is unreachable
     GcFinalization.await(latch);
     assertEquals(0, latch.getCount());
   }
 
   public void testAwaitDone_Future() {
     final SettableFuture<Void> future = SettableFuture.create();
-    Object x =
-        new Object() {
-          @Override
-          protected void finalize() {
-            future.set(null);
-          }
-        };
-    x = null; // Hint to the JIT that x is unreachable
+    Object x = new Object() {
+      @Override protected void finalize() { future.set(null); }
+    };
+    x = null;  // Hint to the JIT that x is unreachable
     GcFinalization.awaitDone(future);
     assertTrue(future.isDone());
     assertFalse(future.isCancelled());
@@ -70,65 +62,53 @@ public class GcFinalizationTest extends TestCase {
 
   public void testAwaitDone_Future_Cancel() {
     final SettableFuture<Void> future = SettableFuture.create();
-    Object x =
-        new Object() {
-          @Override
-          protected void finalize() {
-            future.cancel(false);
-          }
-        };
-    x = null; // Hint to the JIT that x is unreachable
+    Object x = new Object() {
+      @Override protected void finalize() { future.cancel(false); }
+    };
+    x = null;  // Hint to the JIT that x is unreachable
     GcFinalization.awaitDone(future);
     assertTrue(future.isDone());
     assertTrue(future.isCancelled());
   }
 
   public void testAwaitClear() {
-    final WeakReference<Object> ref = new WeakReference<>(new Object());
+    final WeakReference<Object> ref = new WeakReference<Object>(new Object());
     GcFinalization.awaitClear(ref);
     assertNull(ref.get());
   }
 
   public void testAwaitDone_FinalizationPredicate() {
-    final WeakHashMap<Object, Object> map = new WeakHashMap<>();
+    final WeakHashMap<Object, Object> map = new WeakHashMap<Object, Object>();
     map.put(new Object(), Boolean.TRUE);
-    GcFinalization.awaitDone(
-        new FinalizationPredicate() {
-          @Override
-          public boolean isDone() {
-            return map.isEmpty();
-          }
-        });
+    GcFinalization.awaitDone(new FinalizationPredicate() {
+      public boolean isDone() {
+        return map.isEmpty();
+      }
+    });
     assertTrue(map.isEmpty());
   }
 
-  // ----------------------------------------------------------------
+  //----------------------------------------------------------------
   // Test that interrupts result in RuntimeException, not InterruptedException.
   // Trickier than it looks, because runFinalization swallows interrupts.
-  // ----------------------------------------------------------------
+  //----------------------------------------------------------------
 
   class Interruptenator extends Thread {
     final AtomicBoolean shutdown;
-
     Interruptenator(final Thread interruptee) {
       this(interruptee, new AtomicBoolean(false));
     }
-
-    Interruptenator(final Thread interruptee, final AtomicBoolean shutdown) {
-      super(
-          new Runnable() {
-            @Override
-            public void run() {
-              while (!shutdown.get()) {
-                interruptee.interrupt();
-                Thread.yield();
-              }
-            }
-          });
+    Interruptenator(final Thread interruptee,
+                    final AtomicBoolean shutdown) {
+      super(new Runnable() {
+          public void run() {
+            while (!shutdown.get()) {
+              interruptee.interrupt();
+              Thread.yield();
+            }}});
       this.shutdown = shutdown;
       start();
     }
-
     void shutdown() {
       shutdown.set(true);
       while (this.isAlive()) {
@@ -138,8 +118,8 @@ public class GcFinalizationTest extends TestCase {
   }
 
   void assertWrapsInterruptedException(RuntimeException e) {
-    assertThat(e).hasMessageThat().contains("Unexpected interrupt");
-    assertThat(e).hasCauseThat().isInstanceOf(InterruptedException.class);
+    assertTrue(e.getMessage().contains("Unexpected interrupt"));
+    assertTrue(e.getCause() instanceof InterruptedException);
   }
 
   public void testAwait_CountDownLatch_Interrupted() {
@@ -194,13 +174,11 @@ public class GcFinalizationTest extends TestCase {
     Interruptenator interruptenator = new Interruptenator(Thread.currentThread());
     try {
       try {
-        GcFinalization.awaitDone(
-            new FinalizationPredicate() {
-              @Override
-              public boolean isDone() {
-                return false;
-              }
-            });
+        GcFinalization.awaitDone(new FinalizationPredicate() {
+            public boolean isDone() {
+              return false;
+            }
+          });
         fail("should throw");
       } catch (RuntimeException expected) {
         assertWrapsInterruptedException(expected);
@@ -212,20 +190,17 @@ public class GcFinalizationTest extends TestCase {
   }
 
   /**
-   * awaitFullGc() is not quite as reliable a way to ensure calling of a specific finalize method as
-   * the more direct await* methods, but should be reliable enough in practice to avoid flakiness of
-   * this test. (And if it isn't, we'd like to know about it first!)
+   * awaitFullGc() is not quite as reliable a way to ensure calling of a
+   * specific finalize method as the more direct await* methods, but should be
+   * reliable enough in practice to avoid flakiness of this test.  (And if it
+   * isn't, we'd like to know about it first!)
    */
   public void testAwaitFullGc() {
     final CountDownLatch finalizerRan = new CountDownLatch(1);
-    final WeakReference<Object> ref =
-        new WeakReference<Object>(
-            new Object() {
-              @Override
-              protected void finalize() {
-                finalizerRan.countDown();
-              }
-            });
+    final WeakReference<Object> ref = new WeakReference<Object>(
+        new Object() {
+          @Override protected void finalize() { finalizerRan.countDown(); }
+        });
 
     // Don't copy this into your own test!
     // Use e.g. awaitClear or await(CountDownLatch) instead.
@@ -237,4 +212,5 @@ public class GcFinalizationTest extends TestCase {
     assertEquals(0, finalizerRan.getCount());
     assertNull(ref.get());
   }
+
 }

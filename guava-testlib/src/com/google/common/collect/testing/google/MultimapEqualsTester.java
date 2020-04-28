@@ -24,10 +24,10 @@ import com.google.common.collect.testing.Helpers;
 import com.google.common.collect.testing.features.CollectionSize;
 import com.google.common.collect.testing.features.MapFeature;
 import com.google.common.testing.EqualsTester;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
-import org.junit.Ignore;
 
 /**
  * Tester for {@code Multimap.equals}.
@@ -35,7 +35,6 @@ import org.junit.Ignore;
  * @author Louis Wasserman
  */
 @GwtCompatible
-@Ignore // Affects only Android test runner, which respects JUnit 4 annotations on JUnit 3 tests.
 public class MultimapEqualsTester<K, V> extends AbstractMultimapTester<K, V, Multimap<K, V>> {
   public void testEqualsTrue() {
     new EqualsTester()
@@ -44,14 +43,14 @@ public class MultimapEqualsTester<K, V> extends AbstractMultimapTester<K, V, Mul
   }
 
   public void testEqualsFalse() {
-    List<Entry<K, V>> targetEntries = new ArrayList<>(getSampleElements());
-    targetEntries.add(Helpers.mapEntry(k0(), v3()));
+    List<Entry<K, V>> targetEntries = new ArrayList<Entry<K, V>>(getSampleElements());
+    targetEntries.add(Helpers.mapEntry(sampleKeys().e0, sampleValues().e3));
     new EqualsTester()
         .addEqualityGroup(multimap())
         .addEqualityGroup(getSubjectGenerator().create(targetEntries.toArray()))
         .testEquals();
   }
-
+  
   @CollectionSize.Require(absent = ZERO)
   @MapFeature.Require(ALLOWS_NULL_KEYS)
   public void testEqualsMultimapWithNullKey() {
@@ -60,11 +59,10 @@ public class MultimapEqualsTester<K, V> extends AbstractMultimapTester<K, V, Mul
     Multimap<K, V> withNull = multimap();
     new EqualsTester()
         .addEqualityGroup(original)
-        .addEqualityGroup(
-            withNull, getSubjectGenerator().create((Object[]) createArrayWithNullKey()))
+        .addEqualityGroup(withNull, getSubjectGenerator().create(createArrayWithNullKey()))
         .testEquals();
   }
-
+  
   @CollectionSize.Require(absent = ZERO)
   @MapFeature.Require(ALLOWS_NULL_VALUES)
   public void testEqualsMultimapWithNullValue() {
@@ -73,8 +71,7 @@ public class MultimapEqualsTester<K, V> extends AbstractMultimapTester<K, V, Mul
     Multimap<K, V> withNull = multimap();
     new EqualsTester()
         .addEqualityGroup(original)
-        .addEqualityGroup(
-            withNull, getSubjectGenerator().create((Object[]) createArrayWithNullValue()))
+        .addEqualityGroup(withNull, getSubjectGenerator().create(createArrayWithNullValue()))
         .testEquals();
   }
 
@@ -85,7 +82,7 @@ public class MultimapEqualsTester<K, V> extends AbstractMultimapTester<K, V, Mul
         .addEqualityGroup(getSubjectGenerator().create())
         .testEquals();
   }
-
+  
   public void testHashCodeMatchesAsMap() {
     assertEquals(multimap().asMap().hashCode(), multimap().hashCode());
   }

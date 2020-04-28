@@ -18,9 +18,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
-import com.google.errorprone.annotations.Immutable;
 import java.io.Serializable;
-import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
@@ -31,12 +29,9 @@ import java.util.Arrays;
  * @author Kevin Bourrillion
  * @author Dimitris Andreou
  */
-@Immutable
-final class MessageDigestHashFunction extends AbstractHashFunction implements Serializable {
-
-  @SuppressWarnings("Immutable") // cloned before each use
+final class MessageDigestHashFunction extends AbstractStreamingHashFunction
+    implements Serializable {
   private final MessageDigest prototype;
-
   private final int bytes;
   private final boolean supportsClone;
   private final String toString;
@@ -45,35 +40,33 @@ final class MessageDigestHashFunction extends AbstractHashFunction implements Se
     this.prototype = getMessageDigest(algorithmName);
     this.bytes = prototype.getDigestLength();
     this.toString = checkNotNull(toString);
-    this.supportsClone = supportsClone(prototype);
+    this.supportsClone = supportsClone();
   }
 
   MessageDigestHashFunction(String algorithmName, int bytes, String toString) {
     this.toString = checkNotNull(toString);
     this.prototype = getMessageDigest(algorithmName);
     int maxLength = prototype.getDigestLength();
-    checkArgument(
-        bytes >= 4 && bytes <= maxLength, "bytes (%s) must be >= 4 and < %s", bytes, maxLength);
+    checkArgument(bytes >= 4 && bytes <= maxLength,
+        "bytes (%s) must be >= 4 and < %s", bytes, maxLength);
     this.bytes = bytes;
-    this.supportsClone = supportsClone(prototype);
+    this.supportsClone = supportsClone();
   }
 
-  private static boolean supportsClone(MessageDigest digest) {
+  private boolean supportsClone() {
     try {
-      digest.clone();
+      prototype.clone();
       return true;
     } catch (CloneNotSupportedException e) {
       return false;
     }
   }
 
-  @Override
-  public int bits() {
+  @Override public int bits() {
     return bytes * Byte.SIZE;
   }
 
-  @Override
-  public String toString() {
+  @Override public String toString() {
     return toString;
   }
 
@@ -85,8 +78,7 @@ final class MessageDigestHashFunction extends AbstractHashFunction implements Se
     }
   }
 
-  @Override
-  public Hasher newHasher() {
+  @Override public Hasher newHasher() {
     if (supportsClone) {
       try {
         return new MessageDigestHasher((MessageDigest) prototype.clone(), bytes);
@@ -119,8 +111,11 @@ final class MessageDigestHashFunction extends AbstractHashFunction implements Se
     return new SerializedForm(prototype.getAlgorithm(), bytes, toString);
   }
 
-  /** Hasher that updates a message digest. */
+  /**
+   * Hasher that updates a message digest.
+   */
   private static final class MessageDigestHasher extends AbstractByteHasher {
+
     private final MessageDigest digest;
     private final int bytes;
     private boolean done;
@@ -137,15 +132,15 @@ final class MessageDigestHashFunction extends AbstractHashFunction implements Se
     }
 
     @Override
-    protected void update(byte[] b, int off, int len) {
+    protected void update(byte[] b) {
       checkNotDone();
-      digest.update(b, off, len);
+      digest.update(b);
     }
 
     @Override
-    protected void update(ByteBuffer bytes) {
+    protected void update(byte[] b, int off, int len) {
       checkNotDone();
-      digest.update(bytes);
+      digest.update(b, off, len);
     }
 
     private void checkNotDone() {

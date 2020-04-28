@@ -24,6 +24,7 @@ import com.google.common.base.Equivalence;
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableTable;
+
 import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
 
@@ -37,8 +38,7 @@ public class EquivalenceTesterTest extends TestCase {
   private EquivalenceTester<Object> tester;
   private MockEquivalence equivalenceMock;
 
-  @Override
-  public void setUp() throws Exception {
+  @Override public void setUp() throws Exception {
     super.setUp();
     this.equivalenceMock = new MockEquivalence();
     this.tester = EquivalenceTester.of(equivalenceMock);
@@ -49,8 +49,7 @@ public class EquivalenceTesterTest extends TestCase {
     try {
       EquivalenceTester.of(null);
       fail("Should fail on null reference");
-    } catch (NullPointerException expected) {
-    }
+    } catch (NullPointerException expected) {}
   }
 
   public void testTest_NoData() {
@@ -83,8 +82,7 @@ public class EquivalenceTesterTest extends TestCase {
 
     equivalenceMock.replay();
 
-    tester
-        .addEquivalenceGroup(group1Item1, group1Item2)
+    tester.addEquivalenceGroup(group1Item1, group1Item2)
         .addEquivalenceGroup(group2Item1, group2Item2)
         .test();
   }
@@ -104,10 +102,9 @@ public class EquivalenceTesterTest extends TestCase {
     try {
       tester.addEquivalenceGroup(group1Item1, group1Item2).test();
     } catch (AssertionFailedError expected) {
-      assertThat(expected.getMessage())
-          .contains(
-              "TestObject{group=1, item=2} [group 1, item 2] must be equivalent to "
-                  + "TestObject{group=1, item=1} [group 1, item 1]");
+      assertThat(expected.getMessage()).contains(
+          "TestObject{group=1, item=2} [group 1, item 2] must be equivalent to "
+          + "TestObject{group=1, item=1} [group 1, item 1]");
       return;
     }
     fail();
@@ -134,10 +131,9 @@ public class EquivalenceTesterTest extends TestCase {
     try {
       tester.addEquivalenceGroup(group1Item1, group1Item2, group1Item3).test();
     } catch (AssertionFailedError expected) {
-      assertThat(expected.getMessage())
-          .contains(
-              "TestObject{group=1, item=2} [group 1, item 2] must be equivalent to "
-                  + "TestObject{group=1, item=3} [group 1, item 3]");
+      assertThat(expected.getMessage()).contains(
+          "TestObject{group=1, item=2} [group 1, item 2] must be equivalent to "
+          + "TestObject{group=1, item=3} [group 1, item 3]");
       return;
     }
     fail();
@@ -158,10 +154,9 @@ public class EquivalenceTesterTest extends TestCase {
     try {
       tester.addEquivalenceGroup(group1Item1).addEquivalenceGroup(group2Item1).test();
     } catch (AssertionFailedError expected) {
-      assertThat(expected.getMessage())
-          .contains(
-              "TestObject{group=1, item=1} [group 1, item 1] must not be equivalent to "
-                  + "TestObject{group=2, item=1} [group 2, item 1]");
+      assertThat(expected.getMessage()).contains(
+          "TestObject{group=1, item=1} [group 1, item 1] must not be equivalent to "
+          + "TestObject{group=2, item=1} [group 2, item 1]");
       return;
     }
     fail();
@@ -184,7 +179,7 @@ public class EquivalenceTesterTest extends TestCase {
     } catch (AssertionFailedError expected) {
       String expectedMessage =
           "the hash (1) of TestObject{group=1, item=1} [group 1, item 1] must be "
-              + "equal to the hash (2) of TestObject{group=1, item=2} [group 1, item 2]";
+          + "equal to the hash (2) of TestObject{group=1, item=2} [group 1, item 2]";
       if (!expected.getMessage().contains(expectedMessage)) {
         fail("<" + expected.getMessage() + "> expected to contain <" + expectedMessage + ">");
       }
@@ -198,13 +193,12 @@ public class EquivalenceTesterTest extends TestCase {
     final int group;
     final int item;
 
-    TestObject(int group, int item) {
+    TestObject(int group , int item) {
       this.group = group;
       this.item = item;
     }
 
-    @Override
-    public String toString() {
+    @Override public String toString() {
       return MoreObjects.toStringHelper("TestObject")
           .add("group", group)
           .add("item", item)
@@ -215,7 +209,8 @@ public class EquivalenceTesterTest extends TestCase {
   private static final class MockEquivalence extends Equivalence<Object> {
     final ImmutableTable.Builder<Object, Object, Boolean> equivalentExpectationsBuilder =
         ImmutableTable.builder();
-    final ImmutableMap.Builder<Object, Integer> hashExpectationsBuilder = ImmutableMap.builder();
+    final ImmutableMap.Builder<Object, Integer> hashExpectationsBuilder =
+        ImmutableMap.builder();
     ImmutableTable<Object, Object, Boolean> equivalentExpectations;
     ImmutableMap<Object, Integer> hashExpectations;
 
@@ -240,13 +235,11 @@ public class EquivalenceTesterTest extends TestCase {
       hashExpectations = hashExpectationsBuilder.build();
     }
 
-    @Override
-    protected boolean doEquivalent(Object a, Object b) {
+    @Override protected boolean doEquivalent(Object a, Object b) {
       return equivalentExpectations.get(a, b);
     }
 
-    @Override
-    protected int doHash(Object object) {
+    @Override protected int doHash(Object object) {
       return hashExpectations.get(object);
     }
 

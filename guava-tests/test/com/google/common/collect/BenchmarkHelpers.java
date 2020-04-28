@@ -16,21 +16,16 @@
 
 package com.google.common.collect;
 
-import static com.google.common.base.Preconditions.checkState;
-
-import com.google.common.base.Equivalence;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Queue;
 import java.util.Random;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 
 /**
@@ -39,91 +34,64 @@ import java.util.concurrent.ConcurrentSkipListMap;
  * @author Christopher Swenson
  */
 final class BenchmarkHelpers {
-  /** So far, this is the best way to test various implementations of {@link Set} subclasses. */
-  public interface CollectionsImplEnum {
-    <E extends Comparable<E>> Collection<E> create(Collection<E> contents);
-
-    String name();
-  }
-
-  public interface MapsImplEnum {
-    <K extends Comparable<K>, V> Map<K, V> create(Map<K, V> contents);
-
-    String name();
-  }
-
-  public interface InternerImplEnum {
-    <E> Interner<E> create(Collection<E> contents);
-
-    String name();
-  }
-
-  public enum SetImpl implements CollectionsImplEnum {
-    HashSetImpl {
-      @Override
-      public <E extends Comparable<E>> Set<E> create(Collection<E> contents) {
+  /**
+   * So far, this is the best way to test various implementations of {@link Set} subclasses.
+   */
+  public enum SetImpl {
+    Hash {
+      @Override <E extends Comparable<E>> Set<E> create(Collection<E> contents) {
         return new HashSet<E>(contents);
       }
     },
-    LinkedHashSetImpl {
-      @Override
-      public <E extends Comparable<E>> Set<E> create(Collection<E> contents) {
+    LinkedHash {
+      @Override <E extends Comparable<E>> Set<E> create(Collection<E> contents) {
         return new LinkedHashSet<E>(contents);
       }
     },
-    TreeSetImpl {
-      @Override
-      public <E extends Comparable<E>> Set<E> create(Collection<E> contents) {
+    Tree {
+      @Override <E extends Comparable<E>> Set<E> create(Collection<E> contents) {
         return new TreeSet<E>(contents);
       }
     },
-    UnmodifiableSetImpl {
-      @Override
-      public <E extends Comparable<E>> Set<E> create(Collection<E> contents) {
+    Unmodifiable {
+      @Override <E extends Comparable<E>> Set<E> create(Collection<E> contents) {
         return Collections.unmodifiableSet(new HashSet<E>(contents));
       }
     },
-    SynchronizedSetImpl {
-      @Override
-      public <E extends Comparable<E>> Set<E> create(Collection<E> contents) {
+    Synchronized {
+      @Override <E extends Comparable<E>> Set<E> create(Collection<E> contents) {
         return Collections.synchronizedSet(new HashSet<E>(contents));
       }
     },
-    ImmutableSetImpl {
-      @Override
-      public <E extends Comparable<E>> Set<E> create(Collection<E> contents) {
+    Immutable {
+      @Override <E extends Comparable<E>> Set<E> create(Collection<E> contents) {
         return ImmutableSet.copyOf(contents);
       }
     },
-    ImmutableSortedSetImpl {
-      @Override
-      public <E extends Comparable<E>> Set<E> create(Collection<E> contents) {
+    ImmutableSorted {
+      @Override <E extends Comparable<E>> Set<E> create(Collection<E> contents) {
         return ImmutableSortedSet.copyOf(contents);
       }
     },
-    ContiguousSetImpl {
-      @Override
-      public <E extends Comparable<E>> Set<E> create(Collection<E> contents) {
-        return ContiguousSet.copyOf(contents);
-      }
-    },
     ;
+
+    abstract <E extends Comparable<E>> Set<E> create(Collection<E> contents);
   }
 
   public enum ListMultimapImpl {
-    ArrayListMultimapImpl {
+    ArrayList {
       @Override
       <K, V> ListMultimap<K, V> create(Multimap<K, V> contents) {
         return ArrayListMultimap.create(contents);
       }
     },
-    LinkedListMultimapImpl {
+    LinkedList {
       @Override
       <K, V> ListMultimap<K, V> create(Multimap<K, V> contents) {
         return LinkedListMultimap.create(contents);
       }
     },
-    ImmutableListMultimapImpl {
+    ImmutableList {
       @Override
       <K, V> ListMultimap<K, V> create(Multimap<K, V> contents) {
         return ImmutableListMultimap.copyOf(contents);
@@ -133,46 +101,29 @@ final class BenchmarkHelpers {
     abstract <K, V> ListMultimap<K, V> create(Multimap<K, V> contents);
   }
 
-  public enum RangeSetImpl {
-    TreeRangeSetImpl {
-      @Override
-      <K extends Comparable<K>> RangeSet<K> create(RangeSet<K> contents) {
-        return TreeRangeSet.create(contents);
-      }
-    },
-    ImmutableRangeSetImpl {
-      @Override
-      <K extends Comparable<K>> RangeSet<K> create(RangeSet<K> contents) {
-        return ImmutableRangeSet.copyOf(contents);
-      }
-    };
-
-    abstract <K extends Comparable<K>> RangeSet<K> create(RangeSet<K> contents);
-  }
-
   public enum SetMultimapImpl {
-    HashMultimapImpl {
+    Hash {
       @Override
       <K extends Comparable<K>, V extends Comparable<V>> SetMultimap<K, V> create(
           Multimap<K, V> contents) {
         return HashMultimap.create(contents);
       }
     },
-    LinkedHashMultimapImpl {
+    LinkedHash {
       @Override
       <K extends Comparable<K>, V extends Comparable<V>> SetMultimap<K, V> create(
           Multimap<K, V> contents) {
         return LinkedHashMultimap.create(contents);
       }
     },
-    TreeMultimapImpl {
+    Tree {
       @Override
       <K extends Comparable<K>, V extends Comparable<V>> SetMultimap<K, V> create(
           Multimap<K, V> contents) {
         return TreeMultimap.create(contents);
       }
     },
-    ImmutableSetMultimapImpl {
+    ImmutableSet {
       @Override
       <K extends Comparable<K>, V extends Comparable<V>> SetMultimap<K, V> create(
           Multimap<K, V> contents) {
@@ -184,171 +135,132 @@ final class BenchmarkHelpers {
         Multimap<K, V> contents);
   }
 
-  public enum MapImpl implements MapsImplEnum {
-    HashMapImpl {
+  public enum MapImpl {
+    Hash {
       @Override
-      public <K extends Comparable<K>, V> Map<K, V> create(Map<K, V> map) {
+      <K, V> Map<K, V> create(Map<K, V> map) {
         return Maps.newHashMap(map);
       }
     },
-    LinkedHashMapImpl {
+    LinkedHash {
       @Override
-      public <K extends Comparable<K>, V> Map<K, V> create(Map<K, V> map) {
+      <K, V> Map<K, V> create(Map<K, V> map) {
         return Maps.newLinkedHashMap(map);
       }
     },
-    ConcurrentHashMapImpl {
+    ConcurrentHash {
       @Override
-      public <K extends Comparable<K>, V> Map<K, V> create(Map<K, V> map) {
-        return new ConcurrentHashMap<>(map);
+      <K, V> Map<K, V> create(Map<K, V> map) {
+        return new ConcurrentHashMap<K, V>(map);
       }
     },
-    ImmutableMapImpl {
+    Immutable {
       @Override
-      public <K extends Comparable<K>, V> Map<K, V> create(Map<K, V> map) {
+      <K, V> Map<K, V> create(Map<K, V> map) {
         return ImmutableMap.copyOf(map);
       }
-    },
-    MapMakerStrongKeysStrongValues {
-      @Override
-      public <K extends Comparable<K>, V> Map<K, V> create(Map<K, V> map) {
-        // We use a "custom" equivalence to force MapMaker to make a MapMakerInternalMap.
-        ConcurrentMap<K, V> newMap = new MapMaker().keyEquivalence(Equivalence.equals()).makeMap();
-        checkState(newMap instanceof MapMakerInternalMap);
-        newMap.putAll(map);
-        return newMap;
-      }
-    },
-    MapMakerStrongKeysWeakValues {
-      @Override
-      public <K extends Comparable<K>, V> Map<K, V> create(Map<K, V> map) {
-        ConcurrentMap<K, V> newMap = new MapMaker().weakValues().makeMap();
-        checkState(newMap instanceof MapMakerInternalMap);
-        newMap.putAll(map);
-        return newMap;
-      }
-    },
-    MapMakerWeakKeysStrongValues {
-      @Override
-      public <K extends Comparable<K>, V> Map<K, V> create(Map<K, V> map) {
-        ConcurrentMap<K, V> newMap = new MapMaker().weakKeys().makeMap();
-        checkState(newMap instanceof MapMakerInternalMap);
-        newMap.putAll(map);
-        return newMap;
-      }
-    },
-    MapMakerWeakKeysWeakValues {
-      @Override
-      public <K extends Comparable<K>, V> Map<K, V> create(Map<K, V> map) {
-        ConcurrentMap<K, V> newMap = new MapMaker().weakKeys().weakValues().makeMap();
-        checkState(newMap instanceof MapMakerInternalMap);
-        newMap.putAll(map);
-        return newMap;
-      }
     };
+
+    abstract <K, V> Map<K, V> create(Map<K, V> map);
   }
 
-  enum SortedMapImpl implements MapsImplEnum {
-    TreeMapImpl {
+  enum SortedMapImpl {
+    Tree {
       @Override
-      public <K extends Comparable<K>, V> SortedMap<K, V> create(Map<K, V> map) {
+      <K extends Comparable<K>, V> SortedMap<K, V> create(Map<K, V> map) {
         SortedMap<K, V> result = Maps.newTreeMap();
         result.putAll(map);
         return result;
       }
     },
-    ConcurrentSkipListImpl {
+    ConcurrentSkipList {
       @Override
-      public <K extends Comparable<K>, V> SortedMap<K, V> create(Map<K, V> map) {
-        return new ConcurrentSkipListMap<>(map);
+      <K extends Comparable<K>, V> SortedMap<K, V> create(Map<K, V> map) {
+        return new ConcurrentSkipListMap<K, V>(map);
       }
     },
-    ImmutableSortedMapImpl {
+    ImmutableSorted {
       @Override
-      public <K extends Comparable<K>, V> SortedMap<K, V> create(Map<K, V> map) {
+      <K extends Comparable<K>, V> SortedMap<K, V> create(Map<K, V> map) {
         return ImmutableSortedMap.copyOf(map);
       }
     };
+
+    abstract <K extends Comparable<K>, V> SortedMap<K, V> create(Map<K, V> map);
   }
 
-  enum BiMapImpl implements MapsImplEnum {
-    HashBiMapImpl {
+  enum BiMapImpl {
+    Hash{
       @Override
-      public <K extends Comparable<K>, V> BiMap<K, V> create(Map<K, V> map) {
+      <K, V> BiMap<K, V> create(BiMap<K, V> map) {
         return HashBiMap.create(map);
       }
     },
-    ImmutableBiMapImpl {
+    Immutable {
       @Override
-      public <K extends Comparable<K>, V> BiMap<K, V> create(Map<K, V> map) {
+      <K, V> BiMap<K, V> create(BiMap<K, V> map) {
         return ImmutableBiMap.copyOf(map);
       }
     };
 
-    @Override
-    public abstract <K extends Comparable<K>, V> BiMap<K, V> create(Map<K, V> map);
+    abstract <K, V> BiMap<K, V> create(BiMap<K, V> map);
   }
 
-  enum MultisetImpl implements CollectionsImplEnum {
-    HashMultisetImpl {
+  enum MultisetImpl {
+    Hash {
       @Override
-      public <E extends Comparable<E>> Multiset<E> create(Collection<E> contents) {
+      <E> Multiset<E> create(Multiset<E> contents) {
         return HashMultiset.create(contents);
       }
     },
-    LinkedHashMultisetImpl {
+    LinkedHash {
       @Override
-      public <E extends Comparable<E>> Multiset<E> create(Collection<E> contents) {
+      <E> Multiset<E> create(Multiset<E> contents) {
         return LinkedHashMultiset.create(contents);
       }
     },
-    ConcurrentHashMultisetImpl {
+    ConcurrentHash {
       @Override
-      public <E extends Comparable<E>> Multiset<E> create(Collection<E> contents) {
+      <E> Multiset<E> create(Multiset<E> contents) {
         return ConcurrentHashMultiset.create(contents);
       }
     },
-    ImmutableMultisetImpl {
+    Immutable {
       @Override
-      public <E extends Comparable<E>> Multiset<E> create(Collection<E> contents) {
+      <E> Multiset<E> create(Multiset<E> contents) {
         return ImmutableMultiset.copyOf(contents);
       }
     };
+
+    abstract <E> Multiset<E> create(Multiset<E> contents);
   }
 
-  enum SortedMultisetImpl implements CollectionsImplEnum {
-    TreeMultisetImpl {
+  enum SortedMultisetImpl {
+    Tree {
       @Override
-      public <E extends Comparable<E>> SortedMultiset<E> create(Collection<E> contents) {
+      <E extends Comparable<E>> SortedMultiset<E> create(Multiset<E> contents) {
         return TreeMultiset.create(contents);
       }
     },
-    ImmutableSortedMultisetImpl {
+    ImmutableSorted {
       @Override
-      public <E extends Comparable<E>> SortedMultiset<E> create(Collection<E> contents) {
+      <E extends Comparable<E>> SortedMultiset<E> create(Multiset<E> contents) {
         return ImmutableSortedMultiset.copyOf(contents);
       }
     };
-  }
 
-  enum QueueImpl implements CollectionsImplEnum {
-    MinMaxPriorityQueueImpl {
-      @Override
-      public <E extends Comparable<E>> Queue<E> create(Collection<E> contents) {
-        return MinMaxPriorityQueue.create(contents);
-      }
-    };
+    abstract <E extends Comparable<E>> SortedMultiset<E> create(Multiset<E> contents);
   }
 
   enum TableImpl {
-    HashBasedTableImpl {
+    HashBased {
       @Override
       <R extends Comparable<R>, C extends Comparable<C>, V> Table<R, C, V> create(
           Table<R, C, V> contents) {
         return HashBasedTable.create(contents);
       }
     },
-    TreeBasedTableImpl {
+    TreeBased {
       @Override
       <R extends Comparable<R>, C extends Comparable<C>, V> Table<R, C, V> create(
           Table<R, C, V> contents) {
@@ -357,7 +269,7 @@ final class BenchmarkHelpers {
         return table;
       }
     },
-    ArrayTableImpl {
+    Array {
       @Override
       <R extends Comparable<R>, C extends Comparable<C>, V> Table<R, C, V> create(
           Table<R, C, V> contents) {
@@ -368,7 +280,7 @@ final class BenchmarkHelpers {
         }
       }
     },
-    ImmutableTableImpl {
+    Immutable {
       @Override
       <R extends Comparable<R>, C extends Comparable<C>, V> Table<R, C, V> create(
           Table<R, C, V> contents) {
@@ -376,31 +288,8 @@ final class BenchmarkHelpers {
       }
     };
 
-    abstract <R extends Comparable<R>, C extends Comparable<C>, V> Table<R, C, V> create(
-        Table<R, C, V> contents);
-  }
-
-  public enum InternerImpl implements InternerImplEnum {
-    WeakInternerImpl {
-      @Override
-      public <E> Interner<E> create(Collection<E> contents) {
-        Interner<E> interner = Interners.newWeakInterner();
-        for (E e : contents) {
-          interner.intern(e);
-        }
-        return interner;
-      }
-    },
-    StrongInternerImpl {
-      @Override
-      public <E> Interner<E> create(Collection<E> contents) {
-        Interner<E> interner = Interners.newStrongInterner();
-        for (E e : contents) {
-          interner.intern(e);
-        }
-        return interner;
-      }
-    };
+    abstract <R extends Comparable<R>, C extends Comparable<C>, V>
+        Table<R, C, V> create(Table<R, C, V> contents);
   }
 
   public enum Value {
@@ -408,10 +297,7 @@ final class BenchmarkHelpers {
   }
 
   public enum ListSizeDistribution {
-    UNIFORM_0_TO_2(0, 2),
-    UNIFORM_0_TO_9(0, 9),
-    ALWAYS_0(0, 0),
-    ALWAYS_10(10, 10);
+    UNIFORM_0_TO_2(0, 2), UNIFORM_0_TO_9(0, 9), ALWAYS_0(0, 0), ALWAYS_10(10, 10);
 
     final int min;
     final int max;

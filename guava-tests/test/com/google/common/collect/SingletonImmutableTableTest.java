@@ -31,7 +31,7 @@ import com.google.common.testing.EqualsTester;
 @GwtCompatible(emulated = true)
 public class SingletonImmutableTableTest extends AbstractImmutableTableTest {
   private final ImmutableTable<Character, Integer, String> testTable =
-      new SingletonImmutableTable<>('a', 1, "blah");
+      new SingletonImmutableTable<Character, Integer, String>('a', 1, "blah");
 
   public void testHashCode() {
     assertEquals(Objects.hashCode('a', 1, "blah"), testTable.hashCode());
@@ -64,7 +64,8 @@ public class SingletonImmutableTableTest extends AbstractImmutableTableTest {
   }
 
   public void testRowMap() {
-    assertEquals(ImmutableMap.of('a', ImmutableMap.of(1, "blah")), testTable.rowMap());
+    assertEquals(ImmutableMap.of('a', ImmutableMap.of(1, "blah")),
+        testTable.rowMap());
   }
 
   public void testEqualsObject() {
@@ -75,7 +76,7 @@ public class SingletonImmutableTableTest extends AbstractImmutableTableTest {
         .testEquals();
   }
 
-  @GwtIncompatible // ArrayTable
+  @GwtIncompatible("ArrayTable")
   public void testEqualsObjectNullValues() {
     new EqualsTester()
         .addEqualityGroup(testTable)
@@ -125,11 +126,10 @@ public class SingletonImmutableTableTest extends AbstractImmutableTableTest {
   }
 
   public void testValues() {
-    assertThat(testTable.values()).contains("blah");
+    assertThat(testTable.values()).has().item("blah");
   }
 
-  @Override
-  Iterable<ImmutableTable<Character, Integer, String>> getTestInstances() {
+  @Override Iterable<ImmutableTable<Character, Integer, String>> getTestInstances() {
     return ImmutableSet.of(testTable);
   }
 }

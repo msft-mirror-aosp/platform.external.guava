@@ -16,9 +16,10 @@
 
 package com.google.common.io;
 
+import junit.framework.TestCase;
+
 import java.io.IOException;
 import java.nio.CharBuffer;
-import junit.framework.TestCase;
 
 /**
  * Tests for {@link CharSequenceReader}.
@@ -35,12 +36,11 @@ public class CharSequenceReaderTest extends TestCase {
     assertReadsCorrectly("abc");
     assertReadsCorrectly("abcde");
     assertReadsCorrectly("abcdefghijkl");
-    assertReadsCorrectly(
-        ""
-            + "abcdefghijklmnopqrstuvwxyz\n"
-            + "ABCDEFGHIJKLMNOPQRSTUVWXYZ\r"
-            + "0123456789\r\n"
-            + "!@#$%^&*()-=_+\t[]{};':\",./<>?\\| ");
+    assertReadsCorrectly(""
+        + "abcdefghijklmnopqrstuvwxyz\n"
+        + "ABCDEFGHIJKLMNOPQRSTUVWXYZ\r"
+        + "0123456789\r\n"
+        + "!@#$%^&*()-=_+\t[]{};':\",./<>?\\| ");
   }
 
   public void testMarkAndReset() throws IOException {

@@ -15,34 +15,32 @@
 package com.google.common.base;
 
 import static com.google.common.base.Preconditions.checkPositionIndexes;
-import static java.lang.Character.MAX_SURROGATE;
-import static java.lang.Character.MIN_SURROGATE;
 
 import com.google.common.annotations.Beta;
 import com.google.common.annotations.GwtCompatible;
 
 /**
  * Low-level, high-performance utility methods related to the {@linkplain Charsets#UTF_8 UTF-8}
- * character encoding. UTF-8 is defined in section D92 of <a
- * href="http://www.unicode.org/versions/Unicode6.2.0/ch03.pdf">The Unicode Standard Core
+ * character encoding. UTF-8 is defined in section D92 of
+ * <a href="http://www.unicode.org/versions/Unicode6.2.0/ch03.pdf">The Unicode Standard Core
  * Specification, Chapter 3</a>.
  *
  * <p>The variant of UTF-8 implemented by this class is the restricted definition of UTF-8
- * introduced in Unicode 3.1. One implication of this is that it rejects <a
- * href="http://www.unicode.org/versions/corrigendum1.html">"non-shortest form"</a> byte sequences,
- * even though the JDK decoder may accept them.
+ * introduced in Unicode 3.1. One implication of this is that it rejects
+ * <a href="http://www.unicode.org/versions/corrigendum1.html">"non-shortest form"</a> byte
+ * sequences, even though the JDK decoder may accept them.
  *
  * @author Martin Buchholz
  * @author Clément Roux
  * @since 16.0
  */
 @Beta
-@GwtCompatible(emulated = true)
+@GwtCompatible
 public final class Utf8 {
   /**
-   * Returns the number of bytes in the UTF-8-encoded form of {@code sequence}. For a string, this
-   * method is equivalent to {@code string.getBytes(UTF_8).length}, but is more efficient in both
-   * time and space.
+   * Returns the number of bytes in the UTF-8-encoded form of {@code sequence}. For a string,
+   * this method is equivalent to {@code string.getBytes(UTF_8).length}, but is more efficient in
+   * both time and space.
    *
    * @throws IllegalArgumentException if {@code sequence} contains ill-formed UTF-16 (unpaired
    *     surrogates)
@@ -62,7 +60,7 @@ public final class Utf8 {
     for (; i < utf16Length; i++) {
       char c = sequence.charAt(i);
       if (c < 0x800) {
-        utf8Length += ((0x7f - c) >>> 31); // branch free!
+        utf8Length += ((0x7f - c) >>> 31);  // branch free!
       } else {
         utf8Length += encodedLengthGeneral(sequence, i);
         break;
@@ -71,8 +69,8 @@ public final class Utf8 {
 
     if (utf8Length < utf16Length) {
       // Necessary and sufficient condition for overflow because of maximum 3x expansion
-      throw new IllegalArgumentException(
-          "UTF-8 length does not fit in int: " + (utf8Length + (1L << 32)));
+      throw new IllegalArgumentException("UTF-8 length does not fit in int: "
+                                         + (utf8Length + (1L << 32)));
     }
     return utf8Length;
   }
@@ -87,10 +85,11 @@ public final class Utf8 {
       } else {
         utf8Length += 2;
         // jdk7+: if (Character.isSurrogate(c)) {
-        if (MIN_SURROGATE <= c && c <= MAX_SURROGATE) {
+        if (Character.MIN_SURROGATE <= c && c <= Character.MAX_SURROGATE) {
           // Check that we have a well-formed surrogate pair.
-          if (Character.codePointAt(sequence, i) == c) {
-            throw new IllegalArgumentException(unpairedSurrogateMsg(i));
+          int cp = Character.codePointAt(sequence, i);
+          if (cp < Character.MIN_SUPPLEMENTARY_CODE_POINT) {
+            throw new IllegalArgumentException("Unpaired surrogate at index " + i);
           }
           i++;
         }
@@ -191,10 +190,6 @@ public final class Utf8 {
         }
       }
     }
-  }
-
-  private static String unpairedSurrogateMsg(int i) {
-    return "Unpaired surrogate at index " + i;
   }
 
   private Utf8() {}

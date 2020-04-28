@@ -88,9 +88,9 @@ public void testCharacterSplitWithMatcherDelimiter() throws Exception {
   testCase.testCharacterSplitWithMatcherDelimiter();
 }
 
-public void testCharacterSplitWithMultipleLetters() throws Exception {
+public void testCharacterSplitWithMulitpleLetters() throws Exception {
   com.google.common.base.SplitterTest testCase = new com.google.common.base.SplitterTest();
-  testCase.testCharacterSplitWithMultipleLetters();
+  testCase.testCharacterSplitWithMulitpleLetters();
 }
 
 public void testCharacterSplitWithTrailingDelimiter() throws Exception {
@@ -151,11 +151,6 @@ public void testFixedLengthSplitZeroChunkLen() throws Exception {
 public void testInvalidZeroLimit() throws Exception {
   com.google.common.base.SplitterTest testCase = new com.google.common.base.SplitterTest();
   testCase.testInvalidZeroLimit();
-}
-
-public void testLimit1Separator() throws Exception {
-  com.google.common.base.SplitterTest testCase = new com.google.common.base.SplitterTest();
-  testCase.testLimit1Separator();
 }
 
 public void testLimitExtraSeparators() throws Exception {
@@ -271,11 +266,6 @@ public void testMapSplitter_trimmedEntries() throws Exception {
 public void testMapSplitter_trimmedKeyValue() throws Exception {
   com.google.common.base.SplitterTest testCase = new com.google.common.base.SplitterTest();
   testCase.testMapSplitter_trimmedKeyValue();
-}
-
-public void testMapSplitter_varyingTrimLevels() throws Exception {
-  com.google.common.base.SplitterTest testCase = new com.google.common.base.SplitterTest();
-  testCase.testMapSplitter_varyingTrimLevels();
 }
 
 public void testSplitNullString() throws Exception {

@@ -17,7 +17,9 @@
 package com.google.common.io;
 
 import com.google.common.collect.Sets;
-import com.google.errorprone.annotations.CanIgnoreReturnValue;
+
+import junit.framework.TestCase;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -27,7 +29,6 @@ import java.net.URL;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import junit.framework.TestCase;
 
 /**
  * Base test case class for I/O tests.
@@ -39,13 +40,13 @@ public abstract class IoTestCase extends TestCase {
 
   private static final Logger logger = Logger.getLogger(IoTestCase.class.getName());
 
-  static final String I18N =
-      "\u00CE\u00F1\u0163\u00E9\u0072\u00F1\u00E5\u0163\u00EE\u00F6"
-          + "\u00F1\u00E5\u013C\u00EE\u017E\u00E5\u0163\u00EE\u00F6\u00F1";
+  static final String I18N
+      = "\u00CE\u00F1\u0163\u00E9\u0072\u00F1\u00E5\u0163\u00EE\u00F6"
+      + "\u00F1\u00E5\u013C\u00EE\u017E\u00E5\u0163\u00EE\u00F6\u00F1";
 
-  static final String ASCII =
-      " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-          + "[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
+  static final String ASCII
+      = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+      + "[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
 
   private File testDir;
   private File tempDir;
@@ -91,7 +92,9 @@ public abstract class IoTestCase extends TestCase {
     return testDir;
   }
 
-  /** Returns the file with the given name under the testdata directory. */
+  /**
+   * Returns the file with the given name under the testdata directory.
+   */
   protected final File getTestFile(String name) throws IOException {
     File file = new File(getTestDir(), name);
     if (!file.exists()) {
@@ -139,12 +142,16 @@ public abstract class IoTestCase extends TestCase {
     return File.createTempFile("test", null, getTempDir());
   }
 
-  /** Returns a byte array of length size that has values 0 .. size - 1. */
+  /**
+   * Returns a byte array of length size that has values 0 .. size - 1.
+   */
   static byte[] newPreFilledByteArray(int size) {
     return newPreFilledByteArray(0, size);
   }
 
-  /** Returns a byte array of length size that has values offset .. offset + size - 1. */
+  /**
+   * Returns a byte array of length size that has values offset .. offset + size - 1.
+   */
   static byte[] newPreFilledByteArray(int offset, int size) {
     byte[] array = new byte[size];
     for (int i = 0; i < size; i++) {
@@ -170,7 +177,6 @@ public abstract class IoTestCase extends TestCase {
     }
   }
 
-  @CanIgnoreReturnValue
   private boolean delete(File file) {
     if (file.isDirectory()) {
       File[] files = file.listFiles();

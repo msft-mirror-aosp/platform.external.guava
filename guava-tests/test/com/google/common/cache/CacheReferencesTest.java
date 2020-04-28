@@ -23,8 +23,10 @@ import com.google.common.cache.LocalCache.Strength;
 import com.google.common.cache.TestingRemovalListeners.CountingRemovalListener;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
-import java.lang.ref.WeakReference;
+
 import junit.framework.TestCase;
+
+import java.lang.ref.WeakReference;
 
 /**
  * Tests of basic {@link LoadingCache} operations with all possible combinations of key & value
@@ -34,10 +36,9 @@ import junit.framework.TestCase;
  */
 public class CacheReferencesTest extends TestCase {
 
-  private static final CacheLoader<Key, String> KEY_TO_STRING_LOADER =
+  private static final CacheLoader<Key,String> KEY_TO_STRING_LOADER =
       new CacheLoader<Key, String>() {
-        @Override
-        public String load(Key key) {
+        @Override public String load(Key key) {
           return key.toString();
         }
       };
@@ -50,11 +51,9 @@ public class CacheReferencesTest extends TestCase {
 
   private Iterable<LoadingCache<Key, String>> caches() {
     CacheBuilderFactory factory = factoryWithAllKeyStrengths();
-    return Iterables.transform(
-        factory.buildAllPermutations(),
+    return Iterables.transform(factory.buildAllPermutations(),
         new Function<CacheBuilder<Object, Object>, LoadingCache<Key, String>>() {
-          @Override
-          public LoadingCache<Key, String> apply(CacheBuilder<Object, Object> builder) {
+          @Override public LoadingCache<Key, String> apply(CacheBuilder<Object, Object> builder) {
             return builder.build(KEY_TO_STRING_LOADER);
           }
         });
@@ -95,9 +94,8 @@ public class CacheReferencesTest extends TestCase {
       assertSame(value1, cache.getUnchecked(key1));
       assertSame(value2, cache.getUnchecked(key2));
       assertEquals(ImmutableSet.of(key1, key2), cache.asMap().keySet());
-      assertThat(cache.asMap().values()).containsExactly(value1, value2);
-      assertEquals(
-          ImmutableSet.of(immutableEntry(key1, value1), immutableEntry(key2, value2)),
+      assertThat(cache.asMap().values()).has().exactly(value1, value2);
+      assertEquals(ImmutableSet.of(immutableEntry(key1, value1), immutableEntry(key2, value2)),
           cache.asMap().entrySet());
     }
   }
@@ -115,15 +113,14 @@ public class CacheReferencesTest extends TestCase {
       assertTrue(cache.asMap().containsKey(key2));
       assertEquals(1, cache.size());
       assertEquals(ImmutableSet.of(key2), cache.asMap().keySet());
-      assertThat(cache.asMap().values()).contains(value2);
+      assertThat(cache.asMap().values()).has().item(value2);
       assertEquals(ImmutableSet.of(immutableEntry(key2, value2)), cache.asMap().entrySet());
     }
   }
 
   // fails in Maven with 64-bit JDK: http://code.google.com/p/guava-libraries/issues/detail?id=1568
 
-  private void assertCleanup(
-      LoadingCache<Integer, String> cache,
+  private void assertCleanup(LoadingCache<Integer, String> cache,
       CountingRemovalListener<Integer, String> removalListener) {
 
     // initialSize will most likely be 2, but it's possible for the GC to have already run, so we'll
@@ -142,14 +139,11 @@ public class CacheReferencesTest extends TestCase {
       }
       try {
         Thread.sleep(10);
-      } catch (InterruptedException e) {
-        /* ignore */
-      }
+      } catch (InterruptedException e) { /* ignore */}
       try {
         // Fill up heap so soft references get cleared.
         filler = new byte[Math.max(filler.length, filler.length * 2)];
-      } catch (OutOfMemoryError e) {
-      }
+      } catch (OutOfMemoryError e) {}
     }
 
     CacheTesting.processPendingNotifications(cache);
@@ -167,8 +161,7 @@ public class CacheReferencesTest extends TestCase {
       this.value = value;
     }
 
-    @Override
-    public synchronized String toString() {
+    @Override public synchronized String toString() {
       String s;
       if (toString != null) {
         s = toString.get();
@@ -177,7 +170,7 @@ public class CacheReferencesTest extends TestCase {
         }
       }
       s = Integer.toString(value);
-      toString = new WeakReference<>(s);
+      toString = new WeakReference<String>(s);
       return s;
     }
   }

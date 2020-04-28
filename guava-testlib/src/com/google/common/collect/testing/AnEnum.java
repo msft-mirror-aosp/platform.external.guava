@@ -25,10 +25,5 @@ import com.google.common.annotations.GwtCompatible;
  */
 @GwtCompatible
 public enum AnEnum {
-  A,
-  B,
-  C,
-  D,
-  E,
-  F
+  A, B, C, D, E, F
 }

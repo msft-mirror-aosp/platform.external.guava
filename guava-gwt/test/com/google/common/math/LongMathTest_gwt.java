@@ -33,41 +33,6 @@ public void testBinomialOutside() throws Exception {
   testCase.testBinomialOutside();
 }
 
-public void testCeilingPowerOfTwo() throws Exception {
-  com.google.common.math.LongMathTest testCase = new com.google.common.math.LongMathTest();
-  testCase.testCeilingPowerOfTwo();
-}
-
-public void testCeilingPowerOfTwoNegative() throws Exception {
-  com.google.common.math.LongMathTest testCase = new com.google.common.math.LongMathTest();
-  testCase.testCeilingPowerOfTwoNegative();
-}
-
-public void testCeilingPowerOfTwoZero() throws Exception {
-  com.google.common.math.LongMathTest testCase = new com.google.common.math.LongMathTest();
-  testCase.testCeilingPowerOfTwoZero();
-}
-
-public void testCheckedMultiply() throws Exception {
-  com.google.common.math.LongMathTest testCase = new com.google.common.math.LongMathTest();
-  testCase.testCheckedMultiply();
-}
-
-public void testFloorPowerOfTwo() throws Exception {
-  com.google.common.math.LongMathTest testCase = new com.google.common.math.LongMathTest();
-  testCase.testFloorPowerOfTwo();
-}
-
-public void testFloorPowerOfTwoNegative() throws Exception {
-  com.google.common.math.LongMathTest testCase = new com.google.common.math.LongMathTest();
-  testCase.testFloorPowerOfTwoNegative();
-}
-
-public void testFloorPowerOfTwoZero() throws Exception {
-  com.google.common.math.LongMathTest testCase = new com.google.common.math.LongMathTest();
-  testCase.testFloorPowerOfTwoZero();
-}
-
 public void testGCDExhaustive() throws Exception {
   com.google.common.math.LongMathTest testCase = new com.google.common.math.LongMathTest();
   testCase.testGCDExhaustive();
@@ -96,11 +61,6 @@ public void testLog2NegativeAlwaysThrows() throws Exception {
 public void testLog2ZeroAlwaysThrows() throws Exception {
   com.google.common.math.LongMathTest testCase = new com.google.common.math.LongMathTest();
   testCase.testLog2ZeroAlwaysThrows();
-}
-
-public void testMaxSignedPowerOfTwo() throws Exception {
-  com.google.common.math.LongMathTest testCase = new com.google.common.math.LongMathTest();
-  testCase.testMaxSignedPowerOfTwo();
 }
 
 public void testSqrtOfLongIsAtMostFloorSqrtMaxLong() throws Exception {

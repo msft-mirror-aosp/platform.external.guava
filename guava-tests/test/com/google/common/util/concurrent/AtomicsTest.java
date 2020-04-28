@@ -17,8 +17,10 @@
 package com.google.common.util.concurrent;
 
 import com.google.common.testing.NullPointerTester;
-import java.util.concurrent.atomic.AtomicReferenceArray;
+
 import junit.framework.TestCase;
+
+import java.util.concurrent.atomic.AtomicReferenceArray;
 
 /**
  * Unit test for {@link Atomics}.

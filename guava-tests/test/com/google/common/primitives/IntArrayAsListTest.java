@@ -27,10 +27,12 @@ import com.google.common.collect.testing.TestListGenerator;
 import com.google.common.collect.testing.features.CollectionFeature;
 import com.google.common.collect.testing.features.CollectionSize;
 import com.google.common.collect.testing.features.ListFeature;
-import java.util.List;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+
+import java.util.List;
 
 /**
  * Test suite covering {@link Ints#asList(int[])}.
@@ -44,33 +46,37 @@ public class IntArrayAsListTest extends TestCase {
   private static List<Integer> asList(Integer[] values) {
     int[] temp = new int[values.length];
     for (int i = 0; i < values.length; i++) {
-      temp[i] = checkNotNull(values[i]); // checkNotNull for GWT (do not optimize).
+      temp[i] = checkNotNull(values[i]);  // checkNotNull for GWT (do not optimize).
     }
     return Ints.asList(temp);
   }
 
-  @GwtIncompatible // suite
+  @GwtIncompatible("suite")
   public static Test suite() {
     List<ListTestSuiteBuilder<Integer>> builders =
         ImmutableList.of(
-            ListTestSuiteBuilder.using(new IntsAsListGenerator()).named("Ints.asList"),
+            ListTestSuiteBuilder.using(new IntsAsListGenerator())
+                .named("Ints.asList"),
+
             ListTestSuiteBuilder.using(new IntsAsListHeadSubListGenerator())
                 .named("Ints.asList, head subList"),
+
             ListTestSuiteBuilder.using(new IntsAsListTailSubListGenerator())
                 .named("Ints.asList, tail subList"),
+
             ListTestSuiteBuilder.using(new IntsAsListMiddleSubListGenerator())
-                .named("Ints.asList, middle subList"));
+                .named("Ints.asList, middle subList")
+        );
 
     TestSuite suite = new TestSuite();
     for (ListTestSuiteBuilder<Integer> builder : builders) {
       suite.addTest(
           builder
-              .withFeatures(
-                  CollectionSize.ONE,
-                  CollectionSize.SEVERAL,
-                  CollectionFeature.RESTRICTS_ELEMENTS,
-                  ListFeature.SUPPORTS_SET)
-              .createTestSuite());
+          .withFeatures(CollectionSize.ONE,
+                        CollectionSize.SEVERAL,
+                        CollectionFeature.RESTRICTS_ELEMENTS,
+                        ListFeature.SUPPORTS_SET)
+          .createTestSuite());
     }
     return suite;
   }
@@ -79,15 +85,13 @@ public class IntArrayAsListTest extends TestCase {
   // public named classes with a public default constructor.
 
   public static final class IntsAsListGenerator extends TestIntegerListGenerator {
-    @Override
-    protected List<Integer> create(Integer[] elements) {
+    @Override protected List<Integer> create(Integer[] elements) {
       return asList(elements);
     }
   }
 
   public static final class IntsAsListHeadSubListGenerator extends TestIntegerListGenerator {
-    @Override
-    protected List<Integer> create(Integer[] elements) {
+    @Override protected List<Integer> create(Integer[] elements) {
       Integer[] suffix = {Integer.MIN_VALUE, Integer.MAX_VALUE};
       Integer[] all = concat(elements, suffix);
       return asList(all).subList(0, elements.length);
@@ -95,8 +99,7 @@ public class IntArrayAsListTest extends TestCase {
   }
 
   public static final class IntsAsListTailSubListGenerator extends TestIntegerListGenerator {
-    @Override
-    protected List<Integer> create(Integer[] elements) {
+    @Override protected List<Integer> create(Integer[] elements) {
       Integer[] prefix = {(int) 86, (int) 99};
       Integer[] all = concat(prefix, elements);
       return asList(all).subList(2, elements.length + 2);
@@ -104,8 +107,7 @@ public class IntArrayAsListTest extends TestCase {
   }
 
   public static final class IntsAsListMiddleSubListGenerator extends TestIntegerListGenerator {
-    @Override
-    protected List<Integer> create(Integer[] elements) {
+    @Override protected List<Integer> create(Integer[] elements) {
       Integer[] prefix = {Integer.MIN_VALUE, Integer.MAX_VALUE};
       Integer[] suffix = {(int) 86, (int) 99};
       Integer[] all = concat(concat(prefix, elements), suffix);
@@ -120,7 +122,8 @@ public class IntArrayAsListTest extends TestCase {
     return result;
   }
 
-  public abstract static class TestIntegerListGenerator implements TestListGenerator<Integer> {
+  public static abstract class TestIntegerListGenerator
+      implements TestListGenerator<Integer> {
     @Override
     public SampleElements<Integer> samples() {
       return new SampleIntegers();
@@ -137,13 +140,12 @@ public class IntArrayAsListTest extends TestCase {
     }
 
     /**
-     * Creates a new collection containing the given elements; implement this method instead of
-     * {@link #create(Object...)}.
+     * Creates a new collection containing the given elements; implement this
+     * method instead of {@link #create(Object...)}.
      */
     protected abstract List<Integer> create(Integer[] elements);
 
-    @Override
-    public Integer[] createArray(int length) {
+    @Override public Integer[] createArray(int length) {
       return new Integer[length];
     }
 

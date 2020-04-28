@@ -27,4 +27,5 @@ public class UninterruptibleMonitorTest extends MonitorTestCase {
   public UninterruptibleMonitorTest() {
     super(false);
   }
+
 }

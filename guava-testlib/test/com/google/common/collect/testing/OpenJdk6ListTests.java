@@ -18,19 +18,25 @@ package com.google.common.collect.testing;
 
 import static com.google.common.collect.testing.testers.CollectionToArrayTester.getToArrayIsPlainObjectArrayMethod;
 import static com.google.common.collect.testing.testers.ListAddTester.getAddSupportedNullPresentMethod;
+import static com.google.common.collect.testing.testers.ListListIteratorTester.getListIteratorFullyModifiableMethod;
 import static com.google.common.collect.testing.testers.ListSetTester.getSetNullSupportedMethod;
+import static com.google.common.collect.testing.testers.ListSubListTester.getSubListOriginalListSetAffectsSubListLargeListMethod;
+import static com.google.common.collect.testing.testers.ListSubListTester.getSubListOriginalListSetAffectsSubListMethod;
+import static com.google.common.collect.testing.testers.ListSubListTester.getSubListSubListRemoveAffectsOriginalLargeListMethod;
 
 import com.google.common.collect.testing.testers.CollectionAddTester;
 import com.google.common.collect.testing.testers.ListAddAtIndexTester;
+
+import junit.framework.Test;
+
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import junit.framework.Test;
 
 /**
- * Tests the {@link List} implementations of {@link java.util}, suppressing tests that trip known
- * OpenJDK 6 bugs.
+ * Tests the {@link List} implementations of {@link java.util}, suppressing
+ * tests that trip known OpenJDK 6 bugs.
  *
  * @author Kevin Bourrillion
  */
@@ -39,13 +45,20 @@ public class OpenJdk6ListTests extends TestsForListsInJavaUtil {
     return new OpenJdk6ListTests().allTests();
   }
 
-  @Override
-  protected Collection<Method> suppressForArraysAsList() {
-    return Arrays.asList(getToArrayIsPlainObjectArrayMethod());
+  @Override protected Collection<Method> suppressForArraysAsList() {
+    return Arrays.asList(
+        getToArrayIsPlainObjectArrayMethod());
   }
 
-  @Override
-  protected Collection<Method> suppressForCheckedList() {
+  @Override protected Collection<Method> suppressForCopyOnWriteArrayList() {
+    return Arrays.asList(
+        getSubListOriginalListSetAffectsSubListMethod(),
+        getSubListOriginalListSetAffectsSubListLargeListMethod(),
+        getSubListSubListRemoveAffectsOriginalLargeListMethod(),
+        getListIteratorFullyModifiableMethod());
+  }
+
+  @Override protected Collection<Method> suppressForCheckedList() {
     return Arrays.asList(
         CollectionAddTester.getAddNullSupportedMethod(),
         getAddSupportedNullPresentMethod(),

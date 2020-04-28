@@ -24,8 +24,8 @@ import com.google.common.annotations.GwtCompatible;
 import com.google.common.collect.testing.features.CollectionFeature;
 import com.google.common.collect.testing.features.CollectionSize;
 import com.google.common.collect.testing.features.MapFeature;
+
 import java.util.Iterator;
-import org.junit.Ignore;
 
 /**
  * Tester for {@code BiMap.remove}.
@@ -33,54 +33,53 @@ import org.junit.Ignore;
  * @author Louis Wasserman
  */
 @GwtCompatible
-@Ignore // Affects only Android test runner, which respects JUnit 4 annotations on JUnit 3 tests.
 public class BiMapRemoveTester<K, V> extends AbstractBiMapTester<K, V> {
   @SuppressWarnings("unchecked")
   @MapFeature.Require(SUPPORTS_REMOVE)
   @CollectionSize.Require(absent = ZERO)
   public void testRemoveKeyRemovesFromInverse() {
-    getMap().remove(k0());
-    expectMissing(e0());
+    getMap().remove(samples.e0.getKey());
+    expectMissing(samples.e0);
   }
 
   @SuppressWarnings("unchecked")
   @MapFeature.Require(SUPPORTS_REMOVE)
   @CollectionSize.Require(absent = ZERO)
   public void testRemoveKeyFromKeySetRemovesFromInverse() {
-    getMap().keySet().remove(k0());
-    expectMissing(e0());
+    getMap().keySet().remove(samples.e0.getKey());
+    expectMissing(samples.e0);
   }
 
   @SuppressWarnings("unchecked")
   @MapFeature.Require(SUPPORTS_REMOVE)
   @CollectionSize.Require(absent = ZERO)
   public void testRemoveFromValuesRemovesFromInverse() {
-    getMap().values().remove(v0());
-    expectMissing(e0());
+    getMap().values().remove(samples.e0.getValue());
+    expectMissing(samples.e0);
   }
 
   @SuppressWarnings("unchecked")
   @MapFeature.Require(SUPPORTS_REMOVE)
   @CollectionSize.Require(absent = ZERO)
   public void testRemoveFromInverseRemovesFromForward() {
-    getMap().inverse().remove(v0());
-    expectMissing(e0());
+    getMap().inverse().remove(samples.e0.getValue());
+    expectMissing(samples.e0);
   }
 
   @SuppressWarnings("unchecked")
   @MapFeature.Require(SUPPORTS_REMOVE)
   @CollectionSize.Require(absent = ZERO)
   public void testRemoveFromInverseKeySetRemovesFromForward() {
-    getMap().inverse().keySet().remove(v0());
-    expectMissing(e0());
+    getMap().inverse().keySet().remove(samples.e0.getValue());
+    expectMissing(samples.e0);
   }
 
   @SuppressWarnings("unchecked")
   @MapFeature.Require(SUPPORTS_REMOVE)
   @CollectionSize.Require(absent = ZERO)
   public void testRemoveFromInverseValuesRemovesFromInverse() {
-    getMap().inverse().values().remove(k0());
-    expectMissing(e0());
+    getMap().inverse().values().remove(samples.e0.getKey());
+    expectMissing(samples.e0);
   }
 
   @CollectionFeature.Require(SUPPORTS_ITERATOR_REMOVE)

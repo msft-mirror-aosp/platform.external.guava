@@ -17,28 +17,32 @@
 package com.google.common.collect.testing;
 
 import com.google.common.annotations.GwtCompatible;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
 /**
- * Implementation helper for {@link TestMapGenerator} for use with maps of strings.
+ * Implementation helper for {@link TestMapGenerator} for use with maps of
+ * strings.
  *
  * @author Chris Povirk
  * @author Jared Levy
  * @author George van den Driessche
  */
 @GwtCompatible
-public abstract class TestStringMapGenerator implements TestMapGenerator<String, String> {
+public abstract class TestStringMapGenerator
+    implements TestMapGenerator<String, String> {
 
   @Override
-  public SampleElements<Entry<String, String>> samples() {
-    return new SampleElements<>(
+  public SampleElements<Map.Entry<String, String>> samples() {
+    return new SampleElements<Map.Entry<String, String>>(
         Helpers.mapEntry("one", "January"),
         Helpers.mapEntry("two", "February"),
         Helpers.mapEntry("three", "March"),
         Helpers.mapEntry("four", "April"),
-        Helpers.mapEntry("five", "May"));
+        Helpers.mapEntry("five", "May")
+    );
   }
 
   @Override
@@ -54,7 +58,8 @@ public abstract class TestStringMapGenerator implements TestMapGenerator<String,
     return create(array);
   }
 
-  protected abstract Map<String, String> create(Entry<String, String>[] entries);
+  protected abstract Map<String, String> create(
+      Entry<String, String>[] entries);
 
   @Override
   @SuppressWarnings("unchecked")
@@ -74,7 +79,8 @@ public abstract class TestStringMapGenerator implements TestMapGenerator<String,
 
   /** Returns the original element list, unchanged. */
   @Override
-  public Iterable<Entry<String, String>> order(List<Entry<String, String>> insertionOrder) {
+  public Iterable<Entry<String, String>> order(
+      List<Entry<String, String>> insertionOrder) {
     return insertionOrder;
   }
 }

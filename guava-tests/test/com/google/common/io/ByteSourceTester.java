@@ -21,59 +21,58 @@ import static com.google.common.io.SourceSinkFactory.CharSourceFactory;
 import static org.junit.Assert.assertArrayEquals;
 
 import com.google.common.base.Charsets;
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.hash.HashCode;
 import com.google.common.hash.Hashing;
+
+import junit.framework.TestSuite;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
-import java.util.Map.Entry;
+import java.util.Map;
 import java.util.Random;
-import junit.framework.TestSuite;
 
 /**
  * A generator of {@code TestSuite} instances for testing {@code ByteSource} implementations.
  * Generates tests of a all methods on a {@code ByteSource} given various inputs the source is
- * expected to contain as well as as sub-suites for testing the {@code CharSource} view and {@code
- * slice()} views in the same way.
+ * expected to contain as well as as sub-suites for testing the {@code CharSource} view and
+ * {@code slice()} views in the same way.
  *
  * @author Colin Decker
  */
-@AndroidIncompatible // Android doesn't understand tests that lack default constructors.
 public class ByteSourceTester extends SourceSinkTester<ByteSource, byte[], ByteSourceFactory> {
 
-  private static final ImmutableList<Method> testMethods = getTestMethods(ByteSourceTester.class);
+  private static final ImmutableList<Method> testMethods
+      = getTestMethods(ByteSourceTester.class);
 
   static TestSuite tests(String name, ByteSourceFactory factory, boolean testAsCharSource) {
     TestSuite suite = new TestSuite(name);
-    for (Entry<String, String> entry : TEST_STRINGS.entrySet()) {
+    for (Map.Entry<String, String> entry : TEST_STRINGS.entrySet()) {
       if (testAsCharSource) {
         suite.addTest(suiteForString(factory, entry.getValue(), name, entry.getKey()));
       } else {
-        suite.addTest(
-            suiteForBytes(
-                factory, entry.getValue().getBytes(Charsets.UTF_8), name, entry.getKey(), true));
+        suite.addTest(suiteForBytes(
+            factory, entry.getValue().getBytes(Charsets.UTF_8), name, entry.getKey(), true));
       }
     }
     return suite;
   }
 
-  static TestSuite suiteForString(
-      ByteSourceFactory factory, String string, String name, String desc) {
+  private static TestSuite suiteForString(ByteSourceFactory factory, String string,
+      String name, String desc) {
     TestSuite suite = suiteForBytes(factory, string.getBytes(Charsets.UTF_8), name, desc, true);
     CharSourceFactory charSourceFactory = SourceSinkFactories.asCharSourceFactory(factory);
-    suite.addTest(
-        CharSourceTester.suiteForString(
-            charSourceFactory, string, name + ".asCharSource[Charset]", desc));
+    suite.addTest(CharSourceTester.suiteForString(charSourceFactory, string,
+        name + ".asCharSource[Charset]", desc));
     return suite;
   }
 
-  static TestSuite suiteForBytes(
-      ByteSourceFactory factory, byte[] bytes, String name, String desc, boolean slice) {
+  private static TestSuite suiteForBytes(ByteSourceFactory factory, byte[] bytes,
+      String name, String desc, boolean slice) {
     TestSuite suite = new TestSuite(name + " [" + desc + "]");
     for (Method method : testMethods) {
       suite.addTest(new ByteSourceTester(factory, bytes, name, desc, method));
@@ -86,24 +85,9 @@ public class ByteSourceTester extends SourceSinkTester<ByteSource, byte[], ByteS
       // if expected.length == 0, off has to be 0 but length doesn't matter--result will be empty
       int off = expected.length == 0 ? 0 : random.nextInt(expected.length);
       int len = expected.length == 0 ? 4 : random.nextInt(expected.length - off);
-
       ByteSourceFactory sliced = SourceSinkFactories.asSlicedByteSourceFactory(factory, off, len);
-      suite.addTest(suiteForBytes(sliced, bytes, name + ".slice[long, long]", desc, false));
-
-      // test a slice() of the ByteSource starting at a random offset with a length of
-      // Long.MAX_VALUE
-      ByteSourceFactory slicedLongMaxValue =
-          SourceSinkFactories.asSlicedByteSourceFactory(factory, off, Long.MAX_VALUE);
-      suite.addTest(
-          suiteForBytes(
-              slicedLongMaxValue, bytes, name + ".slice[long, Long.MAX_VALUE]", desc, false));
-
-      // test a slice() of the ByteSource starting at an offset greater than its size
-      ByteSourceFactory slicedOffsetPastEnd =
-          SourceSinkFactories.asSlicedByteSourceFactory(
-              factory, expected.length + 2, expected.length + 10);
-      suite.addTest(
-          suiteForBytes(slicedOffsetPastEnd, bytes, name + ".slice[size + 2, long]", desc, false));
+      suite.addTest(suiteForBytes(sliced, bytes, name + ".slice[int, int]",
+          desc, false));
     }
 
     return suite;
@@ -111,8 +95,8 @@ public class ByteSourceTester extends SourceSinkTester<ByteSource, byte[], ByteS
 
   private ByteSource source;
 
-  public ByteSourceTester(
-      ByteSourceFactory factory, byte[] bytes, String suiteName, String caseDesc, Method method) {
+  public ByteSourceTester(ByteSourceFactory factory, byte[] bytes,
+      String suiteName, String caseDesc, Method method) {
     super(factory, bytes, suiteName, caseDesc, method);
   }
 
@@ -155,13 +139,12 @@ public class ByteSourceTester extends SourceSinkTester<ByteSource, byte[], ByteS
   public void testCopyTo_byteSink() throws IOException {
     final ByteArrayOutputStream out = new ByteArrayOutputStream();
     // HERESY! but it's ok just for this I guess
-    source.copyTo(
-        new ByteSink() {
-          @Override
-          public OutputStream openStream() throws IOException {
-            return out;
-          }
-        });
+    source.copyTo(new ByteSink() {
+      @Override
+      public OutputStream openStream() throws IOException {
+        return out;
+      }
+    });
     assertExpectedBytes(out.toByteArray());
   }
 
@@ -173,42 +156,31 @@ public class ByteSourceTester extends SourceSinkTester<ByteSource, byte[], ByteS
     assertEquals(expected.length, source.size());
   }
 
-  public void testSizeIfKnown() throws IOException {
-    Optional<Long> sizeIfKnown = source.sizeIfKnown();
-    if (sizeIfKnown.isPresent()) {
-      assertEquals(expected.length, (long) sizeIfKnown.get());
-    }
-  }
-
   public void testContentEquals() throws IOException {
-    assertTrue(
-        source.contentEquals(
-            new ByteSource() {
-              @Override
-              public InputStream openStream() throws IOException {
-                return new RandomAmountInputStream(
-                    new ByteArrayInputStream(expected), new Random());
-              }
-            }));
+    assertTrue(source.contentEquals(new ByteSource() {
+      @Override
+      public InputStream openStream() throws IOException {
+        return new RandomAmountInputStream(
+            new ByteArrayInputStream(expected), new Random());
+      }
+    }));
   }
 
   public void testRead_usingByteProcessor() throws IOException {
-    byte[] readBytes =
-        source.read(
-            new ByteProcessor<byte[]>() {
-              final ByteArrayOutputStream out = new ByteArrayOutputStream();
+    byte[] readBytes = source.read(new ByteProcessor<byte[]>() {
+      final ByteArrayOutputStream out = new ByteArrayOutputStream();
 
-              @Override
-              public boolean processBytes(byte[] buf, int off, int len) throws IOException {
-                out.write(buf, off, len);
-                return true;
-              }
+      @Override
+      public boolean processBytes(byte[] buf, int off, int len) throws IOException {
+        out.write(buf, off, len);
+        return true;
+      }
 
-              @Override
-              public byte[] getResult() {
-                return out.toByteArray();
-              }
-            });
+      @Override
+      public byte[] getResult() {
+        return out.toByteArray();
+      }
+    });
 
     assertExpectedBytes(readBytes);
   }
@@ -229,17 +201,6 @@ public class ByteSourceTester extends SourceSinkTester<ByteSource, byte[], ByteS
       source.slice(0, -1);
       fail("expected IllegalArgumentException for call to slice with length -1: " + source);
     } catch (IllegalArgumentException expected) {
-    }
-  }
-
-  // Test that you can not expand the readable data in a previously sliced ByteSource.
-  public void testSlice_constrainedRange() throws IOException {
-    long size = source.read().length;
-    if (size >= 2) {
-      ByteSource sliced = source.slice(1, size - 2);
-      assertEquals(size - 2, sliced.read().length);
-      ByteSource resliced = sliced.slice(0, size - 1);
-      assertTrue(sliced.contentEquals(resliced));
     }
   }
 

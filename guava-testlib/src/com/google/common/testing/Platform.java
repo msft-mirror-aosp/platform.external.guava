@@ -19,6 +19,7 @@ package com.google.common.testing;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.annotations.GwtCompatible;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -32,7 +33,9 @@ import java.io.ObjectOutputStream;
  */
 @GwtCompatible(emulated = true)
 final class Platform {
-  /** Serializes and deserializes the specified object. */
+  /**
+   * Serializes and deserializes the specified object.
+   */
   @SuppressWarnings("unchecked")
   static <T> T reserialize(T object) {
     checkNotNull(object);
@@ -40,9 +43,12 @@ final class Platform {
     try {
       ObjectOutputStream out = new ObjectOutputStream(bytes);
       out.writeObject(object);
-      ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(bytes.toByteArray()));
+      ObjectInputStream in = new ObjectInputStream(
+          new ByteArrayInputStream(bytes.toByteArray()));
       return (T) in.readObject();
-    } catch (IOException | ClassNotFoundException e) {
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    } catch (ClassNotFoundException e) {
       throw new RuntimeException(e);
     }
   }

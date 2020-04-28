@@ -26,11 +26,13 @@ import com.google.common.collect.testing.features.CollectionSize;
 import com.google.common.collect.testing.google.MultisetFeature;
 import com.google.common.collect.testing.google.MultisetTestSuiteBuilder;
 import com.google.common.collect.testing.google.TestStringMultisetGenerator;
-import java.util.Arrays;
-import java.util.List;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Unit test for {@link LinkedHashMultiset}.
@@ -40,29 +42,26 @@ import junit.framework.TestSuite;
 @GwtCompatible(emulated = true)
 public class LinkedHashMultisetTest extends TestCase {
 
-  @GwtIncompatible // suite
+  @GwtIncompatible("suite")
   public static Test suite() {
     TestSuite suite = new TestSuite();
-    suite.addTest(
-        MultisetTestSuiteBuilder.using(linkedHashMultisetGenerator())
-            .named("LinkedHashMultiset")
-            .withFeatures(
-                CollectionSize.ANY,
-                CollectionFeature.KNOWN_ORDER,
-                CollectionFeature.FAILS_FAST_ON_CONCURRENT_MODIFICATION,
-                CollectionFeature.ALLOWS_NULL_VALUES,
-                CollectionFeature.SERIALIZABLE,
-                CollectionFeature.GENERAL_PURPOSE,
-                MultisetFeature.ENTRIES_ARE_VIEWS)
-            .createTestSuite());
+    suite.addTest(MultisetTestSuiteBuilder.using(linkedHashMultisetGenerator())
+        .named("LinkedHashMultiset")
+        .withFeatures(CollectionSize.ANY,
+            CollectionFeature.KNOWN_ORDER,
+            CollectionFeature.FAILS_FAST_ON_CONCURRENT_MODIFICATION,
+            CollectionFeature.ALLOWS_NULL_VALUES,
+            CollectionFeature.SERIALIZABLE,
+            CollectionFeature.GENERAL_PURPOSE,
+            MultisetFeature.ENTRIES_ARE_VIEWS)
+        .createTestSuite());
     suite.addTestSuite(LinkedHashMultisetTest.class);
     return suite;
   }
 
   private static TestStringMultisetGenerator linkedHashMultisetGenerator() {
     return new TestStringMultisetGenerator() {
-      @Override
-      protected Multiset<String> create(String[] elements) {
+      @Override protected Multiset<String> create(String[] elements) {
         return LinkedHashMultiset.create(asList(elements));
       }
 
@@ -101,7 +100,8 @@ public class LinkedHashMultisetTest extends TestCase {
   }
 
   public void testCreateFromIterable() {
-    Multiset<String> multiset = LinkedHashMultiset.create(Arrays.asList("foo", "bar", "foo"));
+    Multiset<String> multiset
+        = LinkedHashMultiset.create(Arrays.asList("foo", "bar", "foo"));
     assertEquals(3, multiset.size());
     assertEquals(2, multiset.count("foo"));
     assertEquals("[foo x 2, bar]", multiset.toString());
@@ -121,13 +121,13 @@ public class LinkedHashMultisetTest extends TestCase {
     ms.add("a");
     ms.add("b", 2);
     ms.add("c");
-    assertThat(ms.elementSet()).containsExactly("a", "b", "c").inOrder();
+    assertThat(ms.elementSet()).has().exactly("a", "b", "c").inOrder();
     ms.remove("b");
-    assertThat(ms.elementSet()).containsExactly("a", "b", "c").inOrder();
+    assertThat(ms.elementSet()).has().exactly("a", "b", "c").inOrder();
     ms.add("b");
-    assertThat(ms.elementSet()).containsExactly("a", "b", "c").inOrder();
+    assertThat(ms.elementSet()).has().exactly("a", "b", "c").inOrder();
     ms.remove("b", 2);
     ms.add("b");
-    assertThat(ms.elementSet()).containsExactly("a", "c", "b").inOrder();
+    assertThat(ms.elementSet()).has().exactly("a", "c", "b").inOrder();
   }
 }

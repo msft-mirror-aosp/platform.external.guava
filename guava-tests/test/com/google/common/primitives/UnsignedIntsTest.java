@@ -14,17 +14,17 @@
 
 package com.google.common.primitives;
 
-import static com.google.common.truth.Truth.assertThat;
-
 import com.google.common.annotations.GwtCompatible;
 import com.google.common.annotations.GwtIncompatible;
 import com.google.common.collect.testing.Helpers;
 import com.google.common.testing.NullPointerTester;
+
+import junit.framework.TestCase;
+
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
-import junit.framework.TestCase;
 
 /**
  * Tests for UnsignedInts
@@ -34,50 +34,20 @@ import junit.framework.TestCase;
 @GwtCompatible(emulated = true)
 public class UnsignedIntsTest extends TestCase {
   private static final long[] UNSIGNED_INTS = {
-    0L,
-    1L,
-    2L,
-    3L,
-    0x12345678L,
-    0x5a4316b8L,
-    0x6cf78a4bL,
-    0xff1a618bL,
-    0xfffffffdL,
-    0xfffffffeL,
-    0xffffffffL
-  };
-
+      0L,
+      1L,
+      2L,
+      3L,
+      0x12345678L,
+      0x5a4316b8L,
+      0x6cf78a4bL,
+      0xff1a618bL,
+      0xfffffffdL,
+      0xfffffffeL,
+      0xffffffffL};
+  
   private static final int LEAST = (int) 0L;
   private static final int GREATEST = (int) 0xffffffffL;
-
-  public void testCheckedCast() {
-    for (long value : UNSIGNED_INTS) {
-      assertEquals(value, UnsignedInts.toLong(UnsignedInts.checkedCast(value)));
-    }
-    assertCastFails(1L << 32);
-    assertCastFails(-1L);
-    assertCastFails(Long.MAX_VALUE);
-    assertCastFails(Long.MIN_VALUE);
-  }
-
-  private static void assertCastFails(long value) {
-    try {
-      UnsignedInts.checkedCast(value);
-      fail("Cast to int should have failed: " + value);
-    } catch (IllegalArgumentException ex) {
-      assertThat(ex.getMessage()).contains(String.valueOf(value));
-    }
-  }
-
-  public void testSaturatedCast() {
-    for (long value : UNSIGNED_INTS) {
-      assertEquals(value, UnsignedInts.toLong(UnsignedInts.saturatedCast(value)));
-    }
-    assertEquals(GREATEST, UnsignedInts.saturatedCast(1L << 32));
-    assertEquals(LEAST, UnsignedInts.saturatedCast(-1L));
-    assertEquals(GREATEST, UnsignedInts.saturatedCast(Long.MAX_VALUE));
-    assertEquals(LEAST, UnsignedInts.saturatedCast(Long.MIN_VALUE));
-  }
 
   public void testToLong() {
     for (long a : UNSIGNED_INTS) {
@@ -94,7 +64,7 @@ public class UnsignedIntsTest extends TestCase {
       }
     }
   }
-
+  
   public void testMax_noArgs() {
     try {
       UnsignedInts.max();
@@ -102,22 +72,16 @@ public class UnsignedIntsTest extends TestCase {
     } catch (IllegalArgumentException expected) {
     }
   }
-
+  
   public void testMax() {
     assertEquals(LEAST, UnsignedInts.max(LEAST));
     assertEquals(GREATEST, UnsignedInts.max(GREATEST));
-    assertEquals(
-        (int) 0xff1a618bL,
-        UnsignedInts.max(
-            (int) 8L,
-            (int) 6L,
-            (int) 7L,
-            (int) 0x12345678L,
-            (int) 0x5a4316b8L,
-            (int) 0xff1a618bL,
-            (int) 0L));
+    assertEquals((int) 0xff1a618bL, UnsignedInts.max(
+        (int) 8L, (int) 6L, (int) 7L,
+        (int) 0x12345678L, (int) 0x5a4316b8L,
+        (int) 0xff1a618bL, (int) 0L));
   }
-
+  
   public void testMin_noArgs() {
     try {
       UnsignedInts.min();
@@ -125,98 +89,31 @@ public class UnsignedIntsTest extends TestCase {
     } catch (IllegalArgumentException expected) {
     }
   }
-
+  
   public void testMin() {
     assertEquals(LEAST, UnsignedInts.min(LEAST));
     assertEquals(GREATEST, UnsignedInts.min(GREATEST));
-    assertEquals(
-        (int) 0L,
-        UnsignedInts.min(
-            (int) 8L,
-            (int) 6L,
-            (int) 7L,
-            (int) 0x12345678L,
-            (int) 0x5a4316b8L,
-            (int) 0xff1a618bL,
-            (int) 0L));
+    assertEquals((int) 0L, UnsignedInts.min(
+        (int) 8L, (int) 6L, (int) 7L,
+        (int) 0x12345678L, (int) 0x5a4316b8L,
+        (int) 0xff1a618bL, (int) 0L));
   }
-
+  
   public void testLexicographicalComparator() {
-    List<int[]> ordered =
-        Arrays.asList(
-            new int[] {},
-            new int[] {LEAST},
-            new int[] {LEAST, LEAST},
-            new int[] {LEAST, (int) 1L},
-            new int[] {(int) 1L},
-            new int[] {(int) 1L, LEAST},
-            new int[] {GREATEST, (GREATEST - (int) 1L)},
-            new int[] {GREATEST, GREATEST},
-            new int[] {GREATEST, GREATEST, GREATEST});
+    List<int[]> ordered = Arrays.asList(
+        new int[] {},
+        new int[] {LEAST},
+        new int[] {LEAST, LEAST},
+        new int[] {LEAST, (int) 1L},
+        new int[] {(int) 1L},
+        new int[] {(int) 1L, LEAST},
+        new int[] {GREATEST, (GREATEST - (int) 1L)},
+        new int[] {GREATEST, GREATEST},
+        new int[] {GREATEST, GREATEST, GREATEST}
+        );
 
     Comparator<int[]> comparator = UnsignedInts.lexicographicalComparator();
     Helpers.testComparator(comparator, ordered);
-  }
-
-  public void testSort() {
-    testSort(new int[] {}, new int[] {});
-    testSort(new int[] {2}, new int[] {2});
-    testSort(new int[] {2, 1, 0}, new int[] {0, 1, 2});
-    testSort(new int[] {2, GREATEST, 1, LEAST}, new int[] {LEAST, 1, 2, GREATEST});
-  }
-
-  static void testSort(int[] input, int[] expected) {
-    input = Arrays.copyOf(input, input.length);
-    UnsignedInts.sort(input);
-    assertTrue(Arrays.equals(expected, input));
-  }
-
-  static void testSort(int[] input, int from, int to, int[] expected) {
-    input = Arrays.copyOf(input, input.length);
-    UnsignedInts.sort(input, from, to);
-    assertTrue(Arrays.equals(expected, input));
-  }
-
-  public void testSortIndexed() {
-    testSort(new int[] {}, 0, 0, new int[] {});
-    testSort(new int[] {2}, 0, 1, new int[] {2});
-    testSort(new int[] {2, 1, 0}, 0, 2, new int[] {1, 2, 0});
-    testSort(new int[] {2, GREATEST, 1, LEAST}, 1, 4, new int[] {2, LEAST, 1, GREATEST});
-  }
-
-  public void testSortDescending() {
-    testSortDescending(new int[] {}, new int[] {});
-    testSortDescending(new int[] {1}, new int[] {1});
-    testSortDescending(new int[] {1, 2}, new int[] {2, 1});
-    testSortDescending(new int[] {1, 3, 1}, new int[] {3, 1, 1});
-    testSortDescending(
-        new int[] {GREATEST - 1, 1, GREATEST - 2, 2}, new int[] {GREATEST - 1, GREATEST - 2, 2, 1});
-  }
-
-  private static void testSortDescending(int[] input, int[] expectedOutput) {
-    input = Arrays.copyOf(input, input.length);
-    UnsignedInts.sortDescending(input);
-    assertTrue(Arrays.equals(expectedOutput, input));
-  }
-
-  private static void testSortDescending(
-      int[] input, int fromIndex, int toIndex, int[] expectedOutput) {
-    input = Arrays.copyOf(input, input.length);
-    UnsignedInts.sortDescending(input, fromIndex, toIndex);
-    assertTrue(Arrays.equals(expectedOutput, input));
-  }
-
-  public void testSortDescendingIndexed() {
-    testSortDescending(new int[] {}, 0, 0, new int[] {});
-    testSortDescending(new int[] {1}, 0, 1, new int[] {1});
-    testSortDescending(new int[] {1, 2}, 0, 2, new int[] {2, 1});
-    testSortDescending(new int[] {1, 3, 1}, 0, 2, new int[] {3, 1, 1});
-    testSortDescending(new int[] {1, 3, 1}, 0, 1, new int[] {1, 3, 1});
-    testSortDescending(
-        new int[] {GREATEST - 1, 1, GREATEST - 2, 2},
-        1,
-        3,
-        new int[] {GREATEST - 1, GREATEST - 2, 1, 2});
   }
 
   public void testDivide() {
@@ -245,7 +142,7 @@ public class UnsignedIntsTest extends TestCase {
     }
   }
 
-  @GwtIncompatible // Too slow in GWT (~3min fully optimized)
+  @GwtIncompatible("Too slow in GWT (~3min fully optimized)")
   public void testDivideRemainderEuclideanProperty() {
     // Use a seed so that the test is deterministic:
     Random r = new Random(0L);
@@ -253,37 +150,34 @@ public class UnsignedIntsTest extends TestCase {
       int dividend = r.nextInt();
       int divisor = r.nextInt();
       // Test that the Euclidean property is preserved:
-      assertTrue(
-          dividend
-                  - (divisor * UnsignedInts.divide(dividend, divisor)
-                      + UnsignedInts.remainder(dividend, divisor))
-              == 0);
+      assertTrue(dividend
+          - (divisor * UnsignedInts.divide(dividend, divisor) + UnsignedInts.remainder(dividend,
+              divisor)) == 0);
     }
   }
 
   public void testParseInt() {
-    for (long a : UNSIGNED_INTS) {
-      assertEquals((int) a, UnsignedInts.parseUnsignedInt(Long.toString(a)));
+    try {
+      for (long a : UNSIGNED_INTS) {
+        assertEquals((int) a, UnsignedInts.parseUnsignedInt(Long.toString(a)));
+      }
+    } catch (NumberFormatException e) {
+      fail(e.getMessage());
     }
-  }
 
-  public void testParseIntFail() {
     try {
       UnsignedInts.parseUnsignedInt(Long.toString(1L << 32));
       fail("Expected NumberFormatException");
-    } catch (NumberFormatException expected) {
-    }
+    } catch (NumberFormatException expected) {}
   }
 
-  public void testParseIntWithRadix() {
+  public void testParseIntWithRadix() throws NumberFormatException {
     for (long a : UNSIGNED_INTS) {
       for (int radix = Character.MIN_RADIX; radix <= Character.MAX_RADIX; radix++) {
         assertEquals((int) a, UnsignedInts.parseUnsignedInt(Long.toString(a, radix), radix));
       }
     }
-  }
 
-  public void testParseIntWithRadixLimits() {
     // loops through all legal radix values.
     for (int radix = Character.MIN_RADIX; radix <= Character.MAX_RADIX; radix++) {
       // tests can successfully parse a number string with this radix.
@@ -296,8 +190,7 @@ public class UnsignedIntsTest extends TestCase {
         String overflowAsString = Long.toString(overflow, radix);
         UnsignedInts.parseUnsignedInt(overflowAsString, radix);
         fail();
-      } catch (NumberFormatException expected) {
-      }
+      } catch (NumberFormatException expected) {}
     }
   }
 
@@ -307,21 +200,18 @@ public class UnsignedIntsTest extends TestCase {
     try {
       UnsignedInts.parseUnsignedInt("0", Character.MIN_RADIX - 1);
       fail();
-    } catch (NumberFormatException expected) {
-    }
+    } catch (NumberFormatException expected) {}
 
     try {
       UnsignedInts.parseUnsignedInt("0", Character.MAX_RADIX + 1);
       fail();
-    } catch (NumberFormatException expected) {
-    }
+    } catch (NumberFormatException expected) {}
 
     // The radix is used as an array index, so try a negative value.
     try {
       UnsignedInts.parseUnsignedInt("0", -1);
       fail();
-    } catch (NumberFormatException expected) {
-    }
+    } catch (NumberFormatException expected) {}
   }
 
   public void testDecodeInt() {
@@ -383,7 +273,7 @@ public class UnsignedIntsTest extends TestCase {
     return UnsignedInts.join(",", values);
   }
 
-  @GwtIncompatible // NullPointerTester
+  @GwtIncompatible("NullPointerTester")
   public void testNulls() {
     new NullPointerTester().testAllPublicStaticMethods(UnsignedInts.class);
   }

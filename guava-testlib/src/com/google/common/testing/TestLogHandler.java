@@ -17,17 +17,18 @@
 package com.google.common.testing;
 
 import com.google.common.annotations.Beta;
-import com.google.common.annotations.GwtCompatible;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Handler;
 import java.util.logging.LogRecord;
-import org.checkerframework.checker.nullness.qual.Nullable;
+
+import javax.annotation.Nullable;
 
 /**
- * Tests may use this to intercept messages that are logged by the code under test. Example:
- *
+ * Tests may use this to intercept messages that are logged by the code under
+ * test.  Example:
  * <pre>
  *   TestLogHandler handler;
  *
@@ -53,14 +54,16 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * @since 10.0
  */
 @Beta
-@GwtCompatible
 public class TestLogHandler extends Handler {
   /** We will keep a private list of all logged records */
-  private final List<LogRecord> list = new ArrayList<>();
+  private final List<LogRecord> list =
+      Collections.synchronizedList(new ArrayList<LogRecord>());
 
-  /** Adds the most recently logged record to our list. */
+  /**
+   * Adds the most recently logged record to our list.
+   */
   @Override
-  public synchronized void publish(@Nullable LogRecord record) {
+  public void publish(@Nullable LogRecord record) {
     list.add(record);
   }
 
@@ -70,20 +73,16 @@ public class TestLogHandler extends Handler {
   @Override
   public void close() {}
 
-  public synchronized void clear() {
+  public void clear() {
     list.clear();
   }
 
-  /** Returns a snapshot of the logged records. */
-  /*
-   * TODO(cpovirk): consider higher-level APIs here (say, assertNoRecordsLogged(),
-   * getOnlyRecordLogged(), getAndClearLogRecords()...)
-   *
-   * TODO(cpovirk): consider renaming this method to reflect that it takes a snapshot (and/or return
-   * an ImmutableList)
+  /**
+   * Fetch the list of logged records
+   * @return unmodifiable LogRecord list of all logged records
    */
-  public synchronized List<LogRecord> getStoredLogRecords() {
-    List<LogRecord> result = new ArrayList<>(list);
+  public List<LogRecord> getStoredLogRecords() {
+    List<LogRecord> result = new ArrayList<LogRecord>(list);
     return Collections.unmodifiableList(result);
   }
 }

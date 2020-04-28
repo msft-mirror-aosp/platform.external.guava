@@ -1,15 +1,17 @@
 /*
  * Copyright (C) 2006 The Guava Authors
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License. You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package com.google.common.escape;
@@ -18,10 +20,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.annotations.Beta;
 import com.google.common.annotations.GwtCompatible;
-import com.google.errorprone.annotations.CanIgnoreReturnValue;
+
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 /**
  * Simple helper class to build a "sparse" array of objects based on the indexes that were added to
@@ -52,8 +53,7 @@ public final class CharEscaperBuilder {
      * Overriding escape method to be slightly faster for this decorator. We test the replacements
      * array directly, saving a method call.
      */
-    @Override
-    public String escape(String s) {
+    @Override public String escape(String s) {
       int slen = s.length();
       for (int index = 0; index < slen; index++) {
         char c = s.charAt(index);
@@ -64,8 +64,7 @@ public final class CharEscaperBuilder {
       return s;
     }
 
-    @Override
-    protected char[] escape(char c) {
+    @Override protected char[] escape(char c) {
       return c < replaceLength ? replacements[c] : null;
     }
   }
@@ -76,13 +75,16 @@ public final class CharEscaperBuilder {
   // The highest index we've seen so far.
   private int max = -1;
 
-  /** Construct a new sparse array builder. */
+  /**
+   * Construct a new sparse array builder.
+   */
   public CharEscaperBuilder() {
-    this.map = new HashMap<>();
+    this.map = new HashMap<Character, String>();
   }
 
-  /** Add a new mapping from an index to an object to the escaping. */
-  @CanIgnoreReturnValue
+  /**
+   * Add a new mapping from an index to an object to the escaping.
+   */
   public CharEscaperBuilder addEscape(char c, String r) {
     map.put(c, checkNotNull(r));
     if (c > max) {
@@ -91,8 +93,9 @@ public final class CharEscaperBuilder {
     return this;
   }
 
-  /** Add multiple mappings at once for a particular index. */
-  @CanIgnoreReturnValue
+  /**
+   * Add multiple mappings at once for a particular index.
+   */
   public CharEscaperBuilder addEscapes(char[] cs, String r) {
     checkNotNull(r);
     for (char c : cs) {
@@ -110,7 +113,7 @@ public final class CharEscaperBuilder {
    */
   public char[][] toArray() {
     char[][] result = new char[max + 1][];
-    for (Entry<Character, String> entry : map.entrySet()) {
+    for (Map.Entry<Character, String> entry : map.entrySet()) {
       result[entry.getKey()] = entry.getValue().toCharArray();
     }
     return result;

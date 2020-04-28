@@ -38,16 +38,6 @@ public void testCreateFromSizes() throws Exception {
   testCase.testCreateFromSizes();
 }
 
-public void testEntriesSpliterator() throws Exception {
-  com.google.common.collect.LinkedHashMultimapTest testCase = new com.google.common.collect.LinkedHashMultimapTest();
-  testCase.testEntriesSpliterator();
-}
-
-public void testKeysSpliterator() throws Exception {
-  com.google.common.collect.LinkedHashMultimapTest testCase = new com.google.common.collect.LinkedHashMultimapTest();
-  testCase.testKeysSpliterator();
-}
-
 public void testKeysToString_ordering() throws Exception {
   com.google.common.collect.LinkedHashMultimapTest testCase = new com.google.common.collect.LinkedHashMultimapTest();
   testCase.testKeysToString_ordering();
@@ -91,10 +81,5 @@ public void testToStringNullExact() throws Exception {
 public void testValueSetHashTableExpansion() throws Exception {
   com.google.common.collect.LinkedHashMultimapTest testCase = new com.google.common.collect.LinkedHashMultimapTest();
   testCase.testValueSetHashTableExpansion();
-}
-
-public void testValuesSpliterator() throws Exception {
-  com.google.common.collect.LinkedHashMultimapTest testCase = new com.google.common.collect.LinkedHashMultimapTest();
-  testCase.testValuesSpliterator();
 }
 }

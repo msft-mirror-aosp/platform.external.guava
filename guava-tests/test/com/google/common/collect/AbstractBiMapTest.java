@@ -14,10 +14,11 @@
 
 package com.google.common.collect;
 
+import junit.framework.TestCase;
+
 import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
-import junit.framework.TestCase;
 
 /**
  * Tests for {@code AbstractBiMap}.
@@ -29,9 +30,9 @@ public class AbstractBiMapTest extends TestCase {
   // The next two tests verify that map entries are not accessed after they're
   // removed, since IdentityHashMap throws an exception when that occurs.
   public void testIdentityKeySetIteratorRemove() {
-    BiMap<Integer, String> bimap =
-        new AbstractBiMap<Integer, String>(
-            new IdentityHashMap<Integer, String>(), new IdentityHashMap<String, Integer>()) {};
+    BiMap<Integer, String> bimap = new AbstractBiMap<Integer, String>(
+        new IdentityHashMap<Integer, String>(),
+        new IdentityHashMap<String, Integer>()) {};
     bimap.put(1, "one");
     bimap.put(2, "two");
     bimap.put(3, "three");
@@ -46,9 +47,9 @@ public class AbstractBiMapTest extends TestCase {
   }
 
   public void testIdentityEntrySetIteratorRemove() {
-    BiMap<Integer, String> bimap =
-        new AbstractBiMap<Integer, String>(
-            new IdentityHashMap<Integer, String>(), new IdentityHashMap<String, Integer>()) {};
+    BiMap<Integer, String> bimap = new AbstractBiMap<Integer, String>(
+        new IdentityHashMap<Integer, String>(),
+        new IdentityHashMap<String, Integer>()) {};
     bimap.put(1, "one");
     bimap.put(2, "two");
     bimap.put(3, "three");

@@ -25,25 +25,24 @@ import com.google.common.annotations.GwtCompatible;
 import com.google.common.collect.testing.AbstractCollectionTester;
 import com.google.common.collect.testing.features.CollectionFeature;
 import com.google.common.collect.testing.features.CollectionSize;
+
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
-import org.junit.Ignore;
 
 /**
- * A generic JUnit test which tests {@code clear()} operations on a collection. Can't be invoked
- * directly; please see {@link com.google.common.collect.testing.CollectionTestSuiteBuilder}.
+ * A generic JUnit test which tests {@code clear()} operations on a collection.
+ * Can't be invoked directly; please see
+ * {@link com.google.common.collect.testing.CollectionTestSuiteBuilder}.
  *
  * @author George van den Driessche
  */
 @GwtCompatible
-@Ignore // Affects only Android test runner, which respects JUnit 4 annotations on JUnit 3 tests.
 public class CollectionClearTester<E> extends AbstractCollectionTester<E> {
   @CollectionFeature.Require(SUPPORTS_REMOVE)
   public void testClear() {
     collection.clear();
-    assertTrue("After clear(), a collection should be empty.", collection.isEmpty());
-    assertEquals(0, collection.size());
-    assertFalse(collection.iterator().hasNext());
+    assertTrue("After clear(), a collection should be empty.",
+        collection.isEmpty());
   }
 
   @CollectionFeature.Require(absent = SUPPORTS_REMOVE)
@@ -51,9 +50,8 @@ public class CollectionClearTester<E> extends AbstractCollectionTester<E> {
   public void testClear_unsupported() {
     try {
       collection.clear();
-      fail(
-          "clear() should throw UnsupportedOperation if a collection does "
-              + "not support it and is not empty.");
+      fail("clear() should throw UnsupportedOperation if a collection does "
+          + "not support it and is not empty.");
     } catch (UnsupportedOperationException expected) {
     }
     expectUnchanged();
@@ -69,7 +67,8 @@ public class CollectionClearTester<E> extends AbstractCollectionTester<E> {
     expectUnchanged();
   }
 
-  @CollectionFeature.Require({SUPPORTS_REMOVE, FAILS_FAST_ON_CONCURRENT_MODIFICATION})
+  @CollectionFeature.Require({SUPPORTS_REMOVE,
+      FAILS_FAST_ON_CONCURRENT_MODIFICATION})
   @CollectionSize.Require(SEVERAL)
   public void testClearConcurrentWithIteration() {
     try {

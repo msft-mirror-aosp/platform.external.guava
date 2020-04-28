@@ -17,17 +17,19 @@
 package com.google.common.base;
 
 import com.google.caliper.Benchmark;
+import com.google.common.base.Stopwatch;
+
 import java.util.concurrent.TimeUnit;
 
 /**
- * Simple benchmark: create, start, read. This does not currently report the most useful result
- * because it's ambiguous to what extent the stopwatch benchmark is being affected by GC.
+ * Simple benchmark: create, start, read. This does not currently report the
+ * most useful result because it's ambiguous to what extent the stopwatch
+ * benchmark is being affected by GC.
  *
  * @author Kevin Bourrillion
  */
 public class StopwatchBenchmark {
-  @Benchmark
-  long stopwatch(int reps) {
+  @Benchmark long stopwatch(int reps) {
     long total = 0;
     for (int i = 0; i < reps; i++) {
       Stopwatch s = Stopwatch.createStarted();
@@ -37,8 +39,7 @@ public class StopwatchBenchmark {
     return total;
   }
 
-  @Benchmark
-  long manual(int reps) {
+  @Benchmark long manual(int reps) {
     long total = 0;
     for (int i = 0; i < reps; i++) {
       long start = System.nanoTime();

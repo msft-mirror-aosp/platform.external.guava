@@ -17,20 +17,20 @@
 package com.google.common.testing;
 
 import com.google.common.annotations.GwtCompatible;
+
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
 /**
- * An {@link ClusterException} is a data structure that allows for some code to "throw multiple
- * exceptions", or something close to it. The prototypical code that calls for this class is
- * presented below:
+ * An {@link ClusterException} is a data structure that allows for some code to
+ * "throw multiple exceptions", or something close to it. The prototypical code
+ * that calls for this class is presented below:
  *
  * <pre>
- * void runManyThings({@literal List<ThingToRun>} thingsToRun) {
+ * void runManyThings(List&lt;ThingToRun&gt; thingsToRun) {
  *   for (ThingToRun thingToRun : thingsToRun) {
- *     thingToRun.run(); // say this may throw an exception, but you want to
+ *     thingToRun.run(); // <-- say this may throw an exception, but you want to
  *                       // always run all thingsToRun
  *   }
  * }
@@ -39,8 +39,8 @@ import java.util.Collections;
  * <p>This is what the code would become:
  *
  * <pre>
- * void runManyThings({@literal List<ThingToRun>} thingsToRun) {
- *   {@literal List<Exception>} exceptions = Lists.newArrayList();
+ * void runManyThings(List&lt;ThingToRun&gt; thingsToRun) {
+ *   List&lt;Exception&gt; exceptions = Lists.newArrayList();
  *   for (ThingToRun thingToRun : thingsToRun) {
  *     try {
  *       thingToRun.run();
@@ -48,7 +48,7 @@ import java.util.Collections;
  *       exceptions.add(e);
  *     }
  *   }
- *   if (exceptions.size() &gt; 0) {
+ *   if (exceptions.size() > 0) {
  *     throw ClusterException.create(exceptions);
  *   }
  * }
@@ -67,44 +67,52 @@ final class ClusterException extends RuntimeException {
     super(
         exceptions.size() + " exceptions were thrown. The first exception is listed as a cause.",
         exceptions.iterator().next());
-    ArrayList<Throwable> temp = new ArrayList<>();
+    ArrayList<Throwable> temp = new ArrayList<Throwable>();
     temp.addAll(exceptions);
     this.exceptions = Collections.unmodifiableCollection(temp);
   }
 
-  /** @see #create(Collection) */
+  /**
+   * @see #create(Collection)
+   */
   public static RuntimeException create(Throwable... exceptions) {
-    ArrayList<Throwable> temp = new ArrayList<>(Arrays.asList(exceptions));
+    ArrayList<Throwable> temp = new ArrayList<Throwable>();
+    for (Throwable exception : exceptions) {
+      temp.add(exception);
+    }
     return create(temp);
   }
 
   /**
-   * Given a collection of exceptions, returns a {@link RuntimeException}, with the following rules:
+   * Given a collection of exceptions, returns a {@link RuntimeException}, with
+   * the following rules:
    *
    * <ul>
-   *   <li>If {@code exceptions} has a single exception and that exception is a {@link
-   *       RuntimeException}, return it
-   *   <li>If {@code exceptions} has a single exceptions and that exceptions is <em>not</em> a
-   *       {@link RuntimeException}, return a simple {@code RuntimeException} that wraps it
-   *   <li>Otherwise, return an instance of {@link ClusterException} that wraps the first exception
-   *       in the {@code exceptions} collection.
+   *  <li>If {@code exceptions} has a single exception and that exception is a
+   *    {@link RuntimeException}, return it
+   *  <li>If {@code exceptions} has a single exceptions and that exceptions is
+   *    <em>not</em> a {@link RuntimeException}, return a simple
+   *    {@code RuntimeException} that wraps it
+   *  <li>Otherwise, return an instance of {@link ClusterException} that wraps
+   *    the first exception in the {@code exceptions} collection.
    * </ul>
    *
-   * <p>Though this method takes any {@link Collection}, it often makes most sense to pass a {@link
-   * java.util.List} or some other collection that preserves the order in which the exceptions got
-   * added.
+   * <p>Though this method takes any {@link Collection}, it often makes most
+   * sense to pass a {@link java.util.List} or some other collection that
+   * preserves the order in which the exceptions got added.
    *
    * @throws NullPointerException if {@code exceptions} is null
    * @throws IllegalArgumentException if {@code exceptions} is empty
    */
   public static RuntimeException create(Collection<? extends Throwable> exceptions) {
     if (exceptions.size() == 0) {
-      throw new IllegalArgumentException("Can't create an ExceptionCollection with no exceptions");
+      throw new IllegalArgumentException(
+          "Can't create an ExceptionCollection with no exceptions");
     }
     if (exceptions.size() == 1) {
       Throwable temp = exceptions.iterator().next();
       if (temp instanceof RuntimeException) {
-        return (RuntimeException) temp;
+        return (RuntimeException)temp;
       } else {
         return new RuntimeException(temp);
       }

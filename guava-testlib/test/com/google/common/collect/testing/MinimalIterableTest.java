@@ -17,10 +17,12 @@
 package com.google.common.collect.testing;
 
 import com.google.common.annotations.GwtCompatible;
+
+import junit.framework.TestCase;
+
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-import junit.framework.TestCase;
 
 /**
  * Unit test for {@link MinimalIterable}.
@@ -65,7 +67,8 @@ public class MinimalIterableTest extends TestCase {
   }
 
   public void testFrom_empty() {
-    Iterable<String> iterable = MinimalIterable.from(Collections.<String>emptySet());
+    Iterable<String> iterable
+        = MinimalIterable.from(Collections.<String>emptySet());
     Iterator<String> iterator = iterable.iterator();
     assertFalse(iterator.hasNext());
     try {
@@ -81,7 +84,8 @@ public class MinimalIterableTest extends TestCase {
   }
 
   public void testFrom_one() {
-    Iterable<String> iterable = MinimalIterable.from(Collections.singleton("a"));
+    Iterable<String> iterable
+        = MinimalIterable.from(Collections.singleton("a"));
     Iterator<String> iterator = iterable.iterator();
     assertTrue(iterator.hasNext());
     assertEquals("a", iterator.next());

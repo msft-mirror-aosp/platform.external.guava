@@ -19,6 +19,9 @@ package com.google.common.collect;
 import com.google.common.annotations.GwtCompatible;
 import com.google.common.annotations.GwtIncompatible;
 import com.google.common.collect.MultimapBuilder.MultimapBuilderWithKeys;
+
+import junit.framework.TestCase;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
@@ -26,7 +29,6 @@ import java.io.ObjectOutputStream;
 import java.math.RoundingMode;
 import java.util.SortedMap;
 import java.util.SortedSet;
-import junit.framework.TestCase;
 
 /**
  * Tests for {@link MultimapBuilder}.
@@ -36,7 +38,7 @@ import junit.framework.TestCase;
 @GwtCompatible(emulated = true)
 public class MultimapBuilderTest extends TestCase {
 
-  @GwtIncompatible // doesn't build without explicit type parameters on build() methods
+  @GwtIncompatible("doesn't build without explicit type parameters on build() methods")
   public void testGenerics() {
     ListMultimap<String, Integer> a = MultimapBuilder.hashKeys().arrayListValues().build();
     SortedSetMultimap<String, Integer> b = MultimapBuilder.linkedHashKeys().treeSetValues().build();
@@ -49,13 +51,11 @@ public class MultimapBuilderTest extends TestCase {
         MultimapBuilder.hashKeys().arrayListValues().<String, Integer>build();
     SortedSetMultimap<String, Integer> b =
         MultimapBuilder.linkedHashKeys().treeSetValues().<String, Integer>build();
-    SetMultimap<String, Integer> c =
-        MultimapBuilder.treeKeys(String.CASE_INSENSITIVE_ORDER)
-            .hashSetValues()
-            .<String, Integer>build();
+    SetMultimap<String, Integer> c = MultimapBuilder.treeKeys(String.CASE_INSENSITIVE_ORDER)
+        .hashSetValues().<String, Integer>build();
   }
 
-  @GwtIncompatible // doesn't build without explicit type parameters on build() methods
+  @GwtIncompatible("doesn't build without explicit type parameters on build() methods")
   public void testTreeKeys() {
     ListMultimap<String, Integer> multimap = MultimapBuilder.treeKeys().arrayListValues().build();
     assertTrue(multimap.keySet() instanceof SortedSet);
@@ -69,22 +69,18 @@ public class MultimapBuilderTest extends TestCase {
     assertTrue(multimap.asMap() instanceof SortedMap);
   }
 
-  @GwtIncompatible // serialization
+  @GwtIncompatible("serialization")
   public void testSerialization() throws Exception {
-    for (MultimapBuilderWithKeys<?> builderWithKeys :
-        ImmutableList.of(
-            MultimapBuilder.hashKeys(),
-            MultimapBuilder.linkedHashKeys(),
-            MultimapBuilder.treeKeys(),
-            MultimapBuilder.enumKeys(RoundingMode.class))) {
-      for (MultimapBuilder<?, ?> builder :
-          ImmutableList.of(
-              builderWithKeys.arrayListValues(),
-              builderWithKeys.linkedListValues(),
-              builderWithKeys.hashSetValues(),
-              builderWithKeys.linkedHashSetValues(),
-              builderWithKeys.treeSetValues(),
-              builderWithKeys.enumSetValues(RoundingMode.class))) {
+    for (MultimapBuilderWithKeys<?> builderWithKeys : ImmutableList.of(
+        MultimapBuilder.hashKeys(), MultimapBuilder.linkedHashKeys(), MultimapBuilder.treeKeys(),
+        MultimapBuilder.enumKeys(RoundingMode.class))) {
+      for (MultimapBuilder<?, ?> builder : ImmutableList.of(
+          builderWithKeys.arrayListValues(),
+          builderWithKeys.linkedListValues(),
+          builderWithKeys.hashSetValues(),
+          builderWithKeys.linkedHashSetValues(),
+          builderWithKeys.treeSetValues(),
+          builderWithKeys.enumSetValues(RoundingMode.class))) {
         /*
          * Temporarily inlining SerializableTester here for obscure internal reasons.
          */
@@ -93,14 +89,14 @@ public class MultimapBuilderTest extends TestCase {
     }
   }
 
-  @GwtIncompatible // serialization
+  @GwtIncompatible("serialization")
   private static void reserializeAndAssert(Object object) throws Exception {
     Object copy = reserialize(object);
     assertEquals(object, copy);
     assertEquals(object.getClass(), copy.getClass());
   }
 
-  @GwtIncompatible // serialization
+  @GwtIncompatible("serialization")
   private static Object reserialize(Object object) throws Exception {
     ByteArrayOutputStream bytes = new ByteArrayOutputStream();
     new ObjectOutputStream(bytes).writeObject(object);

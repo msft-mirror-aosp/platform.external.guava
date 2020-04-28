@@ -18,12 +18,16 @@ package com.google.common.eventbus;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+
+import junit.framework.TestCase;
+
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
-import junit.framework.TestCase;
 
 /**
  * Test case for {@link EventBus}.
@@ -36,8 +40,7 @@ public class EventBusTest extends TestCase {
 
   private EventBus bus;
 
-  @Override
-  protected void setUp() throws Exception {
+  @Override protected void setUp() throws Exception {
     super.setUp();
     bus = new EventBus(BUS_IDENTIFIER);
   }
@@ -53,10 +56,10 @@ public class EventBusTest extends TestCase {
   }
 
   /**
-   * Tests that events are distributed to any subscribers to their type or any supertype, including
-   * interfaces and superclasses.
+   * Tests that events are distributed to any subscribers to their type or any
+   * supertype, including interfaces and superclasses.
    *
-   * <p>Also checks delivery ordering in such cases.
+   * Also checks delivery ordering in such cases.
    */
   public void testPolymorphicDistribution() {
     // Three catchers for related types String, Object, and Comparable<?>.
@@ -66,96 +69,101 @@ public class EventBusTest extends TestCase {
     StringCatcher stringCatcher = new StringCatcher();
 
     final List<Object> objectEvents = Lists.newArrayList();
-    Object objCatcher =
-        new Object() {
-          @SuppressWarnings("unused")
-          @Subscribe
-          public void eat(Object food) {
-            objectEvents.add(food);
-          }
-        };
+    Object objCatcher = new Object() {
+      @SuppressWarnings("unused")
+      @Subscribe public void eat(Object food) {
+        objectEvents.add(food);
+      }
+    };
 
     final List<Comparable<?>> compEvents = Lists.newArrayList();
-    Object compCatcher =
-        new Object() {
-          @SuppressWarnings("unused")
-          @Subscribe
-          public void eat(Comparable<?> food) {
-            compEvents.add(food);
-          }
-        };
+    Object compCatcher = new Object() {
+      @SuppressWarnings("unused")
+      @Subscribe public void eat(Comparable<?> food) {
+        compEvents.add(food);
+      }
+    };
     bus.register(stringCatcher);
     bus.register(objCatcher);
     bus.register(compCatcher);
 
     // Two additional event types: Object and Comparable<?> (played by Integer)
-    Object objEvent = new Object();
-    Object compEvent = new Integer(6);
+    final Object OBJ_EVENT = new Object();
+    final Object COMP_EVENT = new Integer(6);
 
     bus.post(EVENT);
-    bus.post(objEvent);
-    bus.post(compEvent);
+    bus.post(OBJ_EVENT);
+    bus.post(COMP_EVENT);
 
     // Check the StringCatcher...
     List<String> stringEvents = stringCatcher.getEvents();
-    assertEquals("Only one String should be delivered.", 1, stringEvents.size());
-    assertEquals("Correct string should be delivered.", EVENT, stringEvents.get(0));
+    assertEquals("Only one String should be delivered.",
+        1, stringEvents.size());
+    assertEquals("Correct string should be delivered.",
+        EVENT, stringEvents.get(0));
 
     // Check the Catcher<Object>...
-    assertEquals("Three Objects should be delivered.", 3, objectEvents.size());
-    assertEquals("String fixture must be first object delivered.", EVENT, objectEvents.get(0));
-    assertEquals("Object fixture must be second object delivered.", objEvent, objectEvents.get(1));
-    assertEquals(
-        "Comparable fixture must be thirdobject delivered.", compEvent, objectEvents.get(2));
+    assertEquals("Three Objects should be delivered.",
+        3, objectEvents.size());
+    assertEquals("String fixture must be first object delivered.",
+        EVENT, objectEvents.get(0));
+    assertEquals("Object fixture must be second object delivered.",
+        OBJ_EVENT, objectEvents.get(1));
+    assertEquals("Comparable fixture must be thirdobject delivered.",
+        COMP_EVENT, objectEvents.get(2));
 
     // Check the Catcher<Comparable<?>>...
-    assertEquals("Two Comparable<?>s should be delivered.", 2, compEvents.size());
-    assertEquals("String fixture must be first comparable delivered.", EVENT, compEvents.get(0));
-    assertEquals(
-        "Comparable fixture must be second comparable delivered.", compEvent, compEvents.get(1));
+    assertEquals("Two Comparable<?>s should be delivered.",
+        2, compEvents.size());
+    assertEquals("String fixture must be first comparable delivered.",
+        EVENT, compEvents.get(0));
+    assertEquals("Comparable fixture must be second comparable delivered.",
+        COMP_EVENT, compEvents.get(1));
   }
 
-  public void testSubscriberThrowsException() throws Exception {
-    final RecordingSubscriberExceptionHandler handler = new RecordingSubscriberExceptionHandler();
+  public void testSubscriberThrowsException() throws Exception{
+    final RecordingSubscriberExceptionHandler handler =
+        new RecordingSubscriberExceptionHandler();
     final EventBus eventBus = new EventBus(handler);
     final RuntimeException exception =
         new RuntimeException("but culottes have a tendancy to ride up!");
-    final Object subscriber =
-        new Object() {
-          @Subscribe
-          public void throwExceptionOn(String message) {
-            throw exception;
-          }
-        };
+    final Object subscriber = new Object() {
+      @Subscribe
+      public void throwExceptionOn(String message) {
+        throw exception;
+      }
+    };
     eventBus.register(subscriber);
     eventBus.post(EVENT);
 
-    assertEquals("Cause should be available.", exception, handler.exception);
-    assertEquals("EventBus should be available.", eventBus, handler.context.getEventBus());
-    assertEquals("Event should be available.", EVENT, handler.context.getEvent());
-    assertEquals("Subscriber should be available.", subscriber, handler.context.getSubscriber());
-    assertEquals(
-        "Method should be available.",
+    assertEquals("Cause should be available.",
+        exception, handler.exception);
+    assertEquals("EventBus should be available.",
+        eventBus, handler.context.getEventBus());
+    assertEquals("Event should be available.",
+        EVENT,
+        handler.context.getEvent());
+    assertEquals("Subscriber should be available.",
+        subscriber, handler.context.getSubscriber());
+    assertEquals("Method should be available.",
         subscriber.getClass().getMethod("throwExceptionOn", String.class),
         handler.context.getSubscriberMethod());
   }
 
-  public void testSubscriberThrowsExceptionHandlerThrowsException() throws Exception {
-    final EventBus eventBus =
-        new EventBus(
-            new SubscriberExceptionHandler() {
-              @Override
-              public void handleException(Throwable exception, SubscriberExceptionContext context) {
-                throw new RuntimeException();
-              }
-            });
-    final Object subscriber =
-        new Object() {
-          @Subscribe
-          public void throwExceptionOn(String message) {
-            throw new RuntimeException();
-          }
-        };
+  public void testSubscriberThrowsExceptionHandlerThrowsException() throws Exception{
+    final EventBus eventBus = new EventBus(new SubscriberExceptionHandler() {
+      @Override
+      public void handleException(Throwable exception,
+          SubscriberExceptionContext context) {
+        throw new RuntimeException();
+      }
+    });
+    final Object subscriber = new Object() {
+      @Subscribe
+      public void throwExceptionOn(String message) {
+        throw new RuntimeException();
+      }
+    };
     eventBus.register(subscriber);
     try {
       eventBus.post(EVENT);
@@ -173,7 +181,8 @@ public class EventBusTest extends TestCase {
 
     List<DeadEvent> events = catcher.getEvents();
     assertEquals("One dead event should be delivered.", 1, events.size());
-    assertEquals("The dead event should wrap the original event.", EVENT, events.get(0).getEvent());
+    assertEquals("The dead event should wrap the original event.",
+        EVENT, events.get(0).getEvent());
   }
 
   public void testDeadEventPosting() {
@@ -183,8 +192,22 @@ public class EventBusTest extends TestCase {
     bus.post(new DeadEvent(this, EVENT));
 
     List<DeadEvent> events = catcher.getEvents();
-    assertEquals("The explicit DeadEvent should be delivered.", 1, events.size());
-    assertEquals("The dead event must not be re-wrapped.", EVENT, events.get(0).getEvent());
+    assertEquals("The explicit DeadEvent should be delivered.",
+        1, events.size());
+    assertEquals("The dead event must not be re-wrapped.",
+        EVENT, events.get(0).getEvent());
+  }
+
+  public void testFlattenHierarchy() {
+    HierarchyFixture fixture = new HierarchyFixture();
+    Set<Class<?>> hierarchy = bus.flattenHierarchy(fixture.getClass());
+
+    assertEquals(5, hierarchy.size());
+    assertContains(Object.class, hierarchy);
+    assertContains(HierarchyFixtureInterface.class, hierarchy);
+    assertContains(HierarchyFixtureSubinterface.class, hierarchy);
+    assertContains(HierarchyFixtureParent.class, hierarchy);
+    assertContains(HierarchyFixture.class, hierarchy);
   }
 
   public void testMissingSubscribe() {
@@ -210,17 +233,19 @@ public class EventBusTest extends TestCase {
     expectedEvents.add(EVENT);
     expectedEvents.add(EVENT);
 
-    assertEquals("Two correct events should be delivered.", expectedEvents, catcher1.getEvents());
+    assertEquals("Two correct events should be delivered.",
+                 expectedEvents, catcher1.getEvents());
 
-    assertEquals(
-        "One correct event should be delivered.", Lists.newArrayList(EVENT), catcher2.getEvents());
+    assertEquals("One correct event should be delivered.",
+                 Lists.newArrayList(EVENT), catcher2.getEvents());
 
     bus.unregister(catcher1);
     bus.post(EVENT);
 
-    assertEquals(
-        "Shouldn't catch any more events when unregistered.", expectedEvents, catcher1.getEvents());
-    assertEquals("Two correct events should be delivered.", expectedEvents, catcher2.getEvents());
+    assertEquals("Shouldn't catch any more events when unregistered.",
+                 expectedEvents, catcher1.getEvents());
+    assertEquals("Two correct events should be delivered.",
+                 expectedEvents, catcher2.getEvents());
 
     try {
       bus.unregister(catcher1);
@@ -231,10 +256,10 @@ public class EventBusTest extends TestCase {
 
     bus.unregister(catcher2);
     bus.post(EVENT);
-    assertEquals(
-        "Shouldn't catch any more events when unregistered.", expectedEvents, catcher1.getEvents());
-    assertEquals(
-        "Shouldn't catch any more events when unregistered.", expectedEvents, catcher2.getEvents());
+    assertEquals("Shouldn't catch any more events when unregistered.",
+                 expectedEvents, catcher1.getEvents());
+    assertEquals("Shouldn't catch any more events when unregistered.",
+                 expectedEvents, catcher2.getEvents());
   }
 
   // NOTE: This test will always pass if register() is thread-safe but may also
@@ -251,45 +276,46 @@ public class EventBusTest extends TestCase {
     for (int i = 0; i < numberOfCatchers; i++) {
       futures.get(i).get();
     }
-    assertEquals("Unexpected number of catchers in the list", numberOfCatchers, catchers.size());
+    assertEquals("Unexpected number of catchers in the list",
+        numberOfCatchers, catchers.size());
     bus.post(EVENT);
     List<String> expectedEvents = ImmutableList.of(EVENT);
     for (StringCatcher catcher : catchers) {
-      assertEquals(
-          "One of the registered catchers did not receive an event.",
-          expectedEvents,
-          catcher.getEvents());
+      assertEquals("One of the registered catchers did not receive an event.",
+          expectedEvents, catcher.getEvents());
     }
   }
 
-  public void testToString() throws Exception {
-    EventBus eventBus = new EventBus("a b ; - \" < > / \\ €");
-    assertEquals("EventBus{a b ; - \" < > / \\ €}", eventBus.toString());
-  }
-
   /**
-   * Tests that bridge methods are not subscribed to events. In Java 8, annotations are included on
-   * the bridge method in addition to the original method, which causes both the original and bridge
-   * methods to be subscribed (since both are annotated @Subscribe) without specifically checking
-   * for bridge methods.
+   * Tests that bridge methods are not subscribed to events. In Java 8,
+   * annotations are included on the bridge method in addition to the original
+   * method, which causes both the original and bridge methods to be subscribed
+   * (since both are annotated @Subscribe) without specifically checking for
+   * bridge methods.
    */
   public void testRegistrationWithBridgeMethod() {
     final AtomicInteger calls = new AtomicInteger();
-    bus.register(
-        new Callback<String>() {
-          @Subscribe
-          @Override
-          public void call(String s) {
-            calls.incrementAndGet();
-          }
-        });
+    bus.register(new Callback<String>() {
+      @Subscribe
+      @Override
+      public void call(String s) {
+        calls.incrementAndGet();
+      }
+    });
 
     bus.post("hello");
 
     assertEquals(1, calls.get());
   }
 
-  /** Records thrown exception information. */
+  private <T> void assertContains(T element, Collection<T> collection) {
+    assertTrue("Collection must contain " + element,
+        collection.contains(element));
+  }
+
+  /**
+   * Records thrown exception information.
+   */
   private static final class RecordingSubscriberExceptionHandler
       implements SubscriberExceptionHandler {
 
@@ -297,13 +323,17 @@ public class EventBusTest extends TestCase {
     public Throwable exception;
 
     @Override
-    public void handleException(Throwable exception, SubscriberExceptionContext context) {
+    public void handleException(Throwable exception,
+        SubscriberExceptionContext context) {
       this.exception = exception;
       this.context = context;
     }
   }
 
-  /** Runnable which registers a StringCatcher on an event bus and adds it to a list. */
+  /**
+   * Runnable which registers a StringCatcher on an event bus and adds it to a
+   * list.
+   */
   private static class Registrator implements Runnable {
     private final EventBus bus;
     private final List<StringCatcher> catchers;
@@ -325,6 +355,7 @@ public class EventBusTest extends TestCase {
    * A collector for DeadEvents.
    *
    * @author cbiffle
+   *
    */
   public static class GhostCatcher {
     private List<DeadEvent> events = Lists.newArrayList();
@@ -337,6 +368,24 @@ public class EventBusTest extends TestCase {
     public List<DeadEvent> getEvents() {
       return events;
     }
+  }
+
+  private interface HierarchyFixtureInterface {
+    // Exists only for hierarchy mapping; no members.
+  }
+
+  private interface HierarchyFixtureSubinterface
+      extends HierarchyFixtureInterface {
+    // Exists only for hierarchy mapping; no members.
+  }
+
+  private static class HierarchyFixtureParent
+      implements HierarchyFixtureSubinterface {
+    // Exists only for hierarchy mapping; no members.
+  }
+
+  private static class HierarchyFixture extends HierarchyFixtureParent {
+    // Exists only for hierarchy mapping; no members.
   }
 
   private interface Callback<T> {

@@ -20,8 +20,10 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.testing.EqualsTester;
 import com.google.common.testing.NullPointerTester;
 import com.google.common.testing.SerializableTester;
-import java.math.BigInteger;
+
 import junit.framework.TestCase;
+
+import java.math.BigInteger;
 
 /**
  * Tests for {@code UnsignedLong}.
@@ -66,17 +68,14 @@ public class UnsignedLongTest extends TestCase {
 
   public void testAsUnsignedBigIntegerValue() {
     for (long value : TEST_LONGS) {
-      BigInteger expected =
-          (value >= 0)
-              ? BigInteger.valueOf(value)
-              : BigInteger.valueOf(value).add(BigInteger.ZERO.setBit(64));
-      assertEquals(
-          UnsignedLongs.toString(value),
-          expected,
+      BigInteger expected = (value >= 0)
+          ? BigInteger.valueOf(value)
+          : BigInteger.valueOf(value).add(BigInteger.ZERO.setBit(64));
+      assertEquals(UnsignedLongs.toString(value), expected,
           UnsignedLong.fromLongBits(value).bigIntegerValue());
     }
   }
-
+  
   public void testValueOfLong() {
     for (long value : TEST_LONGS) {
       boolean expectSuccess = value >= 0;
@@ -88,12 +87,13 @@ public class UnsignedLongTest extends TestCase {
       }
     }
   }
-
+  
   public void testValueOfBigInteger() {
     BigInteger min = BigInteger.ZERO;
     BigInteger max = UnsignedLong.MAX_VALUE.bigIntegerValue();
     for (BigInteger big : TEST_BIG_INTEGERS) {
-      boolean expectSuccess = big.compareTo(min) >= 0 && big.compareTo(max) <= 0;
+      boolean expectSuccess =
+          big.compareTo(min) >= 0 && big.compareTo(max) <= 0;
       try {
         assertEquals(big, UnsignedLong.valueOf(big).bigIntegerValue());
         assertTrue(expectSuccess);
@@ -110,7 +110,7 @@ public class UnsignedLongTest extends TestCase {
     }
   }
 
-  @GwtIncompatible // too slow
+  @GwtIncompatible("too slow")
   public void testToStringRadix() {
     for (int radix = Character.MIN_RADIX; radix <= Character.MAX_RADIX; radix++) {
       for (long l : TEST_LONGS) {
@@ -149,7 +149,10 @@ public class UnsignedLongTest extends TestCase {
       for (long b : TEST_LONGS) {
         UnsignedLong aUnsigned = UnsignedLong.fromLongBits(a);
         UnsignedLong bUnsigned = UnsignedLong.fromLongBits(b);
-        long expected = aUnsigned.bigIntegerValue().add(bUnsigned.bigIntegerValue()).longValue();
+        long expected = aUnsigned
+            .bigIntegerValue()
+            .add(bUnsigned.bigIntegerValue())
+            .longValue();
         UnsignedLong unsignedSum = aUnsigned.plus(bUnsigned);
         assertEquals(expected, unsignedSum.longValue());
       }
@@ -161,8 +164,10 @@ public class UnsignedLongTest extends TestCase {
       for (long b : TEST_LONGS) {
         UnsignedLong aUnsigned = UnsignedLong.fromLongBits(a);
         UnsignedLong bUnsigned = UnsignedLong.fromLongBits(b);
-        long expected =
-            aUnsigned.bigIntegerValue().subtract(bUnsigned.bigIntegerValue()).longValue();
+        long expected = aUnsigned
+            .bigIntegerValue()
+            .subtract(bUnsigned.bigIntegerValue())
+            .longValue();
         UnsignedLong unsignedSub = aUnsigned.minus(bUnsigned);
         assertEquals(expected, unsignedSub.longValue());
       }
@@ -174,8 +179,10 @@ public class UnsignedLongTest extends TestCase {
       for (long b : TEST_LONGS) {
         UnsignedLong aUnsigned = UnsignedLong.fromLongBits(a);
         UnsignedLong bUnsigned = UnsignedLong.fromLongBits(b);
-        long expected =
-            aUnsigned.bigIntegerValue().multiply(bUnsigned.bigIntegerValue()).longValue();
+        long expected = aUnsigned
+            .bigIntegerValue()
+            .multiply(bUnsigned.bigIntegerValue())
+            .longValue();
         UnsignedLong unsignedMul = aUnsigned.times(bUnsigned);
         assertEquals(expected, unsignedMul.longValue());
       }
@@ -188,8 +195,10 @@ public class UnsignedLongTest extends TestCase {
         if (b != 0) {
           UnsignedLong aUnsigned = UnsignedLong.fromLongBits(a);
           UnsignedLong bUnsigned = UnsignedLong.fromLongBits(b);
-          long expected =
-              aUnsigned.bigIntegerValue().divide(bUnsigned.bigIntegerValue()).longValue();
+          long expected = aUnsigned
+              .bigIntegerValue()
+              .divide(bUnsigned.bigIntegerValue())
+              .longValue();
           UnsignedLong unsignedDiv = aUnsigned.dividedBy(bUnsigned);
           assertEquals(expected, unsignedDiv.longValue());
         }
@@ -197,13 +206,13 @@ public class UnsignedLongTest extends TestCase {
     }
   }
 
+  @SuppressWarnings("ReturnValueIgnored")
   public void testDivideByZeroThrows() {
     for (long a : TEST_LONGS) {
       try {
         UnsignedLong.fromLongBits(a).dividedBy(UnsignedLong.ZERO);
         fail("Expected ArithmeticException");
-      } catch (ArithmeticException expected) {
-      }
+      } catch (ArithmeticException expected) {}
     }
   }
 
@@ -213,8 +222,10 @@ public class UnsignedLongTest extends TestCase {
         if (b != 0) {
           UnsignedLong aUnsigned = UnsignedLong.fromLongBits(a);
           UnsignedLong bUnsigned = UnsignedLong.fromLongBits(b);
-          long expected =
-              aUnsigned.bigIntegerValue().remainder(bUnsigned.bigIntegerValue()).longValue();
+          long expected = aUnsigned
+              .bigIntegerValue()
+              .remainder(bUnsigned.bigIntegerValue())
+              .longValue();
           UnsignedLong unsignedRem = aUnsigned.mod(bUnsigned);
           assertEquals(expected, unsignedRem.longValue());
         }
@@ -222,13 +233,13 @@ public class UnsignedLongTest extends TestCase {
     }
   }
 
+  @SuppressWarnings("ReturnValueIgnored")
   public void testModByZero() {
     for (long a : TEST_LONGS) {
       try {
         UnsignedLong.fromLongBits(a).mod(UnsignedLong.ZERO);
         fail("Expected ArithmeticException");
-      } catch (ArithmeticException expected) {
-      }
+      } catch (ArithmeticException expected) {}
     }
   }
 
@@ -237,24 +248,20 @@ public class UnsignedLongTest extends TestCase {
       for (long b : TEST_LONGS) {
         UnsignedLong aUnsigned = UnsignedLong.fromLongBits(a);
         UnsignedLong bUnsigned = UnsignedLong.fromLongBits(b);
-        assertEquals(
-            aUnsigned.bigIntegerValue().compareTo(bUnsigned.bigIntegerValue()),
+        assertEquals(aUnsigned.bigIntegerValue().compareTo(bUnsigned.bigIntegerValue()),
             aUnsigned.compareTo(bUnsigned));
       }
     }
   }
 
-  @GwtIncompatible // too slow
+  @GwtIncompatible("too slow")
   public void testEquals() {
     EqualsTester equalsTester = new EqualsTester();
     for (long a : TEST_LONGS) {
       BigInteger big =
           (a >= 0) ? BigInteger.valueOf(a) : BigInteger.valueOf(a).add(BigInteger.ZERO.setBit(64));
-      equalsTester.addEqualityGroup(
-          UnsignedLong.fromLongBits(a),
-          UnsignedLong.valueOf(big),
-          UnsignedLong.valueOf(big.toString()),
-          UnsignedLong.valueOf(big.toString(16), 16));
+      equalsTester.addEqualityGroup(UnsignedLong.fromLongBits(a), UnsignedLong.valueOf(big),
+          UnsignedLong.valueOf(big.toString()), UnsignedLong.valueOf(big.toString(16), 16));
     }
     equalsTester.testEquals();
   }
@@ -267,14 +274,14 @@ public class UnsignedLongTest extends TestCase {
     }
   }
 
-  @GwtIncompatible // serialization
+  @GwtIncompatible("serialization")
   public void testSerialization() {
     for (long a : TEST_LONGS) {
       SerializableTester.reserializeAndAssert(UnsignedLong.fromLongBits(a));
     }
   }
 
-  @GwtIncompatible // NullPointerTester
+  @GwtIncompatible("NullPointerTester")
   public void testNulls() {
     new NullPointerTester().testAllPublicStaticMethods(UnsignedLong.class);
   }

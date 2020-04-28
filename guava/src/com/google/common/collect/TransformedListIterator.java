@@ -18,11 +18,13 @@ package com.google.common.collect;
 
 import com.google.common.annotations.GwtCompatible;
 import com.google.common.base.Function;
+
 import java.util.ListIterator;
 
 /**
- * An iterator that transforms a backing list iterator; for internal use. This avoids the object
- * overhead of constructing a {@link Function} for internal methods.
+ * An iterator that transforms a backing list iterator; for internal use. This
+ * avoids the object overhead of constructing a {@link Function} for internal
+ * methods.
  *
  * @author Louis Wasserman
  */

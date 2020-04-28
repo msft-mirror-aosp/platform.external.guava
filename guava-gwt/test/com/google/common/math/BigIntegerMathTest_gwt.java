@@ -28,21 +28,6 @@ public void testBinomialSmall() throws Exception {
   testCase.testBinomialSmall();
 }
 
-public void testCeilingPowerOfTwo() throws Exception {
-  com.google.common.math.BigIntegerMathTest testCase = new com.google.common.math.BigIntegerMathTest();
-  testCase.testCeilingPowerOfTwo();
-}
-
-public void testCeilingPowerOfTwoNegative() throws Exception {
-  com.google.common.math.BigIntegerMathTest testCase = new com.google.common.math.BigIntegerMathTest();
-  testCase.testCeilingPowerOfTwoNegative();
-}
-
-public void testCeilingPowerOfTwoZero() throws Exception {
-  com.google.common.math.BigIntegerMathTest testCase = new com.google.common.math.BigIntegerMathTest();
-  testCase.testCeilingPowerOfTwoZero();
-}
-
 public void testFactorial() throws Exception {
   com.google.common.math.BigIntegerMathTest testCase = new com.google.common.math.BigIntegerMathTest();
   testCase.testFactorial();
@@ -56,21 +41,6 @@ public void testFactorial0() throws Exception {
 public void testFactorialNegative() throws Exception {
   com.google.common.math.BigIntegerMathTest testCase = new com.google.common.math.BigIntegerMathTest();
   testCase.testFactorialNegative();
-}
-
-public void testFloorPowerOfTwo() throws Exception {
-  com.google.common.math.BigIntegerMathTest testCase = new com.google.common.math.BigIntegerMathTest();
-  testCase.testFloorPowerOfTwo();
-}
-
-public void testFloorPowerOfTwoNegative() throws Exception {
-  com.google.common.math.BigIntegerMathTest testCase = new com.google.common.math.BigIntegerMathTest();
-  testCase.testFloorPowerOfTwoNegative();
-}
-
-public void testFloorPowerOfTwoZero() throws Exception {
-  com.google.common.math.BigIntegerMathTest testCase = new com.google.common.math.BigIntegerMathTest();
-  testCase.testFloorPowerOfTwoZero();
 }
 
 public void testIsPowerOfTwo() throws Exception {

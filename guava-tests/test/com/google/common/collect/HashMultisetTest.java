@@ -26,11 +26,13 @@ import com.google.common.collect.testing.google.MultisetFeature;
 import com.google.common.collect.testing.google.MultisetTestSuiteBuilder;
 import com.google.common.collect.testing.google.TestStringMultisetGenerator;
 import com.google.common.testing.SerializableTester;
-import java.io.Serializable;
-import java.util.Arrays;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+
+import java.io.Serializable;
+import java.util.Arrays;
 
 /**
  * Unit test for {@link HashMultiset}.
@@ -41,28 +43,25 @@ import junit.framework.TestSuite;
 @GwtCompatible(emulated = true)
 public class HashMultisetTest extends TestCase {
 
-  @GwtIncompatible // suite
+  @GwtIncompatible("suite")
   public static Test suite() {
     TestSuite suite = new TestSuite();
-    suite.addTest(
-        MultisetTestSuiteBuilder.using(hashMultisetGenerator())
-            .withFeatures(
-                CollectionSize.ANY,
-                CollectionFeature.FAILS_FAST_ON_CONCURRENT_MODIFICATION,
-                CollectionFeature.ALLOWS_NULL_VALUES,
-                CollectionFeature.SERIALIZABLE,
-                CollectionFeature.GENERAL_PURPOSE,
-                MultisetFeature.ENTRIES_ARE_VIEWS)
-            .named("HashMultiset")
-            .createTestSuite());
+    suite.addTest(MultisetTestSuiteBuilder.using(hashMultisetGenerator())
+        .withFeatures(CollectionSize.ANY,
+            CollectionFeature.FAILS_FAST_ON_CONCURRENT_MODIFICATION,
+            CollectionFeature.ALLOWS_NULL_VALUES,
+            CollectionFeature.SERIALIZABLE,
+            CollectionFeature.GENERAL_PURPOSE,
+            MultisetFeature.ENTRIES_ARE_VIEWS)
+        .named("HashMultiset")
+        .createTestSuite());
     suite.addTestSuite(HashMultisetTest.class);
     return suite;
   }
 
   private static TestStringMultisetGenerator hashMultisetGenerator() {
     return new TestStringMultisetGenerator() {
-      @Override
-      protected Multiset<String> create(String[] elements) {
+      @Override protected Multiset<String> create(String[] elements) {
         return HashMultiset.create(asList(elements));
       }
     };
@@ -85,12 +84,13 @@ public class HashMultisetTest extends TestCase {
   }
 
   public void testCreateFromIterable() {
-    Multiset<String> multiset = HashMultiset.create(Arrays.asList("foo", "bar", "foo"));
+    Multiset<String> multiset
+        = HashMultiset.create(Arrays.asList("foo", "bar", "foo"));
     assertEquals(3, multiset.size());
     assertEquals(2, multiset.count("foo"));
   }
 
-  @GwtIncompatible // SerializableTester
+  @GwtIncompatible("SerializableTester")
   public void testSerializationContainingSelf() {
     Multiset<Multiset<?>> multiset = HashMultiset.create();
     multiset.add(multiset, 2);
@@ -99,18 +99,16 @@ public class HashMultisetTest extends TestCase {
     assertSame(copy, copy.iterator().next());
   }
 
-  @GwtIncompatible // Only used by @GwtIncompatible code
+  @GwtIncompatible("Only used by @GwtIncompatible code")
   private static class MultisetHolder implements Serializable {
     public Multiset<?> member;
-
     MultisetHolder(Multiset<?> multiset) {
       this.member = multiset;
     }
-
     private static final long serialVersionUID = 1L;
   }
 
-  @GwtIncompatible // SerializableTester
+  @GwtIncompatible("SerializableTester")
   public void testSerializationIndirectSelfReference() {
     Multiset<MultisetHolder> multiset = HashMultiset.create();
     MultisetHolder holder = new MultisetHolder(multiset);

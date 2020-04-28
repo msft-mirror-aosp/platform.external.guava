@@ -17,15 +17,18 @@
 package com.google.common.eventbus;
 
 import com.google.common.collect.Lists;
-import java.util.List;
+
 import junit.framework.Assert;
-import org.checkerframework.checker.nullness.qual.Nullable;
+
+import java.util.List;
+
+import javax.annotation.Nullable;
 
 /**
  * A simple EventSubscriber mock that records Strings.
  *
- * <p>For testing fun, also includes a landmine method that EventBus tests are required <em>not</em>
- * to call ({@link #methodWithoutAnnotation(String)}).
+ * For testing fun, also includes a landmine method that EventBus tests are
+ * required <em>not</em> to call ({@link #methodWithoutAnnotation(String)}).
  *
  * @author Cliff Biffle
  */

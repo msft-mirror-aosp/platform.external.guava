@@ -16,30 +16,21 @@
 
 package com.google.common.collect;
 
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.truth.Truth.assertThat;
-import static java.lang.Long.MAX_VALUE;
-import static java.lang.Thread.currentThread;
-import static java.util.concurrent.Executors.newCachedThreadPool;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static java.util.concurrent.TimeUnit.NANOSECONDS;
-import static java.util.concurrent.TimeUnit.SECONDS;
+import com.google.common.util.concurrent.Uninterruptibles;
 
-import com.google.common.base.Stopwatch;
+import junit.framework.TestCase;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Callable;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.TimeUnit;
-import junit.framework.TestCase;
 
 /**
  * Tests for {@link Queues}.
@@ -58,36 +49,27 @@ public class QueuesTest extends TestCase {
         new LinkedBlockingQueue<Object>(10),
         new SynchronousQueue<Object>(),
         new ArrayBlockingQueue<Object>(10),
-        new LinkedBlockingDeque<Object>(),
-        new LinkedBlockingDeque<Object>(10),
         new PriorityBlockingQueue<Object>(10, Ordering.arbitrary()));
   }
 
-  /*
-   * We need to perform operations in a thread pool, even for simple cases, because the queue might
-   * be a SynchronousQueue.
-   */
   private ExecutorService threadPool;
 
   @Override
   public void setUp() {
-    threadPool = newCachedThreadPool();
+    threadPool = Executors.newCachedThreadPool();
   }
 
   @Override
   public void tearDown() throws InterruptedException {
+    // notice that if a Producer is interrupted (a bug), the Producer will go into an infinite
+    // loop, which will be noticed here
     threadPool.shutdown();
-    assertTrue("Some worker didn't finish in time", threadPool.awaitTermination(1, SECONDS));
+    assertTrue("Some worker didn't finish in time",
+        threadPool.awaitTermination(1, TimeUnit.SECONDS));
   }
 
-  private static <T> int drain(
-      BlockingQueue<T> q,
-      Collection<? super T> buffer,
-      int maxElements,
-      long timeout,
-      TimeUnit unit,
-      boolean interruptibly)
-      throws InterruptedException {
+  private static <T> int drain(BlockingQueue<T> q, Collection<? super T> buffer, int maxElements,
+      long timeout, TimeUnit unit, boolean interruptibly) throws InterruptedException {
     return interruptibly
         ? Queues.drain(q, buffer, maxElements, timeout, unit)
         : Queues.drainUninterruptibly(q, buffer, maxElements, timeout, unit);
@@ -99,21 +81,17 @@ public class QueuesTest extends TestCase {
     }
   }
 
-  private void testMultipleProducers(BlockingQueue<Object> q) throws InterruptedException {
-    for (boolean interruptibly : new boolean[] {true, false}) {
-      @SuppressWarnings("unused") // go/futurereturn-lsc
-      Future<?> possiblyIgnoredError = threadPool.submit(new Producer(q, 20));
-      @SuppressWarnings("unused") // go/futurereturn-lsc
-      Future<?> possiblyIgnoredError1 = threadPool.submit(new Producer(q, 20));
-      @SuppressWarnings("unused") // go/futurereturn-lsc
-      Future<?> possiblyIgnoredError2 = threadPool.submit(new Producer(q, 20));
-      @SuppressWarnings("unused") // go/futurereturn-lsc
-      Future<?> possiblyIgnoredError3 = threadPool.submit(new Producer(q, 20));
-      @SuppressWarnings("unused") // go/futurereturn-lsc
-      Future<?> possiblyIgnoredError4 = threadPool.submit(new Producer(q, 20));
+  private void testMultipleProducers(BlockingQueue<Object> q)
+      throws InterruptedException {
+    for (boolean interruptibly : new boolean[] { true, false }) {
+      threadPool.submit(new Producer(q, 20));
+      threadPool.submit(new Producer(q, 20));
+      threadPool.submit(new Producer(q, 20));
+      threadPool.submit(new Producer(q, 20));
+      threadPool.submit(new Producer(q, 20));
 
-      List<Object> buf = newArrayList();
-      int elements = drain(q, buf, 100, MAX_VALUE, NANOSECONDS, interruptibly);
+      List<Object> buf = Lists.newArrayList();
+      int elements = drain(q, buf, 100, Long.MAX_VALUE, TimeUnit.NANOSECONDS, interruptibly);
       assertEquals(100, elements);
       assertEquals(100, buf.size());
       assertDrained(q);
@@ -127,27 +105,24 @@ public class QueuesTest extends TestCase {
   }
 
   private void testDrainTimesOut(BlockingQueue<Object> q) throws Exception {
-    for (boolean interruptibly : new boolean[] {true, false}) {
-      assertEquals(0, Queues.drain(q, ImmutableList.of(), 1, 10, MILLISECONDS));
+    for (boolean interruptibly : new boolean[] { true, false }) {
+      assertEquals(0, Queues.drain(q, ImmutableList.of(), 1, 10, TimeUnit.MILLISECONDS));
 
-      Producer producer = new Producer(q, 1);
       // producing one, will ask for two
-      Future<?> producerThread = threadPool.submit(producer);
-      producer.beganProducing.await();
+      Future<?> submitter = threadPool.submit(new Producer(q, 1));
 
       // make sure we time out
-      Stopwatch timer = Stopwatch.createStarted();
+      long startTime = System.nanoTime();
 
-      int drained = drain(q, newArrayList(), 2, 10, MILLISECONDS, interruptibly);
-      assertThat(drained).isAtMost(1);
+      int drained = drain(q, Lists.newArrayList(), 2, 10, TimeUnit.MILLISECONDS, interruptibly);
+      assertTrue(drained <= 1);
 
-      assertThat(timer.elapsed(MILLISECONDS)).isAtLeast(10L);
+      assertTrue((System.nanoTime() - startTime) >= TimeUnit.MILLISECONDS.toNanos(10));
 
       // If even the first one wasn't there, clean up so that the next test doesn't see an element.
-      producerThread.cancel(true);
-      producer.doneProducing.await();
+      submitter.get();
       if (drained == 0) {
-        q.poll(); // not necessarily there if producer was interrupted
+        assertNotNull(q.poll());
       }
     }
   }
@@ -159,9 +134,9 @@ public class QueuesTest extends TestCase {
   }
 
   private void testZeroElements(BlockingQueue<Object> q) throws InterruptedException {
-    for (boolean interruptibly : new boolean[] {true, false}) {
+    for (boolean interruptibly : new boolean[] { true, false }) {
       // asking to drain zero elements
-      assertEquals(0, drain(q, ImmutableList.of(), 0, 10, MILLISECONDS, interruptibly));
+      assertEquals(0, drain(q, ImmutableList.of(), 0, 10, TimeUnit.MILLISECONDS, interruptibly));
     }
   }
 
@@ -182,16 +157,16 @@ public class QueuesTest extends TestCase {
   }
 
   private void testNegativeMaxElements(BlockingQueue<Object> q) throws InterruptedException {
-    @SuppressWarnings("unused") // go/futurereturn-lsc
-    Future<?> possiblyIgnoredError = threadPool.submit(new Producer(q, 1));
+    threadPool.submit(new Producer(q, 1));
 
-    List<Object> buf = newArrayList();
-    int elements = Queues.drain(q, buf, -1, MAX_VALUE, NANOSECONDS);
-    assertEquals(0, elements);
-    assertThat(buf).isEmpty();
+    List<Object> buf = Lists.newArrayList();
+    int elements = Queues.drain(q, buf, -1, Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+    assertEquals(elements, 0);
+    assertTrue(buf.isEmpty());
 
-    // Free the producer thread, and give subsequent tests a clean slate.
-    q.take();
+    // Clean up produced element to free the producer thread, otherwise it will complain
+    // when we shutdown the threadpool.
+    Queues.drain(q, buf, 1, Long.MAX_VALUE, TimeUnit.NANOSECONDS);
   }
 
   public void testDrain_throws() throws Exception {
@@ -201,10 +176,9 @@ public class QueuesTest extends TestCase {
   }
 
   private void testDrain_throws(BlockingQueue<Object> q) {
-    @SuppressWarnings("unused") // go/futurereturn-lsc
-    Future<?> possiblyIgnoredError = threadPool.submit(new Interrupter(currentThread()));
+    threadPool.submit(new Interrupter(Thread.currentThread()));
     try {
-      Queues.drain(q, ImmutableList.of(), 100, MAX_VALUE, NANOSECONDS);
+      Queues.drain(q, ImmutableList.of(), 100, Long.MAX_VALUE, TimeUnit.NANOSECONDS);
       fail();
     } catch (InterruptedException expected) {
     }
@@ -217,21 +191,17 @@ public class QueuesTest extends TestCase {
   }
 
   private void testDrainUninterruptibly_doesNotThrow(final BlockingQueue<Object> q) {
-    final Thread mainThread = currentThread();
-    @SuppressWarnings("unused") // go/futurereturn-lsc
-    Future<?> possiblyIgnoredError =
-        threadPool.submit(
-            new Callable<Void>() {
-              @Override
-              public Void call() throws InterruptedException {
-                new Producer(q, 50).call();
-                new Interrupter(mainThread).run();
-                new Producer(q, 50).call();
-                return null;
-              }
-            });
-    List<Object> buf = newArrayList();
-    int elements = Queues.drainUninterruptibly(q, buf, 100, MAX_VALUE, NANOSECONDS);
+    final Thread mainThread = Thread.currentThread();
+    threadPool.submit(new Runnable() {
+      public void run() {
+        new Producer(q, 50).run();
+        new Interrupter(mainThread).run();
+        new Producer(q, 50).run();
+      }
+    });
+    List<Object> buf = Lists.newArrayList();
+    int elements =
+        Queues.drainUninterruptibly(q, buf, 100, Long.MAX_VALUE, TimeUnit.NANOSECONDS);
     // so when this drains all elements, we know the thread has also been interrupted in between
     assertTrue(Thread.interrupted());
     assertEquals(100, elements);
@@ -260,7 +230,9 @@ public class QueuesTest extends TestCase {
     assertEquals(11, Queues.newLinkedBlockingQueue(11).remainingCapacity());
   }
 
-  /** Checks that #drain() invocations behave correctly for a drained (empty) queue. */
+  /**
+   * Checks that #drain() invocations behave correctly for a drained (empty) queue.
+   */
   private void assertDrained(BlockingQueue<Object> q) {
     assertNull(q.peek());
     assertInterruptibleDrained(q);
@@ -270,17 +242,16 @@ public class QueuesTest extends TestCase {
   private void assertInterruptibleDrained(BlockingQueue<Object> q) {
     // nothing to drain, thus this should wait doing nothing
     try {
-      assertEquals(0, Queues.drain(q, ImmutableList.of(), 0, 10, MILLISECONDS));
+      assertEquals(0, Queues.drain(q, ImmutableList.of(), 0, 10, TimeUnit.MILLISECONDS));
     } catch (InterruptedException e) {
       throw new AssertionError();
     }
 
     // but does the wait actually occurs?
-    @SuppressWarnings("unused") // go/futurereturn-lsc
-    Future<?> possiblyIgnoredError = threadPool.submit(new Interrupter(currentThread()));
+    threadPool.submit(new Interrupter(Thread.currentThread()));
     try {
       // if waiting works, this should get stuck
-      Queues.drain(q, newArrayList(), 1, MAX_VALUE, NANOSECONDS);
+      Queues.drain(q, Lists.newArrayList(), 1, Long.MAX_VALUE, TimeUnit.NANOSECONDS);
       fail();
     } catch (InterruptedException expected) {
       // we indeed waited; a slow thread had enough time to interrupt us
@@ -289,42 +260,40 @@ public class QueuesTest extends TestCase {
 
   // same as above; uninterruptible version
   private void assertUninterruptibleDrained(BlockingQueue<Object> q) {
-    assertEquals(0, Queues.drainUninterruptibly(q, ImmutableList.of(), 0, 10, MILLISECONDS));
+    assertEquals(0,
+        Queues.drainUninterruptibly(q, ImmutableList.of(), 0, 10, TimeUnit.MILLISECONDS));
 
     // but does the wait actually occurs?
-    @SuppressWarnings("unused") // go/futurereturn-lsc
-    Future<?> possiblyIgnoredError = threadPool.submit(new Interrupter(currentThread()));
+    threadPool.submit(new Interrupter(Thread.currentThread()));
 
-    Stopwatch timer = Stopwatch.createStarted();
-    Queues.drainUninterruptibly(q, newArrayList(), 1, 10, MILLISECONDS);
-    assertThat(timer.elapsed(MILLISECONDS)).isAtLeast(10L);
+    long startTime = System.nanoTime();
+    Queues.drainUninterruptibly(
+        q, Lists.newArrayList(), 1, 10, TimeUnit.MILLISECONDS);
+    assertTrue((System.nanoTime() - startTime) >= TimeUnit.MILLISECONDS.toNanos(10));
     // wait for interrupted status and clear it
-    while (!Thread.interrupted()) {
-      Thread.yield();
-    }
+    while (!Thread.interrupted()) { Thread.yield(); }
   }
 
-  private static class Producer implements Callable<Void> {
+  private static class Producer implements Runnable {
     final BlockingQueue<Object> q;
     final int elements;
-    final CountDownLatch beganProducing = new CountDownLatch(1);
-    final CountDownLatch doneProducing = new CountDownLatch(1);
 
     Producer(BlockingQueue<Object> q, int elements) {
       this.q = q;
       this.elements = elements;
     }
 
-    @Override
-    public Void call() throws InterruptedException {
+    @Override public void run() {
       try {
-        beganProducing.countDown();
         for (int i = 0; i < elements; i++) {
           q.put(new Object());
         }
-        return null;
-      } finally {
-        doneProducing.countDown();
+      } catch (InterruptedException e) {
+        // TODO(user): replace this when there is a better way to spawn threads in tests and
+        // have threads propagate their errors back to the test thread.
+        e.printStackTrace();
+        // never returns, so that #tearDown() notices that one worker isn't done
+        Uninterruptibles.sleepUninterruptibly(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
       }
     }
   }
@@ -336,8 +305,7 @@ public class QueuesTest extends TestCase {
       this.threadToInterrupt = threadToInterrupt;
     }
 
-    @Override
-    public void run() {
+    @Override public void run() {
       try {
         Thread.sleep(100);
       } catch (InterruptedException e) {

@@ -23,12 +23,15 @@ import static com.google.common.io.TestOption.READ_THROWS;
 import static com.google.common.io.TestOption.SKIP_THROWS;
 
 import com.google.common.collect.ImmutableSet;
+
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 
-/** @author Colin Decker */
+/**
+ * @author Colin Decker
+ */
 public class TestInputStream extends FilterInputStream {
 
   private final ImmutableSet<TestOption> options;
