@@ -55,6 +55,19 @@ java_library_host {
     java_version: "1.8",
 }
 
+java_library_host {
+    name: "guava-testlib",
+    srcs: ["guava-testlib/src/**/*.java"],
+    libs: [
+         "error_prone_annotations",
+         "guava",
+         "guava-android-annotation-stubs",
+         "jsr305",
+         "junit",
+    ],
+    java_version: "1.8",
+}
+
 // Guava for Android can't compile against an Android bootclasspath, compile
 // it for the host and then use it on the device.  It uses reflection to
 // prevent calling into methods that don't exist on Android.
