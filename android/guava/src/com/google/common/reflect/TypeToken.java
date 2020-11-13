@@ -46,6 +46,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.checkerframework.checker.nullness.compatqual.MonotonicNonNullDecl;
 import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 
 /**
@@ -103,10 +104,10 @@ public abstract class TypeToken<T> extends TypeCapture<T> implements Serializabl
   private final Type runtimeType;
 
   /** Resolver for resolving parameter and field types with {@link #runtimeType} as context. */
-  @NullableDecl private transient TypeResolver invariantTypeResolver;
+  @MonotonicNonNullDecl private transient TypeResolver invariantTypeResolver;
 
   /** Resolver for resolving covariant types with {@link #runtimeType} as context. */
-  @NullableDecl private transient TypeResolver covariantTypeResolver;
+  @MonotonicNonNullDecl private transient TypeResolver covariantTypeResolver;
 
   /**
    * Constructs a new type token of {@code T}.
@@ -655,7 +656,7 @@ public abstract class TypeToken<T> extends TypeCapture<T> implements Serializabl
    */
   public class TypeSet extends ForwardingSet<TypeToken<? super T>> implements Serializable {
 
-    @NullableDecl private transient ImmutableSet<TypeToken<? super T>> types;
+    @MonotonicNonNullDecl private transient ImmutableSet<TypeToken<? super T>> types;
 
     TypeSet() {}
 
@@ -701,7 +702,7 @@ public abstract class TypeToken<T> extends TypeCapture<T> implements Serializabl
   private final class InterfaceSet extends TypeSet {
 
     private final transient TypeSet allTypes;
-    @NullableDecl private transient ImmutableSet<TypeToken<? super T>> interfaces;
+    @MonotonicNonNullDecl private transient ImmutableSet<TypeToken<? super T>> interfaces;
 
     InterfaceSet(TypeSet allTypes) {
       this.allTypes = allTypes;
@@ -754,7 +755,7 @@ public abstract class TypeToken<T> extends TypeCapture<T> implements Serializabl
 
   private final class ClassSet extends TypeSet {
 
-    @NullableDecl private transient ImmutableSet<TypeToken<? super T>> classes;
+    @MonotonicNonNullDecl private transient ImmutableSet<TypeToken<? super T>> classes;
 
     @Override
     protected Set<TypeToken<? super T>> delegate() {
@@ -1210,9 +1211,9 @@ public abstract class TypeToken<T> extends TypeCapture<T> implements Serializabl
   }
 
   private TypeToken<? extends T> getSubtypeFromLowerBounds(Class<?> subclass, Type[] lowerBounds) {
-    if (lowerBounds.length > 0) {
+    for (Type lowerBound : lowerBounds) {
       @SuppressWarnings("unchecked") // T's lower bound is <? extends T>
-      TypeToken<? extends T> bound = (TypeToken<? extends T>) of(lowerBounds[0]);
+      TypeToken<? extends T> bound = (TypeToken<? extends T>) of(lowerBound);
       // Java supports only one lowerbound anyway.
       return bound.getSubtype(subclass);
     }

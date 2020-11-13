@@ -21,7 +21,6 @@ import static com.google.common.base.Predicates.equalTo;
 import static com.google.common.base.Predicates.in;
 import static com.google.common.base.Predicates.instanceOf;
 import static com.google.common.base.Predicates.not;
-import static com.google.common.util.concurrent.Internal.toNanosSaturated;
 import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
 import static com.google.common.util.concurrent.Service.State.FAILED;
 import static com.google.common.util.concurrent.Service.State.NEW;
@@ -31,6 +30,7 @@ import static com.google.common.util.concurrent.Service.State.STOPPING;
 import static com.google.common.util.concurrent.Service.State.TERMINATED;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
+import com.google.common.annotations.Beta;
 import com.google.common.annotations.GwtIncompatible;
 import com.google.common.base.Function;
 import com.google.common.base.MoreObjects;
@@ -39,6 +39,7 @@ import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.Lists;
@@ -53,7 +54,6 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.errorprone.annotations.concurrent.GuardedBy;
 import com.google.j2objc.annotations.WeakOuter;
 import java.lang.ref.WeakReference;
-import java.time.Duration;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
@@ -119,8 +119,9 @@ import java.util.logging.Logger;
  * @author Luke Sandberg
  * @since 14.0
  */
+@Beta
 @GwtIncompatible
-public final class ServiceManager implements ServiceManagerBridge {
+public final class ServiceManager {
   private static final Logger logger = Logger.getLogger(ServiceManager.class.getName());
   private static final ListenerCallQueue.Event<Listener> HEALTHY_EVENT =
       new ListenerCallQueue.Event<Listener>() {
@@ -156,6 +157,7 @@ public final class ServiceManager implements ServiceManagerBridge {
    * @author Luke Sandberg
    * @since 15.0 (present as an interface in 14.0)
    */
+  @Beta // Should come out of Beta when ServiceManager does
   public abstract static class Listener {
     /**
      * Called when the service initially becomes healthy.
@@ -241,15 +243,34 @@ public final class ServiceManager implements ServiceManagerBridge {
    * during {@code Executor.execute} (e.g., a {@code RejectedExecutionException}) will be caught and
    * logged.
    *
-   * <p>When selecting an executor, note that {@code directExecutor} is dangerous in some cases. See
-   * the discussion in the {@link ListenableFuture#addListener ListenableFuture.addListener}
-   * documentation.
+   * <p>For fast, lightweight listeners that would be safe to execute in any thread, consider
+   * calling {@link #addListener(Listener)}.
    *
    * @param listener the listener to run when the manager changes state
    * @param executor the executor in which the listeners callback methods will be run.
    */
   public void addListener(Listener listener, Executor executor) {
     state.addListener(listener, executor);
+  }
+
+  /**
+   * Registers a {@link Listener} to be run when this {@link ServiceManager} changes state. The
+   * listener will not have previous state changes replayed, so it is suggested that listeners are
+   * added before any of the managed services are {@linkplain Service#startAsync started}.
+   *
+   * <p>{@code addListener} guarantees execution ordering across calls to a given listener but not
+   * across calls to multiple listeners. Specifically, a given listener will have its callbacks
+   * invoked in the same order as the underlying service enters those states. Additionally, at most
+   * one of the listener's callbacks will execute at once. However, multiple listeners' callbacks
+   * may execute concurrently, and listeners may execute in an order different from the one in which
+   * they were registered.
+   *
+   * <p>RuntimeExceptions thrown by a listener will be caught and logged.
+   *
+   * @param listener the listener to run when the manager changes state
+   */
+  public void addListener(Listener listener) {
+    state.addListener(listener, directExecutor());
   }
 
   /**
@@ -299,21 +320,6 @@ public final class ServiceManager implements ServiceManagerBridge {
    * reached the {@linkplain State#RUNNING running} state.
    *
    * @param timeout the maximum time to wait
-   * @throws TimeoutException if not all of the services have finished starting within the deadline
-   * @throws IllegalStateException if the service manager reaches a state from which it cannot
-   *     become {@linkplain #isHealthy() healthy}.
-   * @since 28.0
-   */
-  public void awaitHealthy(Duration timeout) throws TimeoutException {
-    awaitHealthy(toNanosSaturated(timeout), TimeUnit.NANOSECONDS);
-  }
-
-  /**
-   * Waits for the {@link ServiceManager} to become {@linkplain #isHealthy() healthy} for no more
-   * than the given time. The manager will become healthy after all the component services have
-   * reached the {@linkplain State#RUNNING running} state.
-   *
-   * @param timeout the maximum time to wait
    * @param unit the time unit of the timeout argument
    * @throws TimeoutException if not all of the services have finished starting within the deadline
    * @throws IllegalStateException if the service manager reaches a state from which it cannot
@@ -353,19 +359,6 @@ public final class ServiceManager implements ServiceManagerBridge {
    * terminated} or {@linkplain Service.State#FAILED failed}.
    *
    * @param timeout the maximum time to wait
-   * @throws TimeoutException if not all of the services have stopped within the deadline
-   * @since 28.0
-   */
-  public void awaitStopped(Duration timeout) throws TimeoutException {
-    awaitStopped(toNanosSaturated(timeout), TimeUnit.NANOSECONDS);
-  }
-
-  /**
-   * Waits for the all the services to reach a terminal state for no more than the given time. After
-   * this method returns all services will either be {@linkplain Service.State#TERMINATED
-   * terminated} or {@linkplain Service.State#FAILED failed}.
-   *
-   * @param timeout the maximum time to wait
    * @param unit the time unit of the timeout argument
    * @throws TimeoutException if not all of the services have stopped within the deadline
    */
@@ -394,11 +387,8 @@ public final class ServiceManager implements ServiceManagerBridge {
    *
    * <p>N.B. This snapshot is guaranteed to be consistent, i.e. the set of states returned will
    * correspond to a point in time view of the services.
-   *
-   * @since 29.0 (present with return type {@code ImmutableMultimap} since 14.0)
    */
-  @Override
-  public ImmutableSetMultimap<State, Service> servicesByState() {
+  public ImmutableMultimap<State, Service> servicesByState() {
     return state.servicesByState();
   }
 
@@ -602,7 +592,7 @@ public final class ServiceManager implements ServiceManagerBridge {
       }
     }
 
-    ImmutableSetMultimap<State, Service> servicesByState() {
+    ImmutableMultimap<State, Service> servicesByState() {
       ImmutableSetMultimap.Builder<State, Service> builder = ImmutableSetMultimap.builder();
       monitor.enter();
       try {

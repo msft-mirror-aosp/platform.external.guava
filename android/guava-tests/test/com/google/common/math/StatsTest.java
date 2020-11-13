@@ -64,7 +64,6 @@ import static com.google.common.math.StatsTesting.TWO_VALUES_MIN;
 import static com.google.common.math.StatsTesting.TWO_VALUES_STATS;
 import static com.google.common.math.StatsTesting.TWO_VALUES_SUM_OF_SQUARES_OF_DELTAS;
 import static com.google.common.truth.Truth.assertThat;
-import static com.google.common.truth.Truth.assertWithMessage;
 import static java.lang.Double.NEGATIVE_INFINITY;
 import static java.lang.Double.NaN;
 import static java.lang.Double.POSITIVE_INFINITY;
@@ -124,18 +123,15 @@ public class StatsTest extends TestCase {
     for (ManyValues values : ALL_MANY_VALUES) {
       double mean = Stats.of(values.asArray()).mean();
       if (values.hasAnyNaN()) {
-        assertWithMessage("mean of " + values).that(mean).isNaN();
+        assertThat(mean).named("mean of " + values).isNaN();
       } else if (values.hasAnyPositiveInfinity() && values.hasAnyNegativeInfinity()) {
-        assertWithMessage("mean of " + values).that(mean).isNaN();
+        assertThat(mean).named("mean of " + values).isNaN();
       } else if (values.hasAnyPositiveInfinity()) {
-        assertWithMessage("mean of " + values).that(mean).isPositiveInfinity();
+        assertThat(mean).named("mean of " + values).isPositiveInfinity();
       } else if (values.hasAnyNegativeInfinity()) {
-        assertWithMessage("mean of " + values).that(mean).isNegativeInfinity();
+        assertThat(mean).named("mean of " + values).isNegativeInfinity();
       } else {
-        assertWithMessage("mean of " + values)
-            .that(mean)
-            .isWithin(ALLOWED_ERROR)
-            .of(MANY_VALUES_MEAN);
+        assertThat(mean).named("mean of " + values).isWithin(ALLOWED_ERROR).of(MANY_VALUES_MEAN);
       }
     }
     assertThat(MANY_VALUES_STATS_ITERABLE.mean()).isWithin(ALLOWED_ERROR).of(MANY_VALUES_MEAN);
@@ -145,19 +141,19 @@ public class StatsTest extends TestCase {
         .isWithin(ALLOWED_ERROR * Double.MAX_VALUE)
         .of(LARGE_VALUES_MEAN);
     assertThat(INTEGER_MANY_VALUES_STATS_VARARGS.mean())
-        .isWithin(ALLOWED_ERROR * INTEGER_MANY_VALUES_MEAN)
+        .isWithin(ALLOWED_ERROR)
         .of(INTEGER_MANY_VALUES_MEAN);
     assertThat(INTEGER_MANY_VALUES_STATS_ITERABLE.mean())
-        .isWithin(ALLOWED_ERROR * INTEGER_MANY_VALUES_MEAN)
+        .isWithin(ALLOWED_ERROR)
         .of(INTEGER_MANY_VALUES_MEAN);
     assertThat(LARGE_INTEGER_VALUES_STATS.mean())
         .isWithin(ALLOWED_ERROR * Integer.MAX_VALUE)
         .of(LARGE_INTEGER_VALUES_MEAN);
     assertThat(LONG_MANY_VALUES_STATS_ITERATOR.mean())
-        .isWithin(ALLOWED_ERROR * LONG_MANY_VALUES_MEAN)
+        .isWithin(ALLOWED_ERROR)
         .of(LONG_MANY_VALUES_MEAN);
     assertThat(LONG_MANY_VALUES_STATS_SNAPSHOT.mean())
-        .isWithin(ALLOWED_ERROR * LONG_MANY_VALUES_MEAN)
+        .isWithin(ALLOWED_ERROR)
         .of(LONG_MANY_VALUES_MEAN);
     assertThat(LARGE_LONG_VALUES_STATS.mean())
         .isWithin(ALLOWED_ERROR * Long.MAX_VALUE)
@@ -182,16 +178,16 @@ public class StatsTest extends TestCase {
         .isWithin(ALLOWED_ERROR)
         .of(MANY_VALUES_MEAN * MANY_VALUES_COUNT);
     assertThat(INTEGER_MANY_VALUES_STATS_VARARGS.sum())
-        .isWithin(ALLOWED_ERROR * INTEGER_MANY_VALUES_MEAN)
+        .isWithin(ALLOWED_ERROR)
         .of(INTEGER_MANY_VALUES_MEAN * INTEGER_MANY_VALUES_COUNT);
     assertThat(INTEGER_MANY_VALUES_STATS_ITERABLE.sum())
-        .isWithin(ALLOWED_ERROR * INTEGER_MANY_VALUES_MEAN)
+        .isWithin(ALLOWED_ERROR)
         .of(INTEGER_MANY_VALUES_MEAN * INTEGER_MANY_VALUES_COUNT);
     assertThat(LONG_MANY_VALUES_STATS_ITERATOR.sum())
-        .isWithin(ALLOWED_ERROR * LONG_MANY_VALUES_MEAN)
+        .isWithin(ALLOWED_ERROR)
         .of(LONG_MANY_VALUES_MEAN * LONG_MANY_VALUES_COUNT);
     assertThat(LONG_MANY_VALUES_STATS_SNAPSHOT.sum())
-        .isWithin(ALLOWED_ERROR * LONG_MANY_VALUES_MEAN)
+        .isWithin(ALLOWED_ERROR)
         .of(LONG_MANY_VALUES_MEAN * LONG_MANY_VALUES_COUNT);
   }
 
@@ -221,10 +217,10 @@ public class StatsTest extends TestCase {
     for (ManyValues values : ALL_MANY_VALUES) {
       double populationVariance = Stats.of(values.asIterable()).populationVariance();
       if (values.hasAnyNonFinite()) {
-        assertWithMessage("population variance of " + values).that(populationVariance).isNaN();
+        assertThat(populationVariance).named("population variance of " + values).isNaN();
       } else {
-        assertWithMessage("population variance of " + values)
-            .that(populationVariance)
+        assertThat(populationVariance)
+            .named("population variance of " + values)
             .isWithin(ALLOWED_ERROR)
             .of(MANY_VALUES_SUM_OF_SQUARES_OF_DELTAS / MANY_VALUES_COUNT);
       }
@@ -236,19 +232,19 @@ public class StatsTest extends TestCase {
         .isWithin(ALLOWED_ERROR)
         .of(MANY_VALUES_SUM_OF_SQUARES_OF_DELTAS / MANY_VALUES_COUNT);
     assertThat(INTEGER_MANY_VALUES_STATS_VARARGS.populationVariance())
-        .isWithin(ALLOWED_ERROR * INTEGER_MANY_VALUES_SUM_OF_SQUARES_OF_DELTAS)
+        .isWithin(ALLOWED_ERROR)
         .of(INTEGER_MANY_VALUES_SUM_OF_SQUARES_OF_DELTAS / INTEGER_MANY_VALUES_COUNT);
     assertThat(INTEGER_MANY_VALUES_STATS_ITERABLE.populationVariance())
-        .isWithin(ALLOWED_ERROR * INTEGER_MANY_VALUES_SUM_OF_SQUARES_OF_DELTAS)
+        .isWithin(ALLOWED_ERROR)
         .of(INTEGER_MANY_VALUES_SUM_OF_SQUARES_OF_DELTAS / INTEGER_MANY_VALUES_COUNT);
     assertThat(LARGE_INTEGER_VALUES_STATS.populationVariance())
         .isWithin(ALLOWED_ERROR * Integer.MAX_VALUE * Integer.MAX_VALUE)
         .of(LARGE_INTEGER_VALUES_POPULATION_VARIANCE);
     assertThat(LONG_MANY_VALUES_STATS_ITERATOR.populationVariance())
-        .isWithin(ALLOWED_ERROR * LONG_MANY_VALUES_SUM_OF_SQUARES_OF_DELTAS)
+        .isWithin(ALLOWED_ERROR)
         .of(LONG_MANY_VALUES_SUM_OF_SQUARES_OF_DELTAS / LONG_MANY_VALUES_COUNT);
     assertThat(LONG_MANY_VALUES_STATS_SNAPSHOT.populationVariance())
-        .isWithin(ALLOWED_ERROR * LONG_MANY_VALUES_SUM_OF_SQUARES_OF_DELTAS)
+        .isWithin(ALLOWED_ERROR)
         .of(LONG_MANY_VALUES_SUM_OF_SQUARES_OF_DELTAS / LONG_MANY_VALUES_COUNT);
     assertThat(LARGE_LONG_VALUES_STATS.populationVariance())
         .isWithin(ALLOWED_ERROR * Long.MAX_VALUE * Long.MAX_VALUE)
@@ -283,16 +279,16 @@ public class StatsTest extends TestCase {
         .isWithin(ALLOWED_ERROR)
         .of(sqrt(MANY_VALUES_SUM_OF_SQUARES_OF_DELTAS / MANY_VALUES_COUNT));
     assertThat(INTEGER_MANY_VALUES_STATS_VARARGS.populationStandardDeviation())
-        .isWithin(ALLOWED_ERROR * sqrt(INTEGER_MANY_VALUES_SUM_OF_SQUARES_OF_DELTAS))
+        .isWithin(ALLOWED_ERROR)
         .of(sqrt(INTEGER_MANY_VALUES_SUM_OF_SQUARES_OF_DELTAS / INTEGER_MANY_VALUES_COUNT));
     assertThat(INTEGER_MANY_VALUES_STATS_ITERABLE.populationStandardDeviation())
-        .isWithin(ALLOWED_ERROR * sqrt(INTEGER_MANY_VALUES_SUM_OF_SQUARES_OF_DELTAS))
+        .isWithin(ALLOWED_ERROR)
         .of(sqrt(INTEGER_MANY_VALUES_SUM_OF_SQUARES_OF_DELTAS / INTEGER_MANY_VALUES_COUNT));
     assertThat(LONG_MANY_VALUES_STATS_ITERATOR.populationStandardDeviation())
-        .isWithin(ALLOWED_ERROR * sqrt(LONG_MANY_VALUES_SUM_OF_SQUARES_OF_DELTAS))
+        .isWithin(ALLOWED_ERROR)
         .of(sqrt(LONG_MANY_VALUES_SUM_OF_SQUARES_OF_DELTAS / LONG_MANY_VALUES_COUNT));
     assertThat(LONG_MANY_VALUES_STATS_SNAPSHOT.populationStandardDeviation())
-        .isWithin(ALLOWED_ERROR * sqrt(LONG_MANY_VALUES_SUM_OF_SQUARES_OF_DELTAS))
+        .isWithin(ALLOWED_ERROR)
         .of(sqrt(LONG_MANY_VALUES_SUM_OF_SQUARES_OF_DELTAS / LONG_MANY_VALUES_COUNT));
   }
 
@@ -328,16 +324,16 @@ public class StatsTest extends TestCase {
         .isWithin(ALLOWED_ERROR)
         .of(MANY_VALUES_SUM_OF_SQUARES_OF_DELTAS / (MANY_VALUES_COUNT - 1));
     assertThat(INTEGER_MANY_VALUES_STATS_VARARGS.sampleVariance())
-        .isWithin(ALLOWED_ERROR * INTEGER_MANY_VALUES_SUM_OF_SQUARES_OF_DELTAS)
+        .isWithin(ALLOWED_ERROR)
         .of(INTEGER_MANY_VALUES_SUM_OF_SQUARES_OF_DELTAS / (INTEGER_MANY_VALUES_COUNT - 1));
     assertThat(INTEGER_MANY_VALUES_STATS_ITERABLE.sampleVariance())
-        .isWithin(ALLOWED_ERROR * INTEGER_MANY_VALUES_SUM_OF_SQUARES_OF_DELTAS)
+        .isWithin(ALLOWED_ERROR)
         .of(INTEGER_MANY_VALUES_SUM_OF_SQUARES_OF_DELTAS / (INTEGER_MANY_VALUES_COUNT - 1));
     assertThat(LONG_MANY_VALUES_STATS_ITERATOR.sampleVariance())
-        .isWithin(ALLOWED_ERROR * LONG_MANY_VALUES_SUM_OF_SQUARES_OF_DELTAS)
+        .isWithin(ALLOWED_ERROR)
         .of(LONG_MANY_VALUES_SUM_OF_SQUARES_OF_DELTAS / (LONG_MANY_VALUES_COUNT - 1));
     assertThat(LONG_MANY_VALUES_STATS_SNAPSHOT.sampleVariance())
-        .isWithin(ALLOWED_ERROR * LONG_MANY_VALUES_SUM_OF_SQUARES_OF_DELTAS)
+        .isWithin(ALLOWED_ERROR)
         .of(LONG_MANY_VALUES_SUM_OF_SQUARES_OF_DELTAS / (LONG_MANY_VALUES_COUNT - 1));
   }
 
@@ -373,16 +369,16 @@ public class StatsTest extends TestCase {
         .isWithin(ALLOWED_ERROR)
         .of(sqrt(MANY_VALUES_SUM_OF_SQUARES_OF_DELTAS / (MANY_VALUES_COUNT - 1)));
     assertThat(INTEGER_MANY_VALUES_STATS_VARARGS.sampleStandardDeviation())
-        .isWithin(ALLOWED_ERROR * sqrt(INTEGER_MANY_VALUES_SUM_OF_SQUARES_OF_DELTAS))
+        .isWithin(ALLOWED_ERROR)
         .of(sqrt(INTEGER_MANY_VALUES_SUM_OF_SQUARES_OF_DELTAS / (INTEGER_MANY_VALUES_COUNT - 1)));
     assertThat(INTEGER_MANY_VALUES_STATS_ITERABLE.sampleStandardDeviation())
-        .isWithin(ALLOWED_ERROR * sqrt(INTEGER_MANY_VALUES_SUM_OF_SQUARES_OF_DELTAS))
+        .isWithin(ALLOWED_ERROR)
         .of(sqrt(INTEGER_MANY_VALUES_SUM_OF_SQUARES_OF_DELTAS / (INTEGER_MANY_VALUES_COUNT - 1)));
     assertThat(LONG_MANY_VALUES_STATS_ITERATOR.sampleStandardDeviation())
-        .isWithin(ALLOWED_ERROR * sqrt(LONG_MANY_VALUES_SUM_OF_SQUARES_OF_DELTAS))
+        .isWithin(ALLOWED_ERROR)
         .of(sqrt(LONG_MANY_VALUES_SUM_OF_SQUARES_OF_DELTAS / (LONG_MANY_VALUES_COUNT - 1)));
     assertThat(LONG_MANY_VALUES_STATS_SNAPSHOT.sampleStandardDeviation())
-        .isWithin(ALLOWED_ERROR * sqrt(LONG_MANY_VALUES_SUM_OF_SQUARES_OF_DELTAS))
+        .isWithin(ALLOWED_ERROR)
         .of(sqrt(LONG_MANY_VALUES_SUM_OF_SQUARES_OF_DELTAS / (LONG_MANY_VALUES_COUNT - 1)));
   }
 
@@ -397,30 +393,38 @@ public class StatsTest extends TestCase {
       fail("Expected IllegalStateException");
     } catch (IllegalStateException expected) {
     }
-    assertThat(ONE_VALUE_STATS.max()).isEqualTo(ONE_VALUE);
+    assertThat(ONE_VALUE_STATS.max()).isWithin(ALLOWED_ERROR).of(ONE_VALUE);
     assertThat(Stats.of(POSITIVE_INFINITY).max()).isPositiveInfinity();
     assertThat(Stats.of(NEGATIVE_INFINITY).max()).isNegativeInfinity();
     assertThat(Stats.of(NaN).max()).isNaN();
-    assertThat(TWO_VALUES_STATS.max()).isEqualTo(TWO_VALUES_MAX);
-    assertThat(MANY_VALUES_STATS_VARARGS.max()).isEqualTo(MANY_VALUES_MAX);
-    assertThat(MANY_VALUES_STATS_ITERABLE.max()).isEqualTo(MANY_VALUES_MAX);
+    assertThat(TWO_VALUES_STATS.max()).isWithin(ALLOWED_ERROR).of(TWO_VALUES_MAX);
+    assertThat(MANY_VALUES_STATS_VARARGS.max()).isWithin(ALLOWED_ERROR).of(MANY_VALUES_MAX);
+    assertThat(MANY_VALUES_STATS_ITERABLE.max()).isWithin(ALLOWED_ERROR).of(MANY_VALUES_MAX);
     // For datasets of many double values created from an iterator, we test many combinations of
     // finite and non-finite values:
     for (ManyValues values : ALL_MANY_VALUES) {
       double max = Stats.of(values.asIterable().iterator()).max();
       if (values.hasAnyNaN()) {
-        assertWithMessage("max of " + values).that(max).isNaN();
+        assertThat(max).named("max of " + values).isNaN();
       } else if (values.hasAnyPositiveInfinity()) {
-        assertWithMessage("max of " + values).that(max).isPositiveInfinity();
+        assertThat(max).named("max of " + values).isPositiveInfinity();
       } else {
-        assertWithMessage("max of " + values).that(max).isEqualTo(MANY_VALUES_MAX);
+        assertThat(max).named("max of " + values).isWithin(ALLOWED_ERROR).of(MANY_VALUES_MAX);
       }
     }
-    assertThat(MANY_VALUES_STATS_SNAPSHOT.max()).isEqualTo(MANY_VALUES_MAX);
-    assertThat(INTEGER_MANY_VALUES_STATS_VARARGS.max()).isEqualTo(INTEGER_MANY_VALUES_MAX);
-    assertThat(INTEGER_MANY_VALUES_STATS_ITERABLE.max()).isEqualTo(INTEGER_MANY_VALUES_MAX);
-    assertThat(LONG_MANY_VALUES_STATS_ITERATOR.max()).isEqualTo(LONG_MANY_VALUES_MAX);
-    assertThat(LONG_MANY_VALUES_STATS_SNAPSHOT.max()).isEqualTo(LONG_MANY_VALUES_MAX);
+    assertThat(MANY_VALUES_STATS_SNAPSHOT.max()).isWithin(ALLOWED_ERROR).of(MANY_VALUES_MAX);
+    assertThat(INTEGER_MANY_VALUES_STATS_VARARGS.max())
+        .isWithin(ALLOWED_ERROR)
+        .of(INTEGER_MANY_VALUES_MAX);
+    assertThat(INTEGER_MANY_VALUES_STATS_ITERABLE.max())
+        .isWithin(ALLOWED_ERROR)
+        .of(INTEGER_MANY_VALUES_MAX);
+    assertThat(LONG_MANY_VALUES_STATS_ITERATOR.max())
+        .isWithin(ALLOWED_ERROR)
+        .of(LONG_MANY_VALUES_MAX);
+    assertThat(LONG_MANY_VALUES_STATS_SNAPSHOT.max())
+        .isWithin(ALLOWED_ERROR)
+        .of(LONG_MANY_VALUES_MAX);
   }
 
   public void testMin() {
@@ -434,14 +438,14 @@ public class StatsTest extends TestCase {
       fail("Expected IllegalStateException");
     } catch (IllegalStateException expected) {
     }
-    assertThat(ONE_VALUE_STATS.min()).isEqualTo(ONE_VALUE);
+    assertThat(ONE_VALUE_STATS.min()).isWithin(ALLOWED_ERROR).of(ONE_VALUE);
     assertThat(Stats.of(POSITIVE_INFINITY).min()).isPositiveInfinity();
     assertThat(Stats.of(NEGATIVE_INFINITY).min()).isNegativeInfinity();
     assertThat(Stats.of(NaN).min()).isNaN();
-    assertThat(TWO_VALUES_STATS.min()).isEqualTo(TWO_VALUES_MIN);
-    assertThat(MANY_VALUES_STATS_VARARGS.min()).isEqualTo(MANY_VALUES_MIN);
-    assertThat(MANY_VALUES_STATS_ITERABLE.min()).isEqualTo(MANY_VALUES_MIN);
-    assertThat(MANY_VALUES_STATS_ITERATOR.min()).isEqualTo(MANY_VALUES_MIN);
+    assertThat(TWO_VALUES_STATS.min()).isWithin(ALLOWED_ERROR).of(TWO_VALUES_MIN);
+    assertThat(MANY_VALUES_STATS_VARARGS.min()).isWithin(ALLOWED_ERROR).of(MANY_VALUES_MIN);
+    assertThat(MANY_VALUES_STATS_ITERABLE.min()).isWithin(ALLOWED_ERROR).of(MANY_VALUES_MIN);
+    assertThat(MANY_VALUES_STATS_ITERATOR.min()).isWithin(ALLOWED_ERROR).of(MANY_VALUES_MIN);
     // For datasets of many double values created from an accumulator snapshot, we test many
     // combinations of finite and non-finite values:
     for (ManyValues values : ALL_MANY_VALUES) {
@@ -449,17 +453,25 @@ public class StatsTest extends TestCase {
       accumulator.addAll(values.asIterable());
       double min = accumulator.snapshot().min();
       if (values.hasAnyNaN()) {
-        assertWithMessage("min of " + values).that(min).isNaN();
+        assertThat(min).named("min of " + values).isNaN();
       } else if (values.hasAnyNegativeInfinity()) {
-        assertWithMessage("min of " + values).that(min).isNegativeInfinity();
+        assertThat(min).named("min of " + values).isNegativeInfinity();
       } else {
-        assertWithMessage("min of " + values).that(min).isEqualTo(MANY_VALUES_MIN);
+        assertThat(min).named("min of " + values).isWithin(ALLOWED_ERROR).of(MANY_VALUES_MIN);
       }
     }
-    assertThat(INTEGER_MANY_VALUES_STATS_VARARGS.min()).isEqualTo(INTEGER_MANY_VALUES_MIN);
-    assertThat(INTEGER_MANY_VALUES_STATS_ITERABLE.min()).isEqualTo(INTEGER_MANY_VALUES_MIN);
-    assertThat(LONG_MANY_VALUES_STATS_ITERATOR.min()).isEqualTo(LONG_MANY_VALUES_MIN);
-    assertThat(LONG_MANY_VALUES_STATS_SNAPSHOT.min()).isEqualTo(LONG_MANY_VALUES_MIN);
+    assertThat(INTEGER_MANY_VALUES_STATS_VARARGS.min())
+        .isWithin(ALLOWED_ERROR)
+        .of(INTEGER_MANY_VALUES_MIN);
+    assertThat(INTEGER_MANY_VALUES_STATS_ITERABLE.min())
+        .isWithin(ALLOWED_ERROR)
+        .of(INTEGER_MANY_VALUES_MIN);
+    assertThat(LONG_MANY_VALUES_STATS_ITERATOR.min())
+        .isWithin(ALLOWED_ERROR)
+        .of(LONG_MANY_VALUES_MIN);
+    assertThat(LONG_MANY_VALUES_STATS_SNAPSHOT.min())
+        .isWithin(ALLOWED_ERROR)
+        .of(LONG_MANY_VALUES_MIN);
   }
 
   public void testEqualsAndHashCode() {
@@ -525,33 +537,28 @@ public class StatsTest extends TestCase {
     for (ManyValues values : ALL_MANY_VALUES) {
       double mean = Stats.meanOf(values.asArray());
       if (values.hasAnyNaN()) {
-        assertWithMessage("mean of " + values).that(mean).isNaN();
+        assertThat(mean).named("mean of " + values).isNaN();
       } else if (values.hasAnyPositiveInfinity() && values.hasAnyNegativeInfinity()) {
-        assertWithMessage("mean of " + values).that(mean).isNaN();
+        assertThat(mean).named("mean of " + values).isNaN();
       } else if (values.hasAnyPositiveInfinity()) {
-        assertWithMessage("mean of " + values).that(mean).isPositiveInfinity();
+        assertThat(mean).named("mean of " + values).isPositiveInfinity();
       } else if (values.hasAnyNegativeInfinity()) {
-        assertWithMessage("mean of " + values).that(mean).isNegativeInfinity();
+        assertThat(mean).named("mean of " + values).isNegativeInfinity();
       } else {
-        assertWithMessage("mean of " + values)
-            .that(mean)
-            .isWithin(ALLOWED_ERROR)
-            .of(MANY_VALUES_MEAN);
+        assertThat(mean).named("mean of " + values).isWithin(ALLOWED_ERROR).of(MANY_VALUES_MEAN);
       }
     }
     assertThat(Stats.meanOf(MANY_VALUES)).isWithin(ALLOWED_ERROR).of(MANY_VALUES_MEAN);
     assertThat(Stats.meanOf(MANY_VALUES.iterator())).isWithin(ALLOWED_ERROR).of(MANY_VALUES_MEAN);
     assertThat(Stats.meanOf(INTEGER_MANY_VALUES))
-        .isWithin(ALLOWED_ERROR * INTEGER_MANY_VALUES_MEAN)
+        .isWithin(ALLOWED_ERROR)
         .of(INTEGER_MANY_VALUES_MEAN);
     assertThat(Stats.meanOf(Ints.toArray(INTEGER_MANY_VALUES)))
-        .isWithin(ALLOWED_ERROR * INTEGER_MANY_VALUES_MEAN)
+        .isWithin(ALLOWED_ERROR)
         .of(INTEGER_MANY_VALUES_MEAN);
-    assertThat(Stats.meanOf(LONG_MANY_VALUES))
-        .isWithin(ALLOWED_ERROR * LONG_MANY_VALUES_MEAN)
-        .of(LONG_MANY_VALUES_MEAN);
+    assertThat(Stats.meanOf(LONG_MANY_VALUES)).isWithin(ALLOWED_ERROR).of(LONG_MANY_VALUES_MEAN);
     assertThat(Stats.meanOf(Longs.toArray(LONG_MANY_VALUES)))
-        .isWithin(ALLOWED_ERROR * LONG_MANY_VALUES_MEAN)
+        .isWithin(ALLOWED_ERROR)
         .of(LONG_MANY_VALUES_MEAN);
   }
 

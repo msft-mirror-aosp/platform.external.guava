@@ -67,7 +67,8 @@ final class ClusterException extends RuntimeException {
     super(
         exceptions.size() + " exceptions were thrown. The first exception is listed as a cause.",
         exceptions.iterator().next());
-    ArrayList<Throwable> temp = new ArrayList<>(exceptions);
+    ArrayList<Throwable> temp = new ArrayList<>();
+    temp.addAll(exceptions);
     this.exceptions = Collections.unmodifiableCollection(temp);
   }
 

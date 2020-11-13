@@ -37,9 +37,9 @@ import java.util.logging.Logger;
  */
 @GwtCompatible(emulated = true)
 @ReflectionSupport(value = ReflectionSupport.Level.FULL)
-abstract class AggregateFutureState<OutputT> extends AbstractFuture.TrustedFuture<OutputT> {
+abstract class AggregateFutureState {
   // Lazily initialized the first time we see an exception; not released until all the input futures
-  // have completed and we have processed them all.
+  // & this future completes. Released when the future releases the reference to the running state
   private volatile Set<Throwable> seenExceptions = null;
 
   private volatile int remaining;
@@ -89,27 +89,12 @@ abstract class AggregateFutureState<OutputT> extends AbstractFuture.TrustedFutur
      * Thread2: calls setException(), which returns false, CASes seenExceptions to its exception,
      * and wrongly believes that its exception is new (leading it to logging it when it shouldn't)
      *
-     * Our solution is for threads to CAS seenExceptions from null to a Set populated with _the
+     * Our solution is for threads to CAS seenExceptions from null to a Set population with _the
      * initial exception_, no matter which thread does the work. This ensures that seenExceptions
      * always contains not just the current thread's exception but also the initial thread's.
      */
     Set<Throwable> seenExceptionsLocal = seenExceptions;
     if (seenExceptionsLocal == null) {
-      // TODO(cpovirk): Should we use a simpler (presumably cheaper) data structure?
-      /*
-       * Using weak references here could let us release exceptions earlier, but:
-       *
-       * 1. On Android, querying a WeakReference blocks if the GC is doing an otherwise-concurrent
-       * pass.
-       *
-       * 2. We would probably choose to compare exceptions using == instead of equals() (for
-       * consistency with how weak references are cleared). That's a behavior change -- arguably the
-       * removal of a feature.
-       *
-       * Fortunately, exceptions rarely contain references to expensive resources.
-       */
-
-      //
       seenExceptionsLocal = newConcurrentHashSet();
       /*
        * Other handleException() callers may see this as soon as we publish it. We need to populate
@@ -135,10 +120,6 @@ abstract class AggregateFutureState<OutputT> extends AbstractFuture.TrustedFutur
 
   final int decrementRemainingAndGet() {
     return ATOMIC_HELPER.decrementAndGetRemainingCount(this);
-  }
-
-  final void clearSeenExceptions() {
-    seenExceptions = null;
   }
 
   private abstract static class AtomicHelper {
@@ -188,7 +169,8 @@ abstract class AggregateFutureState<OutputT> extends AbstractFuture.TrustedFutur
     @Override
     int decrementAndGetRemainingCount(AggregateFutureState state) {
       synchronized (state) {
-        return --state.remaining;
+        state.remaining--;
+        return state.remaining;
       }
     }
   }
