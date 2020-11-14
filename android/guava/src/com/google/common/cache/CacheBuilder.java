@@ -39,7 +39,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.checkerframework.checker.nullness.compatqual.NullableDecl;
+import org.checkerframework.checker.nullness.compatqual.MonotonicNonNullDecl;
 
 /**
  * A builder of {@link LoadingCache} and {@link Cache} instances having any combination of the
@@ -49,8 +49,9 @@ import org.checkerframework.checker.nullness.compatqual.NullableDecl;
  *   <li>automatic loading of entries into the cache
  *   <li>least-recently-used eviction when a maximum size is exceeded
  *   <li>time-based expiration of entries, measured since last access or last write
- *   <li>keys automatically wrapped in {@code WeakReference}
- *   <li>values automatically wrapped in {@code WeakReference} or {@code SoftReference}
+ *   <li>keys automatically wrapped in {@linkplain WeakReference weak} references
+ *   <li>values automatically wrapped in {@linkplain WeakReference weak} or {@linkplain
+ *       SoftReference soft} references
  *   <li>notification of evicted (or otherwise removed) entries
  *   <li>accumulation of cache access statistics
  * </ul>
@@ -231,10 +232,10 @@ public final class CacheBuilder<K, V> {
   int concurrencyLevel = UNSET_INT;
   long maximumSize = UNSET_INT;
   long maximumWeight = UNSET_INT;
-  @NullableDecl Weigher<? super K, ? super V> weigher;
+  @MonotonicNonNullDecl Weigher<? super K, ? super V> weigher;
 
-  @NullableDecl Strength keyStrength;
-  @NullableDecl Strength valueStrength;
+  @MonotonicNonNullDecl Strength keyStrength;
+  @MonotonicNonNullDecl Strength valueStrength;
 
   @SuppressWarnings("GoodTime") // should be a java.time.Duration
   long expireAfterWriteNanos = UNSET_INT;
@@ -245,11 +246,11 @@ public final class CacheBuilder<K, V> {
   @SuppressWarnings("GoodTime") // should be a java.time.Duration
   long refreshNanos = UNSET_INT;
 
-  @NullableDecl Equivalence<Object> keyEquivalence;
-  @NullableDecl Equivalence<Object> valueEquivalence;
+  @MonotonicNonNullDecl Equivalence<Object> keyEquivalence;
+  @MonotonicNonNullDecl Equivalence<Object> valueEquivalence;
 
-  @NullableDecl RemovalListener<? super K, ? super V> removalListener;
-  @NullableDecl Ticker ticker;
+  @MonotonicNonNullDecl RemovalListener<? super K, ? super V> removalListener;
+  @MonotonicNonNullDecl Ticker ticker;
 
   Supplier<? extends StatsCounter> statsCounterSupplier = NULL_STATS_COUNTER;
 
@@ -661,7 +662,6 @@ public final class CacheBuilder<K, V> {
     return this;
   }
 
-  @SuppressWarnings("GoodTime") // nanos internally, should be Duration
   long getExpireAfterWriteNanos() {
     return (expireAfterWriteNanos == UNSET_INT) ? DEFAULT_EXPIRATION_NANOS : expireAfterWriteNanos;
   }
@@ -670,10 +670,8 @@ public final class CacheBuilder<K, V> {
    * Specifies that each entry should be automatically removed from the cache once a fixed duration
    * has elapsed after the entry's creation, the most recent replacement of its value, or its last
    * access. Access time is reset by all cache read and write operations (including {@code
-   * Cache.asMap().get(Object)} and {@code Cache.asMap().put(K, V)}), but not by {@code
-   * containsKey(Object)}, nor by operations on the collection-views of {@link Cache#asMap}. So, for
-   * example, iterating through {@code Cache.asMap().entrySet()} does not reset access time for the
-   * entries you retrieve.
+   * Cache.asMap().get(Object)} and {@code Cache.asMap().put(K, V)}), but not by operations on the
+   * collection-views of {@link Cache#asMap}.
    *
    * <p>When {@code duration} is zero, this method hands off to {@link #maximumSize(long)
    * maximumSize}{@code (0)}, ignoring any otherwise-specified maximum size or weight. This can be
@@ -701,7 +699,6 @@ public final class CacheBuilder<K, V> {
     return this;
   }
 
-  @SuppressWarnings("GoodTime") // nanos internally, should be Duration
   long getExpireAfterAccessNanos() {
     return (expireAfterAccessNanos == UNSET_INT)
         ? DEFAULT_EXPIRATION_NANOS
@@ -744,7 +741,6 @@ public final class CacheBuilder<K, V> {
     return this;
   }
 
-  @SuppressWarnings("GoodTime") // nanos internally, should be Duration
   long getRefreshNanos() {
     return (refreshNanos == UNSET_INT) ? DEFAULT_REFRESH_NANOS : refreshNanos;
   }

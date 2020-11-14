@@ -26,9 +26,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableDecl;
  * @author James Sexton
  */
 class MapRetrievalCache<K, V> extends MapIteratorCache<K, V> {
-  // See the note about volatile in the superclass.
-  @NullableDecl private transient volatile CacheEntry<K, V> cacheEntry1;
-  @NullableDecl private transient volatile CacheEntry<K, V> cacheEntry2;
+  @NullableDecl private transient CacheEntry<K, V> cacheEntry1;
+  @NullableDecl private transient CacheEntry<K, V> cacheEntry2;
 
   MapRetrievalCache(Map<K, V> backingMap) {
     super(backingMap);

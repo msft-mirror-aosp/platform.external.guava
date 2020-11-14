@@ -23,6 +23,7 @@ import com.google.common.annotations.GwtCompatible;
 import com.google.common.base.Objects;
 import java.io.Serializable;
 import java.util.Comparator;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
@@ -244,7 +245,7 @@ final class GeneralRange<T> implements Serializable {
         getUpperBoundType());
   }
 
-  private transient @Nullable GeneralRange<T> reverse;
+  private transient @MonotonicNonNull GeneralRange<T> reverse;
 
   /** Returns the same range relative to the reversed comparator. */
   GeneralRange<T> reverse() {

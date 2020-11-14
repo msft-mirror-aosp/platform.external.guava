@@ -301,10 +301,10 @@ public abstract class MapInterfaceTest<K, V> extends TestCase {
     }
     assertTrue(map.containsKey(map.keySet().iterator().next()));
     if (allowsNullKeys) {
-      boolean unused = map.containsKey(null);
+      map.containsKey(null);
     } else {
       try {
-        boolean unused2 = map.containsKey(null);
+        map.containsKey(null);
       } catch (NullPointerException optional) {
       }
     }
@@ -323,10 +323,10 @@ public abstract class MapInterfaceTest<K, V> extends TestCase {
     assertFalse(map.containsValue(unmappedValue));
     assertTrue(map.containsValue(map.values().iterator().next()));
     if (allowsNullValues) {
-      boolean unused = map.containsValue(null);
+      map.containsValue(null);
     } else {
       try {
-        boolean unused2 = map.containsKey(null);
+        map.containsKey(null);
       } catch (NullPointerException optional) {
       }
     }
