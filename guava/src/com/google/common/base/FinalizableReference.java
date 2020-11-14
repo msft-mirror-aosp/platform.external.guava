@@ -15,7 +15,6 @@
 package com.google.common.base;
 
 import com.google.common.annotations.GwtIncompatible;
-import com.google.errorprone.annotations.DoNotMock;
 
 /**
  * Implemented by references that have code to run after garbage collection of their referents.
@@ -24,7 +23,6 @@ import com.google.errorprone.annotations.DoNotMock;
  * @author Bob Lee
  * @since 2.0
  */
-@DoNotMock("Use an instance of one of the Finalizable*Reference classes")
 @GwtIncompatible
 public interface FinalizableReference {
   /**

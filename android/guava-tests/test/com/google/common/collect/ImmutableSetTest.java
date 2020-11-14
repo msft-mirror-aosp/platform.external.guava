@@ -366,12 +366,4 @@ public class ImmutableSetTest extends AbstractImmutableSetTest {
     builder.add("baz");
     assertTrue(set.elements != builder.contents);
   }
-
-  public void testReuseBuilderReducingHashTableSizeWithPowerOfTwoTotalElements() {
-    ImmutableSet.Builder<Object> builder = ImmutableSet.builderWithExpectedSize(6);
-    builder.add(0);
-    ImmutableSet<Object> unused = builder.build();
-    ImmutableSet<Object> subject = builder.add(1).add(2).add(3).build();
-    assertFalse(subject.contains(4));
-  }
 }

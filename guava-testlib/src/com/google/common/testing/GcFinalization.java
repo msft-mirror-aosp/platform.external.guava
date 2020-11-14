@@ -20,7 +20,6 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 
 import com.google.common.annotations.Beta;
 import com.google.common.annotations.GwtIncompatible;
-import com.google.errorprone.annotations.DoNotMock;
 import com.google.j2objc.annotations.J2ObjCIncompatible;
 import java.lang.ref.WeakReference;
 import java.util.Locale;
@@ -242,7 +241,6 @@ public final class GcFinalization {
    *   <li>enqueuing weak references to unreachable referents in their reference queue
    * </ul>
    */
-  @DoNotMock("Implement with a lambda")
   public interface FinalizationPredicate {
     boolean isDone();
   }

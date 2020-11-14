@@ -33,7 +33,6 @@ public class HashingOutputStreamTest extends TestCase {
   private HashFunction hashFunction;
   private final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 
-  @SuppressWarnings("DoNotMock")
   @Override
   protected void setUp() throws Exception {
     super.setUp();

@@ -175,11 +175,11 @@ public class SynchronizedMapTest extends TestCase {
   }
 
   public void testContainsKey() {
-    boolean unused = create().containsKey(null);
+    create().containsKey(null);
   }
 
   public void testContainsValue() {
-    boolean unused = create().containsValue(null);
+    create().containsValue(null);
   }
 
   public void testGet() {

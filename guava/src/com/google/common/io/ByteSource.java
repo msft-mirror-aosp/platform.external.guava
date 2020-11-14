@@ -215,7 +215,10 @@ public abstract class ByteSource {
     }
   }
 
-  /** Counts the bytes in the given input stream using skip if possible. */
+  /**
+   * Counts the bytes in the given input stream using skip if possible. Returns SKIP_FAILED if the
+   * first call to skip threw, in which case skip may just not be supported.
+   */
   private long countBySkipping(InputStream in) throws IOException {
     long count = 0;
     long skipped;
@@ -416,11 +419,6 @@ public abstract class ByteSource {
    * Returns a view of the given byte array as a {@link ByteSource}. To view only a specific range
    * in the array, use {@code ByteSource.wrap(b).slice(offset, length)}.
    *
-   * <p>Note that the given byte array may be be passed directly to methods on, for example, {@code
-   * OutputStream} (when {@code copyTo(OutputStream)} is called on the resulting {@code
-   * ByteSource}). This could allow a malicious {@code OutputStream} implementation to modify the
-   * contents of the array, but provides better performance in the normal case.
-   *
    * @since 15.0 (since 14.0 as {@code ByteStreams.asByteSource(byte[])}).
    */
   public static ByteSource wrap(byte[] b) {
@@ -530,9 +528,7 @@ public abstract class ByteSource {
       checkArgument(offset >= 0, "offset (%s) may not be negative", offset);
       checkArgument(length >= 0, "length (%s) may not be negative", length);
       long maxLength = this.length - offset;
-      return maxLength <= 0
-          ? ByteSource.empty()
-          : ByteSource.this.slice(this.offset + offset, Math.min(length, maxLength));
+      return ByteSource.this.slice(this.offset + offset, Math.min(length, maxLength));
     }
 
     @Override
