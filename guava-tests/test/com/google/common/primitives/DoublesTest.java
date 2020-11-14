@@ -194,7 +194,6 @@ public class DoublesTest extends TestCase {
     assertEquals(-1, Doubles.lastIndexOf(new double[] {NaN, 5.0}, NaN));
   }
 
-  @GwtIncompatible
   public void testMax_noArgs() {
     try {
       Doubles.max();
@@ -217,7 +216,6 @@ public class DoublesTest extends TestCase {
     assertTrue(Double.isNaN(Doubles.max(VALUES)));
   }
 
-  @GwtIncompatible
   public void testMin_noArgs() {
     try {
       Doubles.min();

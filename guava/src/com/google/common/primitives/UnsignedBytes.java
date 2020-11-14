@@ -121,11 +121,11 @@ public final class UnsignedBytes {
   }
 
   /**
-   * Returns the least value present in {@code array}, treating values as unsigned.
+   * Returns the least value present in {@code array}.
    *
    * @param array a <i>nonempty</i> array of {@code byte} values
    * @return the value present in {@code array} that is less than or equal to every other value in
-   *     the array according to {@link #compare}
+   *     the array
    * @throws IllegalArgumentException if {@code array} is empty
    */
   public static byte min(byte... array) {
@@ -141,11 +141,11 @@ public final class UnsignedBytes {
   }
 
   /**
-   * Returns the greatest value present in {@code array}, treating values as unsigned.
+   * Returns the greatest value present in {@code array}.
    *
    * @param array a <i>nonempty</i> array of {@code byte} values
    * @return the value present in {@code array} that is greater than or equal to every other value
-   *     in the array according to {@link #compare}
+   *     in the array
    * @throws IllegalArgumentException if {@code array} is empty
    */
   public static byte max(byte... array) {

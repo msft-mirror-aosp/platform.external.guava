@@ -17,7 +17,6 @@ package com.google.common.io;
 import com.google.common.annotations.Beta;
 import com.google.common.annotations.GwtIncompatible;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import com.google.errorprone.annotations.DoNotMock;
 import java.io.IOException;
 
 /**
@@ -30,7 +29,6 @@ import java.io.IOException;
  * @since 1.0
  */
 @Beta
-@DoNotMock("Implement it normally")
 @GwtIncompatible
 public interface ByteProcessor<T> {
   /**

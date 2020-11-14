@@ -15,7 +15,6 @@
 package com.google.common.collect;
 
 import com.google.common.annotations.Beta;
-import com.google.errorprone.annotations.DoNotMock;
 import com.google.common.annotations.GwtIncompatible;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -50,7 +49,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * @since 14.0
  */
 @Beta
-@DoNotMock("Use ImmutableRangeSet or TreeRangeSet")
 @GwtIncompatible
 public interface RangeSet<C extends Comparable> {
   // TODO(lowasser): consider adding default implementations of some of these methods
