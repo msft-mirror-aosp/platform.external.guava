@@ -35,6 +35,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.Spliterator;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
@@ -141,7 +142,7 @@ public final class ArrayTable<R, C, V> extends AbstractTable<R, C, V> implements
      * TODO(jlevy): Support only one of rowKey / columnKey being empty? If we
      * do, when columnKeys is empty but rowKeys isn't, rowKeyList() can contain
      * elements but rowKeySet() will be empty and containsRow() won't
-     * acknowledge them.
+     * acknolwedge them.
      */
     rowKeyToIndex = Maps.indexMap(rowList);
     columnKeyToIndex = Maps.indexMap(columnList);
@@ -620,7 +621,7 @@ public final class ArrayTable<R, C, V> extends AbstractTable<R, C, V> implements
     return columnKeyToIndex.keySet();
   }
 
-  private transient @Nullable ColumnMap columnMap;
+  private transient @MonotonicNonNull ColumnMap columnMap;
 
   @Override
   public Map<C, Map<R, V>> columnMap() {
@@ -708,7 +709,7 @@ public final class ArrayTable<R, C, V> extends AbstractTable<R, C, V> implements
     return rowKeyToIndex.keySet();
   }
 
-  private transient @Nullable RowMap rowMap;
+  private transient @MonotonicNonNull RowMap rowMap;
 
   @Override
   public Map<R, Map<C, V>> rowMap() {

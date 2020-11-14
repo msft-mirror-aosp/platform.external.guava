@@ -45,8 +45,6 @@ public class MapsMemoryBenchmark {
     "HashMapImpl",
     "LinkedHashMapImpl",
     "ConcurrentHashMapImpl",
-    "CompactHashMapImpl",
-    "CompactLinkedHashMapImpl",
     "ImmutableMapImpl",
     "TreeMapImpl",
     "ImmutableSortedMapImpl",
