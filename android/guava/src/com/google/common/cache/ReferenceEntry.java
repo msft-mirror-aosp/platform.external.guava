@@ -64,7 +64,6 @@ interface ReferenceEntry<K, V> {
    */
 
   /** Returns the time that this entry was last accessed, in ns. */
-  @SuppressWarnings("GoodTime")
   long getAccessTime();
 
   /** Sets the entry access time in ns. */
@@ -89,7 +88,6 @@ interface ReferenceEntry<K, V> {
    * expired from the head of the list.
    */
 
-  @SuppressWarnings("GoodTime")
   /** Returns the time that this entry was last written, in ns. */
   long getWriteTime();
 

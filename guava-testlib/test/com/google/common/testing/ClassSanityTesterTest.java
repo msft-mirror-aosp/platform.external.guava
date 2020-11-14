@@ -289,7 +289,8 @@ public class ClassSanityTesterTest extends TestCase {
   }
 
   public static class FactoryThatReturnsNullAndAnnotated {
-    public static @Nullable Object bad() {
+    @Nullable
+    public static Object bad() {
       return null;
     }
   }
@@ -758,7 +759,8 @@ public class ClassSanityTesterTest extends TestCase {
 
     // keep trying
     @SuppressWarnings("unused")
-    public static @Nullable GoodEquals createMayReturnNull(int a, int b) {
+    @Nullable
+    public static GoodEquals createMayReturnNull(int a, int b) {
       return null;
     }
 
@@ -1189,7 +1191,8 @@ public class ClassSanityTesterTest extends TestCase {
   static class FactoryMethodReturnsNullAndAnnotated {
     private FactoryMethodReturnsNullAndAnnotated() {}
 
-    public static @Nullable FactoryMethodReturnsNullAndAnnotated returnsNull() {
+    @Nullable
+    public static FactoryMethodReturnsNullAndAnnotated returnsNull() {
       return null;
     }
   }

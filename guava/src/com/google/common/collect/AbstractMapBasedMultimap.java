@@ -42,6 +42,7 @@ import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.Spliterator;
 import java.util.function.BiConsumer;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
@@ -1122,7 +1123,7 @@ abstract class AbstractMapBasedMultimap<K, V> extends AbstractMultimap<K, V>
   private abstract class Itr<T> implements Iterator<T> {
     final Iterator<Entry<K, Collection<V>>> keyIterator;
     @Nullable K key;
-    @Nullable Collection<V> collection;
+    @MonotonicNonNull Collection<V> collection;
     Iterator<V> valueIterator;
 
     Itr() {
@@ -1471,7 +1472,7 @@ abstract class AbstractMapBasedMultimap<K, V> extends AbstractMultimap<K, V>
       return new SortedAsMap(sortedMap().tailMap(fromKey));
     }
 
-    @Nullable SortedSet<K> sortedKeySet;
+    @MonotonicNonNull SortedSet<K> sortedKeySet;
 
     // returns a SortedSet, even though returning a Set would be sufficient to
     // satisfy the SortedMap.keySet() interface

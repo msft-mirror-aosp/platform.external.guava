@@ -131,7 +131,11 @@ final class DoubleUtils {
   /** Returns its argument if it is non-negative, zero if it is negative. */
   static double ensureNonNegative(double value) {
     checkArgument(!isNaN(value));
-    return Math.max(value, 0.0);
+    if (value > 0.0) {
+      return value;
+    } else {
+      return 0.0;
+    }
   }
 
   @VisibleForTesting static final long ONE_BITS = 0x3ff0000000000000L;
