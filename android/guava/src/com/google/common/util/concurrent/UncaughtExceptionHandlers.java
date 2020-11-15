@@ -65,6 +65,7 @@ public final class UncaughtExceptionHandlers {
     @Override
     public void uncaughtException(Thread t, Throwable e) {
       try {
+        // cannot use FormattingLogger due to a dependency loop
         logger.log(
             SEVERE, String.format(Locale.ROOT, "Caught an exception in %s.  Shutting down.", t), e);
       } catch (Throwable errorInLogging) {

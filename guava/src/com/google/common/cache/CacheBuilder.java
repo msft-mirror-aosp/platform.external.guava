@@ -31,6 +31,8 @@ import com.google.common.cache.AbstractCache.StatsCounter;
 import com.google.common.cache.LocalCache.Strength;
 import com.google.errorprone.annotations.CheckReturnValue;
 import com.google.j2objc.annotations.J2ObjCIncompatible;
+import java.lang.ref.SoftReference;
+import java.lang.ref.WeakReference;
 import java.util.ConcurrentModificationException;
 import java.util.IdentityHashMap;
 import java.util.Map;
@@ -38,7 +40,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * A builder of {@link LoadingCache} and {@link Cache} instances having any combination of the
@@ -48,8 +50,9 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  *   <li>automatic loading of entries into the cache
  *   <li>least-recently-used eviction when a maximum size is exceeded
  *   <li>time-based expiration of entries, measured since last access or last write
- *   <li>keys automatically wrapped in {@code WeakReference}
- *   <li>values automatically wrapped in {@code WeakReference} or {@code SoftReference}
+ *   <li>keys automatically wrapped in {@linkplain WeakReference weak} references
+ *   <li>values automatically wrapped in {@linkplain WeakReference weak} or {@linkplain
+ *       SoftReference soft} references
  *   <li>notification of evicted (or otherwise removed) entries
  *   <li>accumulation of cache access statistics
  * </ul>
@@ -230,10 +233,10 @@ public final class CacheBuilder<K, V> {
   int concurrencyLevel = UNSET_INT;
   long maximumSize = UNSET_INT;
   long maximumWeight = UNSET_INT;
-  @Nullable Weigher<? super K, ? super V> weigher;
+  @MonotonicNonNull Weigher<? super K, ? super V> weigher;
 
-  @Nullable Strength keyStrength;
-  @Nullable Strength valueStrength;
+  @MonotonicNonNull Strength keyStrength;
+  @MonotonicNonNull Strength valueStrength;
 
   @SuppressWarnings("GoodTime") // should be a java.time.Duration
   long expireAfterWriteNanos = UNSET_INT;
@@ -244,11 +247,11 @@ public final class CacheBuilder<K, V> {
   @SuppressWarnings("GoodTime") // should be a java.time.Duration
   long refreshNanos = UNSET_INT;
 
-  @Nullable Equivalence<Object> keyEquivalence;
-  @Nullable Equivalence<Object> valueEquivalence;
+  @MonotonicNonNull Equivalence<Object> keyEquivalence;
+  @MonotonicNonNull Equivalence<Object> valueEquivalence;
 
-  @Nullable RemovalListener<? super K, ? super V> removalListener;
-  @Nullable Ticker ticker;
+  @MonotonicNonNull RemovalListener<? super K, ? super V> removalListener;
+  @MonotonicNonNull Ticker ticker;
 
   Supplier<? extends StatsCounter> statsCounterSupplier = NULL_STATS_COUNTER;
 
@@ -654,7 +657,7 @@ public final class CacheBuilder<K, V> {
   @GwtIncompatible // java.time.Duration
   @SuppressWarnings("GoodTime") // java.time.Duration decomposition
   public CacheBuilder<K, V> expireAfterWrite(java.time.Duration duration) {
-    return expireAfterWrite(toNanosSaturated(duration), TimeUnit.NANOSECONDS);
+    return expireAfterWrite(duration.toNanos(), TimeUnit.NANOSECONDS);
   }
 
   /**
@@ -690,7 +693,6 @@ public final class CacheBuilder<K, V> {
     return this;
   }
 
-  @SuppressWarnings("GoodTime") // nanos internally, should be Duration
   long getExpireAfterWriteNanos() {
     return (expireAfterWriteNanos == UNSET_INT) ? DEFAULT_EXPIRATION_NANOS : expireAfterWriteNanos;
   }
@@ -699,10 +701,8 @@ public final class CacheBuilder<K, V> {
    * Specifies that each entry should be automatically removed from the cache once a fixed duration
    * has elapsed after the entry's creation, the most recent replacement of its value, or its last
    * access. Access time is reset by all cache read and write operations (including {@code
-   * Cache.asMap().get(Object)} and {@code Cache.asMap().put(K, V)}), but not by {@code
-   * containsKey(Object)}, nor by operations on the collection-views of {@link Cache#asMap}}. So,
-   * for example, iterating through {@code Cache.asMap().entrySet()} does not reset access time for
-   * the entries you retrieve.
+   * Cache.asMap().get(Object)} and {@code Cache.asMap().put(K, V)}), but not by operations on the
+   * collection-views of {@link Cache#asMap}.
    *
    * <p>When {@code duration} is zero, this method hands off to {@link #maximumSize(long)
    * maximumSize}{@code (0)}, ignoring any otherwise-specified maximum size or weight. This can be
@@ -724,17 +724,15 @@ public final class CacheBuilder<K, V> {
   @GwtIncompatible // java.time.Duration
   @SuppressWarnings("GoodTime") // java.time.Duration decomposition
   public CacheBuilder<K, V> expireAfterAccess(java.time.Duration duration) {
-    return expireAfterAccess(toNanosSaturated(duration), TimeUnit.NANOSECONDS);
+    return expireAfterAccess(duration.toNanos(), TimeUnit.NANOSECONDS);
   }
 
   /**
    * Specifies that each entry should be automatically removed from the cache once a fixed duration
    * has elapsed after the entry's creation, the most recent replacement of its value, or its last
    * access. Access time is reset by all cache read and write operations (including {@code
-   * Cache.asMap().get(Object)} and {@code Cache.asMap().put(K, V)}), but not by {@code
-   * containsKey(Object)}, nor by operations on the collection-views of {@link Cache#asMap}. So, for
-   * example, iterating through {@code Cache.asMap().entrySet()} does not reset access time for the
-   * entries you retrieve.
+   * Cache.asMap().get(Object)} and {@code Cache.asMap().put(K, V)}), but not by operations on the
+   * collection-views of {@link Cache#asMap}.
    *
    * <p>When {@code duration} is zero, this method hands off to {@link #maximumSize(long)
    * maximumSize}{@code (0)}, ignoring any otherwise-specified maximum size or weight. This can be
@@ -765,7 +763,6 @@ public final class CacheBuilder<K, V> {
     return this;
   }
 
-  @SuppressWarnings("GoodTime") // nanos internally, should be Duration
   long getExpireAfterAccessNanos() {
     return (expireAfterAccessNanos == UNSET_INT)
         ? DEFAULT_EXPIRATION_NANOS
@@ -802,7 +799,7 @@ public final class CacheBuilder<K, V> {
   @GwtIncompatible // java.time.Duration
   @SuppressWarnings("GoodTime") // java.time.Duration decomposition
   public CacheBuilder<K, V> refreshAfterWrite(java.time.Duration duration) {
-    return refreshAfterWrite(toNanosSaturated(duration), TimeUnit.NANOSECONDS);
+    return refreshAfterWrite(duration.toNanos(), TimeUnit.NANOSECONDS);
   }
 
   /**
@@ -844,7 +841,6 @@ public final class CacheBuilder<K, V> {
     return this;
   }
 
-  @SuppressWarnings("GoodTime") // nanos internally, should be Duration
   long getRefreshNanos() {
     return (refreshNanos == UNSET_INT) ? DEFAULT_REFRESH_NANOS : refreshNanos;
   }
@@ -1029,24 +1025,5 @@ public final class CacheBuilder<K, V> {
       s.addValue("removalListener");
     }
     return s.toString();
-  }
-
-  /**
-   * Returns the number of nanoseconds of the given duration without throwing or overflowing.
-   *
-   * <p>Instead of throwing {@link ArithmeticException}, this method silently saturates to either
-   * {@link Long#MAX_VALUE} or {@link Long#MIN_VALUE}. This behavior can be useful when decomposing
-   * a duration in order to call a legacy API which requires a {@code long, TimeUnit} pair.
-   */
-  @GwtIncompatible // java.time.Duration
-  @SuppressWarnings("GoodTime") // duration decomposition
-  private static long toNanosSaturated(java.time.Duration duration) {
-    // Using a try/catch seems lazy, but the catch block will rarely get invoked (except for
-    // durations longer than approximately +/- 292 years).
-    try {
-      return duration.toNanos();
-    } catch (ArithmeticException tooBig) {
-      return duration.isNegative() ? Long.MIN_VALUE : Long.MAX_VALUE;
-    }
   }
 }

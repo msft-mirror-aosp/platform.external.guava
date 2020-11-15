@@ -90,7 +90,8 @@ public abstract class ImmutableCollection<E> extends AbstractCollection<E> imple
   }
 
   /** If this collection is backed by an array of its elements in insertion order, returns it. */
-  Object @Nullable [] internalArray() {
+  @Nullable
+  Object[] internalArray() {
     return null;
   }
 

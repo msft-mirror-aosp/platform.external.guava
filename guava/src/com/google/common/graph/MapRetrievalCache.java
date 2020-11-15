@@ -26,9 +26,8 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * @author James Sexton
  */
 class MapRetrievalCache<K, V> extends MapIteratorCache<K, V> {
-  // See the note about volatile in the superclass.
-  private transient volatile @Nullable CacheEntry<K, V> cacheEntry1;
-  private transient volatile @Nullable CacheEntry<K, V> cacheEntry2;
+  private transient @Nullable CacheEntry<K, V> cacheEntry1;
+  private transient @Nullable CacheEntry<K, V> cacheEntry2;
 
   MapRetrievalCache(Map<K, V> backingMap) {
     super(backingMap);

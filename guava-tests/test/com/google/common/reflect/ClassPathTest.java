@@ -44,14 +44,17 @@ import java.io.FilePermission;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.security.Permission;
 import java.security.PermissionCollection;
+import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.jar.Attributes;
+import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
@@ -63,16 +66,15 @@ import org.junit.Test;
 /** Functional tests of {@link ClassPath}. */
 public class ClassPathTest extends TestCase {
   private static final Logger log = Logger.getLogger(ClassPathTest.class.getName());
-  private static final File FILE = new File(".");
 
   public void testEquals() {
     new EqualsTester()
         .addEqualityGroup(classInfo(ClassPathTest.class), classInfo(ClassPathTest.class))
         .addEqualityGroup(classInfo(Test.class), classInfo(Test.class, getClass().getClassLoader()))
         .addEqualityGroup(
-            new ResourceInfo(FILE, "a/b/c.txt", getClass().getClassLoader()),
-            new ResourceInfo(FILE, "a/b/c.txt", getClass().getClassLoader()))
-        .addEqualityGroup(new ResourceInfo(FILE, "x.txt", getClass().getClassLoader()))
+            new ResourceInfo("a/b/c.txt", getClass().getClassLoader()),
+            new ResourceInfo("a/b/c.txt", getClass().getClassLoader()))
+        .addEqualityGroup(new ResourceInfo("x.txt", getClass().getClassLoader()))
         .testEquals();
   }
 
@@ -226,10 +228,10 @@ public class ClassPathTest extends TestCase {
 
       assertEquals(
           ImmutableSet.of(
-              new ResourceInfo(FILE, "left/some.txt", loader),
-              new ResourceInfo(FILE, "left/sibling/another.txt", loader),
-              new ResourceInfo(FILE, "right/another.txt", loader),
-              new ResourceInfo(FILE, "right/sibling/some.txt", loader)),
+              new ResourceInfo("left/some.txt", loader),
+              new ResourceInfo("left/sibling/another.txt", loader),
+              new ResourceInfo("right/another.txt", loader),
+              new ResourceInfo("right/sibling/some.txt", loader)),
           scanner.getResources());
     } finally {
       deleteRecursivelyOrLog(root);
@@ -253,8 +255,7 @@ public class ClassPathTest extends TestCase {
       ClassPath.DefaultScanner scanner = new ClassPath.DefaultScanner();
       scanner.scan(root.toFile(), loader);
 
-      assertEquals(
-          ImmutableSet.of(new ResourceInfo(FILE, "some.txt", loader)), scanner.getResources());
+      assertEquals(ImmutableSet.of(new ResourceInfo("some.txt", loader)), scanner.getResources());
     } finally {
       deleteRecursivelyOrLog(root);
     }
@@ -404,20 +405,19 @@ public class ClassPathTest extends TestCase {
 
   public void testGetSimpleName() {
     ClassLoader classLoader = getClass().getClassLoader();
-    assertEquals("Foo", new ClassInfo(FILE, "Foo.class", classLoader).getSimpleName());
-    assertEquals("Foo", new ClassInfo(FILE, "a/b/Foo.class", classLoader).getSimpleName());
-    assertEquals("Foo", new ClassInfo(FILE, "a/b/Bar$Foo.class", classLoader).getSimpleName());
-    assertEquals("", new ClassInfo(FILE, "a/b/Bar$1.class", classLoader).getSimpleName());
-    assertEquals("Foo", new ClassInfo(FILE, "a/b/Bar$Foo.class", classLoader).getSimpleName());
-    assertEquals("", new ClassInfo(FILE, "a/b/Bar$1.class", classLoader).getSimpleName());
-    assertEquals("Local", new ClassInfo(FILE, "a/b/Bar$1Local.class", classLoader).getSimpleName());
+    assertEquals("Foo", new ClassInfo("Foo.class", classLoader).getSimpleName());
+    assertEquals("Foo", new ClassInfo("a/b/Foo.class", classLoader).getSimpleName());
+    assertEquals("Foo", new ClassInfo("a/b/Bar$Foo.class", classLoader).getSimpleName());
+    assertEquals("", new ClassInfo("a/b/Bar$1.class", classLoader).getSimpleName());
+    assertEquals("Foo", new ClassInfo("a/b/Bar$Foo.class", classLoader).getSimpleName());
+    assertEquals("", new ClassInfo("a/b/Bar$1.class", classLoader).getSimpleName());
+    assertEquals("Local", new ClassInfo("a/b/Bar$1Local.class", classLoader).getSimpleName());
   }
 
   public void testGetPackageName() {
+    assertEquals("", new ClassInfo("Foo.class", getClass().getClassLoader()).getPackageName());
     assertEquals(
-        "", new ClassInfo(FILE, "Foo.class", getClass().getClassLoader()).getPackageName());
-    assertEquals(
-        "a.b", new ClassInfo(FILE, "a/b/Foo.class", getClass().getClassLoader()).getPackageName());
+        "a.b", new ClassInfo("a/b/Foo.class", getClass().getClassLoader()).getPackageName());
   }
 
   // Test that ResourceInfo.urls() returns identical content to ClassLoader.getResources()
@@ -530,7 +530,7 @@ public class ClassPathTest extends TestCase {
   private static ResourceInfo resourceInfo(Class<?> cls) {
     String resource = cls.getName().replace('.', '/') + ".class";
     ClassLoader loader = cls.getClassLoader();
-    return ResourceInfo.of(FILE, resource, loader);
+    return ResourceInfo.of(resource, loader);
   }
 
   private static ClassInfo classInfo(Class<?> cls) {
@@ -539,7 +539,7 @@ public class ClassPathTest extends TestCase {
 
   private static ClassInfo classInfo(Class<?> cls, ClassLoader classLoader) {
     String resource = cls.getName().replace('.', '/') + ".class";
-    return new ClassInfo(FILE, resource, classLoader);
+    return new ClassInfo(resource, classLoader);
   }
 
   private static Manifest manifestClasspath(String classpath) throws IOException {
@@ -584,8 +584,20 @@ public class ClassPathTest extends TestCase {
     final Set<String> resources = new HashSet<>();
 
     @Override
-    protected void scanResource(ResourceInfo resource) throws IOException {
-      resources.add(resource.getResourceName());
+    protected void scanDirectory(ClassLoader loader, File root) throws IOException {
+      URI base = root.toURI();
+      for (File entry : Files.fileTraverser().depthFirstPreOrder(root)) {
+        String resourceName = new File(base.relativize(entry.toURI()).getPath()).getPath();
+        resources.add(resourceName);
+      }
+    }
+
+    @Override
+    protected void scanJarFile(ClassLoader loader, JarFile file) throws IOException {
+      Enumeration<JarEntry> entries = file.entries();
+      while (entries.hasMoreElements()) {
+        resources.add(entries.nextElement().getName());
+      }
     }
   }
 
@@ -611,13 +623,13 @@ public class ClassPathTest extends TestCase {
     }
 
     @Override
-    void scanJarFile(ClassLoader classloader, JarFile file) throws IOException {
+    protected void scanJarFile(ClassLoader loader, JarFile file) throws IOException {
       this.found = new File(file.getName());
       throw new StopScanningException();
     }
 
     @Override
-    protected void scanResource(ResourceInfo resource) {}
+    protected void scanDirectory(ClassLoader loader, File root) {}
 
     // Special exception just to terminate the scanning when we get any jar file to use.
     private static final class StopScanningException extends RuntimeException {}

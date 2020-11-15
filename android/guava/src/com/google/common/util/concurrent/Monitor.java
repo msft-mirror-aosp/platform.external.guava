@@ -18,7 +18,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.annotations.Beta;
 import com.google.common.annotations.GwtIncompatible;
-import com.google.common.primitives.Longs;
 import com.google.errorprone.annotations.concurrent.GuardedBy;
 import com.google.j2objc.annotations.Weak;
 import java.util.concurrent.TimeUnit;
@@ -921,7 +920,9 @@ public final class Monitor {
    */
   private static long toSafeNanos(long time, TimeUnit unit) {
     long timeoutNanos = unit.toNanos(time);
-    return Longs.constrainToRange(timeoutNanos, 0L, (Long.MAX_VALUE / 4) * 3);
+    return (timeoutNanos <= 0L)
+        ? 0L
+        : (timeoutNanos > (Long.MAX_VALUE / 4) * 3) ? (Long.MAX_VALUE / 4) * 3 : timeoutNanos;
   }
 
   /**
