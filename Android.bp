@@ -101,3 +101,15 @@ java_library {
     sdk_version: "core_current",
     srcs: ["android-annotation-stubs/src/**/*.java"],
 }
+
+// Compile guava testlib
+java_library {
+    name: "guava-android-testlib",
+    srcs: ["android/guava-testlib/src/**/*.java"],
+    libs: [
+        "error_prone_annotations",
+        "guava-android",
+        "guava-android-annotation-stubs",
+        "junit",
+    ],
+}
