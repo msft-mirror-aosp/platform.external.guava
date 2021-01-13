@@ -727,9 +727,12 @@ public class CharMatcherTest extends TestCase {
     Set<Character> chars = new HashSet<>(size);
     for (int i = 0; i < size; i++) {
       char c;
-      do {
+      while (true) {
         c = (char) rand.nextInt(Character.MAX_VALUE - Character.MIN_VALUE + 1);
-      } while (chars.contains(c));
+        if (!chars.contains(c)) {
+          break;
+        }
+      }
       chars.add(c);
     }
     char[] retValue = new char[chars.size()];

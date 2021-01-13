@@ -99,6 +99,4 @@ final class Platform {
       return true;
     }
   }
-
-  static void checkGwtRpcEnabled() {}
 }

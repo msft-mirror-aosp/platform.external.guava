@@ -42,7 +42,7 @@ import junit.framework.TestCase;
  */
 public class AbstractServiceTest extends TestCase {
 
-  private static final long LONG_TIMEOUT_MILLIS = 10000;
+  private static final long LONG_TIMEOUT_MILLIS = 2500;
   private Thread executionThread;
   private Throwable thrownByExecutionThread;
 
@@ -234,21 +234,21 @@ public class AbstractServiceTest extends TestCase {
    */
   public void testManualServiceStopMultipleTimesWhileStarting() throws Exception {
     ManualSwitchedService service = new ManualSwitchedService();
-    final AtomicInteger stoppingCount = new AtomicInteger();
+    final AtomicInteger stopppingCount = new AtomicInteger();
     service.addListener(
         new Listener() {
           @Override
           public void stopping(State from) {
-            stoppingCount.incrementAndGet();
+            stopppingCount.incrementAndGet();
           }
         },
         directExecutor());
 
     service.startAsync();
     service.stopAsync();
-    assertEquals(1, stoppingCount.get());
+    assertEquals(1, stopppingCount.get());
     service.stopAsync();
-    assertEquals(1, stoppingCount.get());
+    assertEquals(1, stopppingCount.get());
   }
 
   public void testManualServiceStopWhileNew() throws Exception {

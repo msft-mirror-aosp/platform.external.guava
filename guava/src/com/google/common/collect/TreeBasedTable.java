@@ -196,8 +196,8 @@ public class TreeBasedTable<R, C, V> extends StandardRowSortedTable<R, C, V> {
 
     int compare(Object a, Object b) {
       // pretend we can compare anything
-      @SuppressWarnings("unchecked")
-      Comparator<Object> cmp = (Comparator<Object>) comparator();
+      @SuppressWarnings({"rawtypes", "unchecked"})
+      Comparator<Object> cmp = (Comparator) comparator();
       return cmp.compare(a, b);
     }
 

@@ -61,6 +61,7 @@ import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import org.checkerframework.checker.nullness.compatqual.MonotonicNonNullDecl;
 import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 
 /**
@@ -1467,8 +1468,8 @@ public final class Maps {
       implements BiMap<K, V>, Serializable {
     final Map<K, V> unmodifiableMap;
     final BiMap<? extends K, ? extends V> delegate;
-    @RetainedWith @NullableDecl BiMap<V, K> inverse;
-    @NullableDecl transient Set<V> values;
+    @MonotonicNonNullDecl @RetainedWith BiMap<V, K> inverse;
+    @MonotonicNonNullDecl transient Set<V> values;
 
     UnmodifiableBiMap(BiMap<? extends K, ? extends V> delegate, @NullableDecl BiMap<V, K> inverse) {
       unmodifiableMap = Collections.unmodifiableMap(delegate);
@@ -3114,7 +3115,7 @@ public final class Maps {
     checkNotNull(map);
     if (map instanceof UnmodifiableNavigableMap) {
       @SuppressWarnings("unchecked") // covariant
-      NavigableMap<K, V> result = (NavigableMap<K, V>) map;
+      NavigableMap<K, V> result = (NavigableMap) map;
       return result;
     } else {
       return new UnmodifiableNavigableMap<>(map);
@@ -3206,7 +3207,7 @@ public final class Maps {
       throw new UnsupportedOperationException();
     }
 
-    @NullableDecl private transient UnmodifiableNavigableMap<K, V> descendingMap;
+    @MonotonicNonNullDecl private transient UnmodifiableNavigableMap<K, V> descendingMap;
 
     @Override
     public NavigableMap<K, V> descendingMap() {
@@ -3331,7 +3332,7 @@ public final class Maps {
      */
     abstract Set<Entry<K, V>> createEntrySet();
 
-    @NullableDecl private transient Set<Entry<K, V>> entrySet;
+    @MonotonicNonNullDecl private transient Set<Entry<K, V>> entrySet;
 
     @Override
     public Set<Entry<K, V>> entrySet() {
@@ -3339,7 +3340,7 @@ public final class Maps {
       return (result == null) ? entrySet = createEntrySet() : result;
     }
 
-    @NullableDecl private transient Set<K> keySet;
+    @MonotonicNonNullDecl private transient Set<K> keySet;
 
     @Override
     public Set<K> keySet() {
@@ -3351,7 +3352,7 @@ public final class Maps {
       return new KeySet<>(this);
     }
 
-    @NullableDecl private transient Collection<V> values;
+    @MonotonicNonNullDecl private transient Collection<V> values;
 
     @Override
     public Collection<V> values() {
@@ -3848,7 +3849,7 @@ public final class Maps {
       return forward();
     }
 
-    @NullableDecl private transient Comparator<? super K> comparator;
+    @MonotonicNonNullDecl private transient Comparator<? super K> comparator;
 
     @SuppressWarnings("unchecked")
     @Override
@@ -3944,7 +3945,7 @@ public final class Maps {
       return forward();
     }
 
-    @NullableDecl private transient Set<Entry<K, V>> entrySet;
+    @MonotonicNonNullDecl private transient Set<Entry<K, V>> entrySet;
 
     @Override
     public Set<Entry<K, V>> entrySet() {
@@ -3975,7 +3976,7 @@ public final class Maps {
       return navigableKeySet();
     }
 
-    @NullableDecl private transient NavigableSet<K> navigableKeySet;
+    @MonotonicNonNullDecl private transient NavigableSet<K> navigableKeySet;
 
     @Override
     public NavigableSet<K> navigableKeySet() {

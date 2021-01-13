@@ -24,11 +24,8 @@ import com.google.common.primitives.Ints;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.time.Duration;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.FutureTask;
@@ -61,7 +58,7 @@ public class GeneratedMonitorTest extends TestCase {
       }
     }
 
-    assertEquals(980, suite.testCount());
+    assertEquals(548, suite.testCount());
 
     return suite;
   }
@@ -189,24 +186,12 @@ public class GeneratedMonitorTest extends TestCase {
     return parameterTypes.length >= 1 && parameterTypes[0] == Monitor.Guard.class;
   }
 
-  /** Determines whether the given method is time-based. */
-  private static boolean isTimed(Method method) {
-    return isLongTimeUnitBased(method) || isDurationBased(method);
-  }
-
   /** Determines whether the given method takes a time and unit as its last two parameters. */
-  private static boolean isLongTimeUnitBased(Method method) {
+  private static boolean isTimed(Method method) {
     Class<?>[] parameterTypes = method.getParameterTypes();
     return parameterTypes.length >= 2
         && parameterTypes[parameterTypes.length - 2] == long.class
         && parameterTypes[parameterTypes.length - 1] == TimeUnit.class;
-  }
-
-  /** Determines whether the given method takes a Duration as its last parameter. */
-  private static boolean isDurationBased(Method method) {
-    Class<?>[] parameterTypes = method.getParameterTypes();
-    return parameterTypes.length >= 1
-        && parameterTypes[parameterTypes.length - 1] == Duration.class;
   }
 
   /** Determines whether the given method returns a boolean value. */
@@ -248,21 +233,11 @@ public class GeneratedMonitorTest extends TestCase {
         assertFalse(desc, isTimed(method));
         break;
       case 1:
-        if (isDurationBased(method)) {
-          assertFalse(desc, isGuarded(method));
-        } else {
-          assertTrue(desc, isGuarded(method));
-        }
-        // we can't make an assumption about isTimed() because now we have single-parameter methods
-        // that accept a java.time.Duration
-        assertFalse(desc, isLongTimeUnitBased(method));
+        assertTrue(desc, isGuarded(method));
+        assertFalse(desc, isTimed(method));
         break;
       case 2:
-        if (isDurationBased(method)) {
-          assertTrue(desc, isGuarded(method));
-        } else {
-          assertFalse(desc, isGuarded(method));
-        }
+        assertFalse(desc, isGuarded(method));
         assertTrue(desc, isTimed(method));
         break;
       case 3:
@@ -644,22 +619,21 @@ public class GeneratedMonitorTest extends TestCase {
   }
 
   private Outcome doCall() {
-    List<Object> arguments = new ArrayList<>();
-    if (isGuarded(method)) {
-      arguments.add(guard);
+    boolean guarded = isGuarded(method);
+    boolean timed = isTimed(method);
+    Object[] arguments = new Object[(guarded ? 1 : 0) + (timed ? 2 : 0)];
+    if (guarded) {
+      arguments[0] = guard;
     }
-    if (isLongTimeUnitBased(method)) {
-      arguments.add(timeout.millis);
-      arguments.add(TimeUnit.MILLISECONDS);
-    }
-    if (isDurationBased(method)) {
-      arguments.add(Duration.ofMillis(timeout.millis));
+    if (timed) {
+      arguments[arguments.length - 2] = timeout.millis;
+      arguments[arguments.length - 1] = TimeUnit.MILLISECONDS;
     }
     try {
       Object result;
       doingCallLatch.countDown();
       try {
-        result = method.invoke(monitor, arguments.toArray());
+        result = method.invoke(monitor, arguments);
       } finally {
         callCompletedLatch.countDown();
       }
@@ -744,15 +718,8 @@ public class GeneratedMonitorTest extends TestCase {
         Monitor monitor1 = new Monitor(fair1);
         Monitor monitor2 = new Monitor(fair2);
         FlagGuard guard = new FlagGuard(monitor2);
-        List<Object> arguments = new ArrayList<>();
-        arguments.add(guard);
-        if (isDurationBased(method)) {
-          arguments.add(Duration.ZERO);
-        }
-        if (isLongTimeUnitBased(method)) {
-          arguments.add(0L);
-          arguments.add(TimeUnit.MILLISECONDS);
-        }
+        Object[] arguments =
+            (timed ? new Object[] {guard, 0L, TimeUnit.MILLISECONDS} : new Object[] {guard});
         boolean occupyMonitor = isWaitFor(method);
         if (occupyMonitor) {
           // If we don't already occupy the monitor, we'll get an IMSE regardless of the guard (see
@@ -760,7 +727,7 @@ public class GeneratedMonitorTest extends TestCase {
           monitor1.enter();
         }
         try {
-          method.invoke(monitor1, arguments.toArray());
+          method.invoke(monitor1, arguments);
           fail("expected IllegalMonitorStateException");
         } catch (InvocationTargetException e) {
           assertEquals(IllegalMonitorStateException.class, e.getTargetException().getClass());
@@ -790,17 +757,10 @@ public class GeneratedMonitorTest extends TestCase {
       protected void runTest() throws Throwable {
         Monitor monitor = new Monitor(fair);
         FlagGuard guard = new FlagGuard(monitor);
-        List<Object> arguments = new ArrayList<>();
-        arguments.add(guard);
-        if (isDurationBased(method)) {
-          arguments.add(Duration.ZERO);
-        }
-        if (isLongTimeUnitBased(method)) {
-          arguments.add(0L);
-          arguments.add(TimeUnit.MILLISECONDS);
-        }
+        Object[] arguments =
+            (timed ? new Object[] {guard, 0L, TimeUnit.MILLISECONDS} : new Object[] {guard});
         try {
-          method.invoke(monitor, arguments.toArray());
+          method.invoke(monitor, arguments);
           fail("expected IllegalMonitorStateException");
         } catch (InvocationTargetException e) {
           assertEquals(IllegalMonitorStateException.class, e.getTargetException().getClass());

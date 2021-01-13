@@ -52,7 +52,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * <p>Several lesser-used features are currently available only as static methods on the {@link
  * Iterables} class.
  *
- * <p><a id="streams"></a>
+ * <p><a name="streams"></a>
  *
  * <h3>Comparison to streams</h3>
  *
@@ -786,7 +786,7 @@ public abstract class FluentIterable<E> implements Iterable<E> {
     checkNotNull(collection);
     Iterable<E> iterable = getDelegate();
     if (iterable instanceof Collection) {
-      collection.addAll((Collection<E>) iterable);
+      collection.addAll(Collections2.cast(iterable));
     } else {
       for (E item : iterable) {
         collection.add(item);
