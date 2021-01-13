@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.PriorityQueue;
 import java.util.Queue;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
@@ -504,7 +505,7 @@ public final class MinMaxPriorityQueue<E> extends AbstractQueue<E> {
   @WeakOuter
   private class Heap {
     final Ordering<E> ordering;
-    @Weak @Nullable Heap otherHeap;
+    @MonotonicNonNull @Weak Heap otherHeap;
 
     Heap(Ordering<E> ordering) {
       this.ordering = ordering;
@@ -751,8 +752,8 @@ public final class MinMaxPriorityQueue<E> extends AbstractQueue<E> {
     private int expectedModCount = modCount;
     // The same element is not allowed in both forgetMeNot and skipMe, but duplicates are allowed in
     // either of them, up to the same multiplicity as the queue.
-    private @Nullable Queue<E> forgetMeNot;
-    private @Nullable List<E> skipMe;
+    @MonotonicNonNull private Queue<E> forgetMeNot;
+    @MonotonicNonNull private List<E> skipMe;
     private @Nullable E lastFromForgetMeNot;
     private boolean canRemove;
 

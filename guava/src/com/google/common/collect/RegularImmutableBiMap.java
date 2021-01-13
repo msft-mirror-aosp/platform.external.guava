@@ -28,6 +28,7 @@ import com.google.common.collect.ImmutableMapEntry.NonTerminalImmutableBiMapEntr
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.errorprone.annotations.concurrent.LazyInit;
 import com.google.j2objc.annotations.RetainedWith;
+import com.google.j2objc.annotations.WeakOuter;
 import java.io.Serializable;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -233,6 +234,7 @@ class RegularImmutableBiMap<K, V> extends ImmutableBiMap<K, V> {
       return new InverseEntrySet();
     }
 
+    @WeakOuter
     final class InverseEntrySet extends ImmutableMapEntrySet<V, K> {
       @Override
       ImmutableMap<V, K> map() {
