@@ -34,7 +34,7 @@ public class ForwardingLoadingCacheTest extends TestCase {
   private LoadingCache<String, Boolean> forward;
   private LoadingCache<String, Boolean> mock;
 
-  @SuppressWarnings({"unchecked", "DoNotMock"}) // mock
+  @SuppressWarnings("unchecked") // mock
   @Override
   public void setUp() throws Exception {
     super.setUp();

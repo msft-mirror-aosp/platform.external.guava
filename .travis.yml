@@ -3,13 +3,14 @@ sudo: false
 language: java
 
 jdk:
-  - openjdk8
+  - oraclejdk8
   - openjdk11
 
+# https://github.com/travis-ci/travis-ci/issues/3259#issuecomment-130860338
 addons:
   apt:
     packages:
-      - openjdk-8-source
+      - oracle-java8-installer
 
 install: mvn -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn install -U -DskipTests=true -f $ROOT_POM
 

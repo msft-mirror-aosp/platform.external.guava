@@ -27,6 +27,7 @@ import com.google.common.collect.ImmutableMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
+import org.checkerframework.checker.nullness.compatqual.MonotonicNonNullDecl;
 import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 
 /**
@@ -107,19 +108,19 @@ public final class CacheBuilderSpec {
           .put("refreshInterval", new RefreshDurationParser())
           .build();
 
-  @VisibleForTesting @NullableDecl Integer initialCapacity;
-  @VisibleForTesting @NullableDecl Long maximumSize;
-  @VisibleForTesting @NullableDecl Long maximumWeight;
-  @VisibleForTesting @NullableDecl Integer concurrencyLevel;
-  @VisibleForTesting @NullableDecl Strength keyStrength;
-  @VisibleForTesting @NullableDecl Strength valueStrength;
-  @VisibleForTesting @NullableDecl Boolean recordStats;
+  @MonotonicNonNullDecl @VisibleForTesting Integer initialCapacity;
+  @MonotonicNonNullDecl @VisibleForTesting Long maximumSize;
+  @MonotonicNonNullDecl @VisibleForTesting Long maximumWeight;
+  @MonotonicNonNullDecl @VisibleForTesting Integer concurrencyLevel;
+  @MonotonicNonNullDecl @VisibleForTesting Strength keyStrength;
+  @MonotonicNonNullDecl @VisibleForTesting Strength valueStrength;
+  @MonotonicNonNullDecl @VisibleForTesting Boolean recordStats;
   @VisibleForTesting long writeExpirationDuration;
-  @VisibleForTesting @NullableDecl TimeUnit writeExpirationTimeUnit;
+  @MonotonicNonNullDecl @VisibleForTesting TimeUnit writeExpirationTimeUnit;
   @VisibleForTesting long accessExpirationDuration;
-  @VisibleForTesting @NullableDecl TimeUnit accessExpirationTimeUnit;
+  @MonotonicNonNullDecl @VisibleForTesting TimeUnit accessExpirationTimeUnit;
   @VisibleForTesting long refreshDuration;
-  @VisibleForTesting @NullableDecl TimeUnit refreshTimeUnit;
+  @MonotonicNonNullDecl @VisibleForTesting TimeUnit refreshTimeUnit;
   /** Specification; used for toParseableString(). */
   private final String specification;
 
