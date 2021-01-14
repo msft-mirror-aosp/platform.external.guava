@@ -16,8 +16,6 @@
 
 package com.google.common.collect;
 
-import static com.google.common.truth.Truth.assertThat;
-
 import com.google.common.annotations.GwtIncompatible;
 import com.google.common.collect.testing.SetTestSuiteBuilder;
 import com.google.common.collect.testing.TestStringSetGenerator;
@@ -25,7 +23,6 @@ import com.google.common.collect.testing.features.CollectionFeature;
 import com.google.common.collect.testing.features.CollectionSize;
 import com.google.common.collect.testing.features.Feature;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import junit.framework.Test;
@@ -53,7 +50,6 @@ public class CompactHashSetTest extends TestCase {
 
     TestSuite suite = new TestSuite();
     suite.addTestSuite(CompactHashSetTest.class);
-    suite.addTestSuite(FloodingTest.class);
     suite.addTest(
         SetTestSuiteBuilder.using(
                 new TestStringSetGenerator() {
@@ -63,20 +59,6 @@ public class CompactHashSetTest extends TestCase {
                   }
                 })
             .named("CompactHashSet")
-            .withFeatures(allFeatures)
-            .createTestSuite());
-    suite.addTest(
-        SetTestSuiteBuilder.using(
-                new TestStringSetGenerator() {
-                  @Override
-                  protected Set<String> create(String[] elements) {
-                    CompactHashSet<String> set = CompactHashSet.create();
-                    set.convertToHashFloodingResistantImplementation();
-                    Collections.addAll(set, elements);
-                    return set;
-                  }
-                })
-            .named("CompactHashSet with flooding protection")
             .withFeatures(allFeatures)
             .createTestSuite());
     suite.addTest(
@@ -101,35 +83,7 @@ public class CompactHashSetTest extends TestCase {
     return suite;
   }
 
-  public void testAllocArraysDefault() {
-    CompactHashSet<Integer> set = CompactHashSet.create();
-    assertThat(set.needsAllocArrays()).isTrue();
-    assertThat(set.elements).isNull();
-
-    set.add(1);
-    assertThat(set.needsAllocArrays()).isFalse();
-    assertThat(set.elements).hasLength(CompactHashing.DEFAULT_SIZE);
-  }
-
-  public void testAllocArraysExpectedSize() {
-    for (int i = 0; i <= CompactHashing.DEFAULT_SIZE; i++) {
-      CompactHashSet<Integer> set = CompactHashSet.createWithExpectedSize(i);
-      assertThat(set.needsAllocArrays()).isTrue();
-      assertThat(set.elements).isNull();
-
-      set.add(1);
-      assertThat(set.needsAllocArrays()).isFalse();
-      int expectedSize = Math.max(1, i);
-      assertThat(set.elements).hasLength(expectedSize);
-    }
-  }
-
-  public static class FloodingTest extends AbstractHashFloodingTest<Set<Object>> {
-    public FloodingTest() {
-      super(
-          ImmutableList.of(Construction.setFromElements(CompactHashSet::create)),
-          n -> n * Math.log(n),
-          ImmutableList.of(QueryOp.SET_CONTAINS));
-    }
+  public void testDummyMethod() {
+    // Just make sure the test runner doesn't complain about no test methods.
   }
 }

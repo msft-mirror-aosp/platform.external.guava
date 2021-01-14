@@ -18,7 +18,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkElementIndex;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkPositionIndexes;
-import static com.google.common.base.Strings.lenientFormat;
 import static java.lang.Float.NEGATIVE_INFINITY;
 import static java.lang.Float.POSITIVE_INFINITY;
 
@@ -47,7 +46,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableDecl;
  * @since 1.0
  */
 @GwtCompatible(emulated = true)
-public final class Floats extends FloatsMethodsForWeb {
+public final class Floats {
   private Floats() {}
 
   /**
@@ -205,8 +204,6 @@ public final class Floats extends FloatsMethodsForWeb {
    *     the array
    * @throws IllegalArgumentException if {@code array} is empty
    */
-  @GwtIncompatible(
-      "Available in GWT! Annotation is to avoid conflict with GWT specialization of base class.")
   public static float min(float... array) {
     checkArgument(array.length > 0);
     float min = array[0];
@@ -225,8 +222,6 @@ public final class Floats extends FloatsMethodsForWeb {
    *     in the array
    * @throws IllegalArgumentException if {@code array} is empty
    */
-  @GwtIncompatible(
-      "Available in GWT! Annotation is to avoid conflict with GWT specialization of base class.")
   public static float max(float... array) {
     checkArgument(array.length > 0);
     float max = array[0];
@@ -251,13 +246,8 @@ public final class Floats extends FloatsMethodsForWeb {
    */
   @Beta
   public static float constrainToRange(float value, float min, float max) {
-    // avoid auto-boxing by not using Preconditions.checkArgument(); see Guava issue 3984
-    // Reject NaN by testing for the good case (min <= max) instead of the bad (min > max).
-    if (min <= max) {
-      return Math.min(Math.max(value, min), max);
-    }
-    throw new IllegalArgumentException(
-        lenientFormat("min (%s) must be less than or equal to max (%s)", min, max));
+    checkArgument(min <= max, "min (%s) must be less than or equal to max (%s)", min, max);
+    return Math.min(Math.max(value, min), max);
   }
 
   /**
@@ -656,7 +646,6 @@ public final class Floats extends FloatsMethodsForWeb {
    * @param string the string representation of a {@code float} value
    * @return the floating point value represented by {@code string}, or {@code null} if {@code
    *     string} has a length of zero or cannot be parsed as a {@code float} value
-   * @throws NullPointerException if {@code string} is {@code null}
    * @since 14.0
    */
   @Beta
