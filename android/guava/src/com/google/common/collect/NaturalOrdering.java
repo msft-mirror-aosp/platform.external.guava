@@ -20,7 +20,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.annotations.GwtCompatible;
 import java.io.Serializable;
-import org.checkerframework.checker.nullness.compatqual.NullableDecl;
+import org.checkerframework.checker.nullness.compatqual.MonotonicNonNullDecl;
 
 /** An ordering that uses the natural order of the values. */
 @GwtCompatible(serializable = true)
@@ -28,8 +28,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 final class NaturalOrdering extends Ordering<Comparable> implements Serializable {
   static final NaturalOrdering INSTANCE = new NaturalOrdering();
 
-  @NullableDecl private transient Ordering<Comparable> nullsFirst;
-  @NullableDecl private transient Ordering<Comparable> nullsLast;
+  @MonotonicNonNullDecl private transient Ordering<Comparable> nullsFirst;
+  @MonotonicNonNullDecl private transient Ordering<Comparable> nullsLast;
 
   @Override
   public int compare(Comparable left, Comparable right) {

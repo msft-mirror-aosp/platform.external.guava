@@ -298,11 +298,8 @@ public final class Strings {
   }
 
   private static String lenientToString(@Nullable Object o) {
-    if (o == null) {
-      return "null";
-    }
     try {
-      return o.toString();
+      return String.valueOf(o);
     } catch (Exception e) {
       // Default toString() behavior - see Object.toString()
       String objectToString =
