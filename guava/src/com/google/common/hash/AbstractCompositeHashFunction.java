@@ -98,7 +98,7 @@ abstract class AbstractCompositeHashFunction extends AbstractHashFunction {
       public Hasher putBytes(ByteBuffer bytes) {
         int pos = bytes.position();
         for (Hasher hasher : hashers) {
-          Java8Compatibility.position(bytes, pos);
+          bytes.position(pos);
           hasher.putBytes(bytes);
         }
         return this;

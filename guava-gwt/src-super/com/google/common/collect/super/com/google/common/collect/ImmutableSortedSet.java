@@ -19,6 +19,7 @@ package com.google.common.collect;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.annotations.Beta;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -67,6 +68,7 @@ public abstract class ImmutableSortedSet<E> extends ForwardingImmutableSet<E>
     }
   }
 
+  @Beta
   public static <E> Collector<E, ?, ImmutableSortedSet<E>> toImmutableSortedSet(
       Comparator<? super E> comparator) {
     return CollectCollectors.toImmutableSortedSet(comparator);
@@ -319,17 +321,7 @@ public abstract class ImmutableSortedSet<E> extends ForwardingImmutableSet<E>
     return null;
   }
 
-  public E ceiling(E e) {
-    ImmutableSortedSet<E> set = tailSet(e, true);
-    return !set.isEmpty() ? set.first() : null;
-  }
-
-  public E floor(E e) {
-    ImmutableSortedSet<E> set = headSet(e, true);
-    return !set.isEmpty() ? set.last() : null;
-  }
-
-  public ImmutableSortedSet<E> headSet(E toElement, boolean inclusive) {
+  ImmutableSortedSet<E> headSet(E toElement, boolean inclusive) {
     checkNotNull(toElement);
     if (inclusive) {
       E tmp = higher(toElement);
@@ -370,7 +362,7 @@ public abstract class ImmutableSortedSet<E> extends ForwardingImmutableSet<E>
     }
   }
 
-  public ImmutableSortedSet<E> tailSet(E fromElement, boolean inclusive) {
+  ImmutableSortedSet<E> tailSet(E fromElement, boolean inclusive) {
     checkNotNull(fromElement);
     if (!inclusive) {
       E tmp = higher(fromElement);
