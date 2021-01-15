@@ -20,13 +20,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.graph.GraphConstants.INNER_CAPACITY;
 import static com.google.common.graph.GraphConstants.INNER_LOAD_FACTOR;
 
-import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Iterators;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -44,17 +40,8 @@ final class UndirectedGraphConnections<N, V> implements GraphConnections<N, V> {
     this.adjacentNodeValues = checkNotNull(adjacentNodeValues);
   }
 
-  static <N, V> UndirectedGraphConnections<N, V> of(ElementOrder<N> incidentEdgeOrder) {
-    switch (incidentEdgeOrder.type()) {
-      case UNORDERED:
-        return new UndirectedGraphConnections<>(
-            new HashMap<N, V>(INNER_CAPACITY, INNER_LOAD_FACTOR));
-      case STABLE:
-        return new UndirectedGraphConnections<>(
-            new LinkedHashMap<N, V>(INNER_CAPACITY, INNER_LOAD_FACTOR));
-      default:
-        throw new AssertionError(incidentEdgeOrder.type());
-    }
+  static <N, V> UndirectedGraphConnections<N, V> of() {
+    return new UndirectedGraphConnections<>(new HashMap<N, V>(INNER_CAPACITY, INNER_LOAD_FACTOR));
   }
 
   static <N, V> UndirectedGraphConnections<N, V> ofImmutable(Map<N, V> adjacentNodeValues) {
@@ -74,18 +61,6 @@ final class UndirectedGraphConnections<N, V> implements GraphConnections<N, V> {
   @Override
   public Set<N> successors() {
     return adjacentNodes();
-  }
-
-  @Override
-  public Iterator<EndpointPair<N>> incidentEdgeIterator(final N thisNode) {
-    return Iterators.transform(
-        adjacentNodeValues.keySet().iterator(),
-        new Function<N, EndpointPair<N>>() {
-          @Override
-          public EndpointPair<N> apply(N incidentNode) {
-            return EndpointPair.unordered(thisNode, incidentNode);
-          }
-        });
   }
 
   @Override

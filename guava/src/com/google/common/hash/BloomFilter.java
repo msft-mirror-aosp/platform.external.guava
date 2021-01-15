@@ -177,6 +177,7 @@ public final class BloomFilter<T> implements Predicate<T>, Serializable {
    * @since 14.0 (since 11.0 as expectedFalsePositiveProbability())
    */
   public double expectedFpp() {
+    // You down with FPP? (Yeah you know me!) Who's down with FPP? (Every last homie!)
     return Math.pow((double) bits.bitCount() / bitSize(), numHashFunctions);
   }
 

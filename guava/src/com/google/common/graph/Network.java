@@ -17,7 +17,6 @@
 package com.google.common.graph;
 
 import com.google.common.annotations.Beta;
-import com.google.errorprone.annotations.DoNotMock;
 import java.util.Optional;
 import java.util.Set;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -103,7 +102,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * @since 20.0
  */
 @Beta
-@DoNotMock("Use NetworkBuilder to create a real instance")
 public interface Network<N, E> extends SuccessorsFunction<N>, PredecessorsFunction<N> {
   //
   // Network-level accessors
@@ -162,8 +160,6 @@ public interface Network<N, E> extends SuccessorsFunction<N>, PredecessorsFuncti
   /**
    * Returns the nodes which have an incident edge in common with {@code node} in this network.
    *
-   * <p>This is equal to the union of {@link #predecessors(Object)} and {@link #successors(Object)}.
-   *
    * @throws IllegalArgumentException if {@code node} is not an element of this network
    */
   Set<N> adjacentNodes(N node);
@@ -196,8 +192,6 @@ public interface Network<N, E> extends SuccessorsFunction<N>, PredecessorsFuncti
   /**
    * Returns the edges whose {@link #incidentNodes(Object) incident nodes} in this network include
    * {@code node}.
-   *
-   * <p>This is equal to the union of {@link #inEdges(Object)} and {@link #outEdges(Object)}.
    *
    * @throws IllegalArgumentException if {@code node} is not an element of this network
    */

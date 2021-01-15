@@ -454,10 +454,6 @@ public class ByteSourceTest extends IoTestCase {
     }
   }
 
-  public void testSlice_returnEmptySource() {
-    assertEquals(ByteSource.empty(), source.slice(0, 3).slice(4, 3));
-  }
-
   private static int getAndResetRecords(TestLogHandler logHandler) {
     int records = logHandler.getStoredLogRecords().size();
     logHandler.clear();

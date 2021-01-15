@@ -47,6 +47,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReferenceArray;
 import java.util.concurrent.locks.ReentrantLock;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
@@ -63,7 +64,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * @author Charles Fry
  * @author Doug Lea ({@code ConcurrentHashMap})
  */
-// TODO(kak): Consider removing @CanIgnoreReturnValue from this class.
+// TODO(kak/cpovirk): Consider removing @CanIgnoreReturnValue from this class.
 @GwtIncompatible
 @SuppressWarnings("GuardedBy") // TODO(b/35466881): Fix or suppress.
 class MapMakerInternalMap<
@@ -1118,7 +1119,11 @@ class MapMakerInternalMap<
     if (entry.getKey() == null) {
       return null;
     }
-    return entry.getValue();
+    V value = entry.getValue();
+    if (value == null) {
+      return null;
+    }
+    return value;
   }
 
   @SuppressWarnings("unchecked")
@@ -1188,7 +1193,7 @@ class MapMakerInternalMap<
     int threshold;
 
     /** The per-segment table. */
-    volatile @Nullable AtomicReferenceArray<E> table;
+    @MonotonicNonNull volatile AtomicReferenceArray<E> table;
 
     /** The maximum size of this map. MapMaker.UNSET_INT if there is no maximum. */
     final int maxSegmentSize;
@@ -2314,7 +2319,9 @@ class MapMakerInternalMap<
         }
         sum -= segments[i].modCount;
       }
-      return sum == 0L;
+      if (sum != 0L) {
+        return false;
+      }
     }
     return true;
   }
@@ -2470,7 +2477,7 @@ class MapMakerInternalMap<
     }
   }
 
-  transient @Nullable Set<K> keySet;
+  @MonotonicNonNull transient Set<K> keySet;
 
   @Override
   public Set<K> keySet() {
@@ -2478,7 +2485,7 @@ class MapMakerInternalMap<
     return (ks != null) ? ks : (keySet = new KeySet());
   }
 
-  transient @Nullable Collection<V> values;
+  @MonotonicNonNull transient Collection<V> values;
 
   @Override
   public Collection<V> values() {
@@ -2486,7 +2493,7 @@ class MapMakerInternalMap<
     return (vs != null) ? vs : (values = new Values());
   }
 
-  transient @Nullable Set<Entry<K, V>> entrySet;
+  @MonotonicNonNull transient Set<Entry<K, V>> entrySet;
 
   @Override
   public Set<Entry<K, V>> entrySet() {
@@ -2500,8 +2507,8 @@ class MapMakerInternalMap<
 
     int nextSegmentIndex;
     int nextTableIndex;
-    @Nullable Segment<K, V, E, S> currentSegment;
-    @Nullable AtomicReferenceArray<E> currentTable;
+    @MonotonicNonNull Segment<K, V, E, S> currentSegment;
+    @MonotonicNonNull AtomicReferenceArray<E> currentTable;
     @Nullable E nextEntry;
     @Nullable WriteThroughEntry nextExternal;
     @Nullable WriteThroughEntry lastReturned;

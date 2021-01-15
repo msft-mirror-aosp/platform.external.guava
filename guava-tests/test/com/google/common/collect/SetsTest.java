@@ -24,7 +24,6 @@ import static com.google.common.collect.Sets.powerSet;
 import static com.google.common.collect.Sets.unmodifiableNavigableSet;
 import static com.google.common.collect.testing.IteratorFeature.UNMODIFIABLE;
 import static com.google.common.truth.Truth.assertThat;
-import static com.google.common.truth.Truth.assertWithMessage;
 import static java.io.ObjectStreamConstants.TC_REFERENCE;
 import static java.io.ObjectStreamConstants.baseWireHandle;
 import static java.util.Collections.emptySet;
@@ -961,13 +960,6 @@ public class SetsTest extends TestCase {
     }
   }
 
-  public void testPowerSetEquals_independentOfOrder() {
-    ImmutableSet<Integer> elements = ImmutableSet.of(1, 2, 3, 4);
-    Set<Set<Integer>> forward = powerSet(elements);
-    Set<Set<Integer>> reverse = powerSet(ImmutableSet.copyOf(elements.asList().reverse()));
-    new EqualsTester().addEqualityGroup(forward, reverse).testEquals();
-  }
-
   /**
    * Test that a hash code miscomputed by "input.hashCode() * tooFarValue / 2" is correct under our
    * {@code hashCode} implementation.
@@ -1052,8 +1044,8 @@ public class SetsTest extends TestCase {
                     return input.size() == size;
                   }
                 });
-        assertWithMessage("Sets.combinations(%s, %s)", sampleSet, k)
-            .that(Sets.combinations(sampleSet, k))
+        assertThat(Sets.combinations(sampleSet, k))
+            .named("Sets.combinations(%s, %s)", sampleSet, k)
             .containsExactlyElementsIn(expected)
             .inOrder();
       }
