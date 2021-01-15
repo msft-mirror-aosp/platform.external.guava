@@ -73,7 +73,7 @@ abstract class AbstractHasher implements Hasher {
   public Hasher putBytes(ByteBuffer b) {
     if (b.hasArray()) {
       putBytes(b.array(), b.arrayOffset() + b.position(), b.remaining());
-      Java8Compatibility.position(b, b.limit());
+      b.position(b.limit());
     } else {
       for (int remaining = b.remaining(); remaining > 0; remaining--) {
         putByte(b.get());

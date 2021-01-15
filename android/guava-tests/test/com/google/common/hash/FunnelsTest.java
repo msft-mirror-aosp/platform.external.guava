@@ -93,7 +93,7 @@ public class FunnelsTest extends TestCase {
   }
 
   public void testSequential() {
-    @SuppressWarnings({"unchecked", "DoNotMock"})
+    @SuppressWarnings("unchecked")
     Funnel<Object> elementFunnel = mock(Funnel.class);
     PrimitiveSink primitiveSink = mock(PrimitiveSink.class);
     Funnel<Iterable<?>> sequential = Funnels.sequentialFunnel(elementFunnel);

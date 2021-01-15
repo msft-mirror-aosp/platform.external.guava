@@ -30,6 +30,7 @@ import java.util.NavigableMap;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.TreeMap;
+import org.checkerframework.checker.nullness.compatqual.MonotonicNonNullDecl;
 import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 
 /**
@@ -76,8 +77,8 @@ public class TreeRangeSet<C extends Comparable<?>> extends AbstractRangeSet<C>
     this.rangesByLowerBound = rangesByLowerCut;
   }
 
-  @NullableDecl private transient Set<Range<C>> asRanges;
-  @NullableDecl private transient Set<Range<C>> asDescendingSetOfRanges;
+  @MonotonicNonNullDecl private transient Set<Range<C>> asRanges;
+  @MonotonicNonNullDecl private transient Set<Range<C>> asDescendingSetOfRanges;
 
   @Override
   public Set<Range<C>> asRanges() {
@@ -269,7 +270,7 @@ public class TreeRangeSet<C extends Comparable<?>> extends AbstractRangeSet<C>
     }
   }
 
-  @NullableDecl private transient RangeSet<C> complement;
+  @MonotonicNonNullDecl private transient RangeSet<C> complement;
 
   @Override
   public RangeSet<C> complement() {
@@ -896,7 +897,7 @@ public class TreeRangeSet<C extends Comparable<?>> extends AbstractRangeSet<C>
           "Cannot add range %s to subRangeSet(%s)",
           rangeToAdd,
           restriction);
-      TreeRangeSet.this.add(rangeToAdd);
+      super.add(rangeToAdd);
     }
 
     @Override

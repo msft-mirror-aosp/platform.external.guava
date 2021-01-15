@@ -21,8 +21,6 @@ import static com.google.common.util.concurrent.Platform.isInstanceOfThrowableCl
 
 import com.google.common.annotations.GwtCompatible;
 import com.google.common.base.Function;
-import com.google.common.util.concurrent.internal.InternalFutureFailureAccess;
-import com.google.common.util.concurrent.internal.InternalFutures;
 import com.google.errorprone.annotations.ForOverride;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
@@ -72,9 +70,10 @@ abstract class AbstractCatchingFuture<V, X extends Throwable, F, T>
     ListenableFuture<? extends V> localInputFuture = inputFuture;
     Class<X> localExceptionType = exceptionType;
     F localFallback = fallback;
-    if (localInputFuture == null | localExceptionType == null | localFallback == null
-        // This check, unlike all the others, is a volatile read
-        || isCancelled()) {
+    if (localInputFuture == null
+        | localExceptionType == null
+        | localFallback == null
+        | isCancelled()) {
       return;
     }
     inputFuture = null;
@@ -83,25 +82,9 @@ abstract class AbstractCatchingFuture<V, X extends Throwable, F, T>
     V sourceResult = null;
     Throwable throwable = null;
     try {
-      if (localInputFuture instanceof InternalFutureFailureAccess) {
-        throwable =
-            InternalFutures.tryInternalFastPathGetFailure(
-                (InternalFutureFailureAccess) localInputFuture);
-      }
-      if (throwable == null) {
-        sourceResult = getDone(localInputFuture);
-      }
+      sourceResult = getDone(localInputFuture);
     } catch (ExecutionException e) {
-      throwable = e.getCause();
-      if (throwable == null) {
-        throwable =
-            new NullPointerException(
-                "Future type "
-                    + localInputFuture.getClass()
-                    + " threw "
-                    + e.getClass()
-                    + " without a cause");
-      }
+      throwable = checkNotNull(e.getCause());
     } catch (Throwable e) { // this includes cancellation exception
       throwable = e;
     }
