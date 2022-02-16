@@ -84,7 +84,6 @@ public class InternersTest extends TestCase {
     assertEquals(concurrencyLevel, internerImpl.map.concurrencyLevel);
   }
 
-
   public void testWeak_afterGC() throws InterruptedException {
     Integer canonical = new Integer(5);
     Integer not = new Integer(5);

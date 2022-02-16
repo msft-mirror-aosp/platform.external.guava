@@ -17,7 +17,6 @@ package com.google.common.util.concurrent;
 import com.google.common.annotations.Beta;
 import com.google.common.annotations.GwtCompatible;
 import java.util.concurrent.Future;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * Computes a value, possibly asynchronously. For an example usage and more information, see {@link
@@ -30,8 +29,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  */
 @Beta
 @GwtCompatible
-@ElementTypesAreNonnullByDefault
-public interface AsyncCallable<V extends @Nullable Object> {
+public interface AsyncCallable<V> {
   /**
    * Computes a result {@code Future}. The output {@code Future} need not be {@linkplain
    * Future#isDone done}, making {@code AsyncCallable} suitable for asynchronous derivations.

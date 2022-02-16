@@ -22,7 +22,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * Imposes a time limit on method calls.
@@ -35,7 +34,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 @DoNotMock("Use FakeTimeLimiter")
 @GwtIncompatible
 @SuppressWarnings("GoodTime") // should have java.time.Duration overloads
-@ElementTypesAreNonnullByDefault
 public interface TimeLimiter {
 
   /**
@@ -99,8 +97,7 @@ public interface TimeLimiter {
    * @since 22.0
    */
   @CanIgnoreReturnValue
-  <T extends @Nullable Object> T callWithTimeout(
-      Callable<T> callable, long timeoutDuration, TimeUnit timeoutUnit)
+  <T> T callWithTimeout(Callable<T> callable, long timeoutDuration, TimeUnit timeoutUnit)
       throws TimeoutException, InterruptedException, ExecutionException;
 
   /**
@@ -123,7 +120,7 @@ public interface TimeLimiter {
    * @since 22.0
    */
   @CanIgnoreReturnValue
-  <T extends @Nullable Object> T callUninterruptiblyWithTimeout(
+  <T> T callUninterruptiblyWithTimeout(
       Callable<T> callable, long timeoutDuration, TimeUnit timeoutUnit)
       throws TimeoutException, ExecutionException;
 

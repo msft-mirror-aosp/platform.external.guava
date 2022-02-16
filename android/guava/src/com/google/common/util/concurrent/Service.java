@@ -53,7 +53,6 @@ import java.util.concurrent.TimeoutException;
  */
 @DoNotMock("Create an AbstractIdleService")
 @GwtIncompatible
-@ElementTypesAreNonnullByDefault
 public interface Service {
   /**
    * If the service state is {@link State#NEW}, this initiates service startup and returns
@@ -176,28 +175,61 @@ public interface Service {
    */
   enum State {
     /** A service in this state is inactive. It does minimal work and consumes minimal resources. */
-    NEW,
+    NEW {
+      @Override
+      boolean isTerminal() {
+        return false;
+      }
+    },
 
     /** A service in this state is transitioning to {@link #RUNNING}. */
-    STARTING,
+    STARTING {
+      @Override
+      boolean isTerminal() {
+        return false;
+      }
+    },
 
     /** A service in this state is operational. */
-    RUNNING,
+    RUNNING {
+      @Override
+      boolean isTerminal() {
+        return false;
+      }
+    },
 
     /** A service in this state is transitioning to {@link #TERMINATED}. */
-    STOPPING,
+    STOPPING {
+      @Override
+      boolean isTerminal() {
+        return false;
+      }
+    },
 
     /**
      * A service in this state has completed execution normally. It does minimal work and consumes
      * minimal resources.
      */
-    TERMINATED,
+    TERMINATED {
+      @Override
+      boolean isTerminal() {
+        return true;
+      }
+    },
 
     /**
      * A service in this state has encountered a problem and may not be operational. It cannot be
      * started nor stopped.
      */
-    FAILED,
+    FAILED {
+      @Override
+      boolean isTerminal() {
+        return true;
+      }
+    };
+
+    /** Returns true if this state is terminal. */
+    abstract boolean isTerminal();
   }
 
   /**

@@ -5,15 +5,14 @@
   <parent>
     <groupId>com.google.guava</groupId>
     <artifactId>guava-parent</artifactId>
-    <version>31.0.1-android</version>
+    <version>30.0-android</version>
   </parent>
   <artifactId>guava</artifactId>
   <packaging>bundle</packaging>
   <name>Guava: Google Core Libraries for Java</name>
-  <url>https://github.com/google/guava</url>
   <description>
     Guava is a suite of core and expanded libraries that include
-    utility classes, Google's collections, I/O classes, and
+    utility classes, google's collections, io classes, and much
     much more.
   </description>
   <dependencies>
@@ -30,10 +29,6 @@
     <dependency>
       <groupId>com.google.code.findbugs</groupId>
       <artifactId>jsr305</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.checkerframework</groupId>
-      <artifactId>checker-qual</artifactId>
     </dependency>
     <dependency>
       <groupId>org.checkerframework</groupId>
@@ -120,12 +115,6 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>animal-sniffer-maven-plugin</artifactId>
-        <configuration>
-          <ignores>
-            <!-- Allow requireNonNull: Android desugaring rewrites it (so it's safe for us to use), and it's useful for null checks. Note that this line allows *all* methods from java.util.Objects. That's the best that we can do with the configuration options that Animal Sniffer offers. -->
-            <ignore>java.util.Objects</ignore>
-          </ignores>
-        </configuration>
       </plugin>
       <plugin>
         <artifactId>maven-javadoc-plugin</artifactId>

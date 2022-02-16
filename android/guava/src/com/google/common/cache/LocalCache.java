@@ -93,12 +93,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableDecl;
  * @author Bob Lee ({@code com.google.common.collect.MapMaker})
  * @author Doug Lea ({@code ConcurrentHashMap})
  */
-@SuppressWarnings({
-  "GoodTime", // lots of violations (nanosecond math)
-  "nullness", // too much trouble for the payoff
-})
+@SuppressWarnings("GoodTime") // lots of violations (nanosecond math)
 @GwtCompatible(emulated = true)
-// TODO(cpovirk): Annotate for nullness.
 class LocalCache<K, V> extends AbstractMap<K, V> implements ConcurrentMap<K, V> {
 
   /*
@@ -3865,7 +3861,8 @@ class LocalCache<K, V> extends AbstractMap<K, V> implements ConcurrentMap<K, V> 
     return value;
   }
 
-  @SuppressWarnings("MissingOverride") // Supermethod will not exist if we build with --release 7.
+  // Only becomes available in Java 8 when it's on the interface.
+  // @Override
   @NullableDecl
   public V getOrDefault(@NullableDecl Object key, @NullableDecl V defaultValue) {
     V result = get(key);

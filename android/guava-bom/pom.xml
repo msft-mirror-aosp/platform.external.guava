@@ -8,14 +8,13 @@
 
   <groupId>com.google.guava</groupId>
   <artifactId>guava-bom</artifactId>
-  <version>31.0.1-android</version>
+  <version>30.0-android</version>
   <packaging>pom</packaging>
   
   <parent>
     <groupId>org.sonatype.oss</groupId>
     <artifactId>oss-parent</artifactId>
     <version>9</version>
-    <relativePath></relativePath>
   </parent>
 
   <name>Guava BOM</name>

@@ -50,7 +50,6 @@ import java.util.Comparator;
  */
 @Beta
 @GwtCompatible
-@ElementTypesAreNonnullByDefault
 public final class UnsignedLongs {
   private UnsignedLongs() {}
 

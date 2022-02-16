@@ -208,7 +208,6 @@ public class ImmutableRangeMapTest extends TestCase {
     }
   }
 
-
   public void testSubRangeMap() {
     for (Range<Integer> range1 : RANGES) {
       for (Range<Integer> range2 : RANGES) {
@@ -257,7 +256,7 @@ public class ImmutableRangeMapTest extends TestCase {
     SerializableTester.reserializeAndAssert(nonEmptyRangeMap);
   }
 
-  public void testToImmutableRangeMap() {
+  public void testToImmutableRangeSet() {
     Range<Integer> rangeOne = Range.closedOpen(1, 5);
     Range<Integer> rangeTwo = Range.openClosed(6, 7);
     ImmutableRangeMap<Integer, Integer> rangeMap =

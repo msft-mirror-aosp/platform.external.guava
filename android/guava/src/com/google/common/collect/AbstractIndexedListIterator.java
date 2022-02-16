@@ -21,7 +21,6 @@ import static com.google.common.base.Preconditions.checkPositionIndex;
 import com.google.common.annotations.GwtCompatible;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * This class provides a skeletal implementation of the {@link ListIterator} interface across a
@@ -31,14 +30,11 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * @author Jared Levy
  */
 @GwtCompatible
-@ElementTypesAreNonnullByDefault
-abstract class AbstractIndexedListIterator<E extends @Nullable Object>
-    extends UnmodifiableListIterator<E> {
+abstract class AbstractIndexedListIterator<E> extends UnmodifiableListIterator<E> {
   private final int size;
   private int position;
 
   /** Returns the element with the specified index. This method is called by {@link #next()}. */
-  @ParametricNullness
   protected abstract E get(int index);
 
   /**
@@ -74,7 +70,6 @@ abstract class AbstractIndexedListIterator<E extends @Nullable Object>
   }
 
   @Override
-  @ParametricNullness
   public final E next() {
     if (!hasNext()) {
       throw new NoSuchElementException();
@@ -93,7 +88,6 @@ abstract class AbstractIndexedListIterator<E extends @Nullable Object>
   }
 
   @Override
-  @ParametricNullness
   public final E previous() {
     if (!hasPrevious()) {
       throw new NoSuchElementException();
