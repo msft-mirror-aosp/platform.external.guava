@@ -32,6 +32,7 @@ import java.lang.annotation.Target;
  * Google-internal Android suite generators. Note that those generators also suppress any test
  * annotated with MediumTest or LargeTest.
  *
+ *
  * <p>Why use a custom annotation instead of {@code android.test.suitebuilder.annotation.Suppress}?
  * I'm not completely sure that this is the right choice, but it has various advantages:
  *

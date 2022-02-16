@@ -535,7 +535,6 @@ public class BloomFilterTest extends TestCase {
     assertEquals(BloomFilterStrategies.MURMUR128_MITZ_64, BloomFilterStrategies.values()[1]);
   }
 
-
   public void testNoRaceConditions() throws Exception {
     final BloomFilter<Integer> bloomFilter =
         BloomFilter.create(Funnels.integerFunnel(), 15_000_000, 0.01);

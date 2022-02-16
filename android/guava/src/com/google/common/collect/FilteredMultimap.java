@@ -19,7 +19,6 @@ package com.google.common.collect;
 import com.google.common.annotations.GwtCompatible;
 import com.google.common.base.Predicate;
 import java.util.Map.Entry;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * An interface for all filtered multimap types.
@@ -27,9 +26,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * @author Louis Wasserman
  */
 @GwtCompatible
-@ElementTypesAreNonnullByDefault
-interface FilteredMultimap<K extends @Nullable Object, V extends @Nullable Object>
-    extends Multimap<K, V> {
+interface FilteredMultimap<K, V> extends Multimap<K, V> {
   Multimap<K, V> unfiltered();
 
   Predicate<? super Entry<K, V>> entryPredicate();

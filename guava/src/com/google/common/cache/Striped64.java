@@ -13,7 +13,6 @@ package com.google.common.cache;
 
 import com.google.common.annotations.GwtIncompatible;
 import java.util.Random;
-import javax.annotation.CheckForNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
@@ -22,7 +21,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * so.
  */
 @GwtIncompatible
-@ElementTypesAreNonnullByDefault
 abstract class Striped64 extends Number {
   /*
    * This class maintains a lazily-initialized table of atomically
@@ -127,7 +125,7 @@ abstract class Striped64 extends Number {
    * class, we use a suboptimal int[] representation to avoid introducing a new type that can impede
    * class-unloading when ThreadLocals are not removed.
    */
-  static final ThreadLocal<int @Nullable []> threadHashCode = new ThreadLocal<>();
+  static final ThreadLocal<int[]> threadHashCode = new ThreadLocal<>();
 
   /** Generator of new random hash codes */
   static final Random rng = new Random();
@@ -136,7 +134,7 @@ abstract class Striped64 extends Number {
   static final int NCPU = Runtime.getRuntime().availableProcessors();
 
   /** Table of cells. When non-null, size is a power of 2. */
-  @CheckForNull transient volatile Cell[] cells;
+  transient volatile Cell @Nullable [] cells;
 
   /**
    * Base value, used mainly when there is no contention, but also as a fallback during table
@@ -179,7 +177,7 @@ abstract class Striped64 extends Number {
    * @param hc the hash code holder
    * @param wasUncontended false if CAS failed before call
    */
-  final void retryUpdate(long x, @CheckForNull int[] hc, boolean wasUncontended) {
+  final void retryUpdate(long x, int[] hc, boolean wasUncontended) {
     int h;
     if (hc == null) {
       threadHashCode.set(hc = new int[1]); // Initialize randomly

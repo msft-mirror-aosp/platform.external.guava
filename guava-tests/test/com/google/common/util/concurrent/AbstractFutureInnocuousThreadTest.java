@@ -16,7 +16,6 @@
 
 package com.google.common.util.concurrent;
 
-
 import java.net.URLClassLoader;
 import java.security.Permission;
 import java.util.HashMap;

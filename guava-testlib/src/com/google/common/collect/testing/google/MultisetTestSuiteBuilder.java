@@ -131,8 +131,6 @@ public class MultisetTestSuiteBuilder<E>
               .named(getName() + ".entrySet")
               .withFeatures(computeEntrySetFeatures(parentBuilder.getFeatures()))
               .suppressing(parentBuilder.getSuppressedTests())
-              .withSetUp(parentBuilder.getSetUp())
-              .withTearDown(parentBuilder.getTearDown())
               .createTestSuite());
     }
 
@@ -143,8 +141,6 @@ public class MultisetTestSuiteBuilder<E>
               .named(getName() + " reserialized")
               .withFeatures(computeReserializedMultisetFeatures(parentBuilder.getFeatures()))
               .suppressing(parentBuilder.getSuppressedTests())
-              .withSetUp(parentBuilder.getSetUp())
-              .withTearDown(parentBuilder.getTearDown())
               .createTestSuite());
     }
     return derivedSuites;
@@ -158,8 +154,6 @@ public class MultisetTestSuiteBuilder<E>
         .named(getName() + ".elementSet")
         .withFeatures(computeElementSetFeatures(parentBuilder.getFeatures()))
         .suppressing(parentBuilder.getSuppressedTests())
-        .withSetUp(parentBuilder.getSetUp())
-        .withTearDown(parentBuilder.getTearDown())
         .createTestSuite();
   }
 
