@@ -747,7 +747,6 @@ public class LongMathTest extends TestCase {
     }
   }
 
-
   @GwtIncompatible // Slow
   public void testBinomial_exhaustiveNotOverflowing() {
     // Tests all of the inputs to LongMath.binomial that won't cause it to overflow, that weren't
@@ -783,7 +782,6 @@ public class LongMathTest extends TestCase {
       }
     }
   }
-
 
   @GwtIncompatible // far too slow
   public void testSqrtOfPerfectSquareAsDoubleIsPerfect() {

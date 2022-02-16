@@ -48,7 +48,6 @@ import java.nio.charset.Charset;
  * @author Colin Decker
  */
 @GwtIncompatible
-@ElementTypesAreNonnullByDefault
 public abstract class CharSink {
 
   /** Constructor for use by subclasses. */

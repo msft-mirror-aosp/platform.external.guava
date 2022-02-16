@@ -23,7 +23,6 @@ import static com.google.common.util.concurrent.Service.State.RUNNING;
 import static com.google.common.util.concurrent.Service.State.STARTING;
 import static com.google.common.util.concurrent.Service.State.STOPPING;
 import static com.google.common.util.concurrent.Service.State.TERMINATED;
-import static java.util.Objects.requireNonNull;
 
 import com.google.common.annotations.Beta;
 import com.google.common.annotations.GwtIncompatible;
@@ -36,7 +35,7 @@ import com.google.j2objc.annotations.WeakOuter;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import javax.annotation.CheckForNull;
+import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 
 /**
  * Base class for implementing services that can handle {@link #doStart} and {@link #doStop}
@@ -49,7 +48,6 @@ import javax.annotation.CheckForNull;
  * @since 1.0
  */
 @GwtIncompatible
-@ElementTypesAreNonnullByDefault
 public abstract class AbstractService implements Service {
   private static final ListenerCallQueue.Event<Listener> STARTING_EVENT =
       new ListenerCallQueue.Event<Listener>() {
@@ -171,7 +169,7 @@ public abstract class AbstractService implements Service {
 
     @Override
     public boolean isSatisfied() {
-      return state().compareTo(TERMINATED) >= 0;
+      return state().isTerminal();
     }
   }
 
@@ -577,20 +575,20 @@ public abstract class AbstractService implements Service {
      * The exception that caused this service to fail. This will be {@code null} unless the service
      * has failed.
      */
-    @CheckForNull final Throwable failure;
+    @NullableDecl final Throwable failure;
 
     StateSnapshot(State internalState) {
       this(internalState, false, null);
     }
 
     StateSnapshot(
-        State internalState, boolean shutdownWhenStartupFinishes, @CheckForNull Throwable failure) {
+        State internalState, boolean shutdownWhenStartupFinishes, @NullableDecl Throwable failure) {
       checkArgument(
           !shutdownWhenStartupFinishes || internalState == STARTING,
           "shutdownWhenStartupFinishes can only be set if state is STARTING. Got %s instead.",
           internalState);
       checkArgument(
-          (failure != null) == (internalState == FAILED),
+          !(failure != null ^ internalState == FAILED),
           "A failure cause should be set if and only if the state is failed.  Got %s and %s "
               + "instead.",
           internalState,
@@ -615,8 +613,7 @@ public abstract class AbstractService implements Service {
           state == FAILED,
           "failureCause() is only valid if the service has failed, service is %s",
           state);
-      // requireNonNull is safe because the constructor requires a non-null cause with state=FAILED.
-      return requireNonNull(failure);
+      return failure;
     }
   }
 }

@@ -20,7 +20,6 @@ import com.google.common.annotations.Beta;
 import com.google.common.annotations.GwtCompatible;
 import com.google.common.annotations.GwtIncompatible;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import com.google.errorprone.annotations.DoNotCall;
 import com.google.errorprone.annotations.concurrent.LazyInit;
 import com.google.j2objc.annotations.RetainedWith;
 import java.io.IOException;
@@ -31,8 +30,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.Map.Entry;
-import javax.annotation.CheckForNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 
 /**
  * A {@link ListMultimap} whose contents will never change, with many other important properties
@@ -45,15 +43,10 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * @since 2.0
  */
 @GwtCompatible(serializable = true, emulated = true)
-@ElementTypesAreNonnullByDefault
 public class ImmutableListMultimap<K, V> extends ImmutableMultimap<K, V>
     implements ListMultimap<K, V> {
 
-  /**
-   * Returns the empty multimap.
-   *
-   * <p><b>Performance note:</b> the instance returned is a singleton.
-   */
+  /** Returns the empty multimap. */
   // Casting is safe because the multimap will never hold any elements.
   @SuppressWarnings("unchecked")
   public static <K, V> ImmutableListMultimap<K, V> of() {
@@ -220,13 +213,6 @@ public class ImmutableListMultimap<K, V> extends ImmutableMultimap<K, V>
       return this;
     }
 
-    @CanIgnoreReturnValue
-    @Override
-    Builder<K, V> combine(ImmutableMultimap.Builder<K, V> other) {
-      super.combine(other);
-      return this;
-    }
-
     /** Returns a newly-created immutable list multimap. */
     @Override
     public ImmutableListMultimap<K, V> build() {
@@ -280,7 +266,7 @@ public class ImmutableListMultimap<K, V> extends ImmutableMultimap<K, V>
   /** Creates an ImmutableListMultimap from an asMap.entrySet. */
   static <K, V> ImmutableListMultimap<K, V> fromMapEntries(
       Collection<? extends Map.Entry<? extends K, ? extends Collection<? extends V>>> mapEntries,
-      @Nullable Comparator<? super V> valueComparator) {
+      @NullableDecl Comparator<? super V> valueComparator) {
     if (mapEntries.isEmpty()) {
       return of();
     }
@@ -316,13 +302,13 @@ public class ImmutableListMultimap<K, V> extends ImmutableMultimap<K, V>
    * parameters used to build this multimap.
    */
   @Override
-  public ImmutableList<V> get(K key) {
+  public ImmutableList<V> get(@NullableDecl K key) {
     // This cast is safe as its type is known in constructor.
     ImmutableList<V> list = (ImmutableList<V>) map.get(key);
     return (list == null) ? ImmutableList.<V>of() : list;
   }
 
-  @LazyInit @RetainedWith @CheckForNull private transient ImmutableListMultimap<V, K> inverse;
+  @LazyInit @RetainedWith private transient ImmutableListMultimap<V, K> inverse;
 
   /**
    * {@inheritDoc}
@@ -358,8 +344,7 @@ public class ImmutableListMultimap<K, V> extends ImmutableMultimap<K, V>
   @CanIgnoreReturnValue
   @Deprecated
   @Override
-  @DoNotCall("Always throws UnsupportedOperationException")
-  public final ImmutableList<V> removeAll(@CheckForNull Object key) {
+  public ImmutableList<V> removeAll(Object key) {
     throw new UnsupportedOperationException();
   }
 
@@ -372,8 +357,7 @@ public class ImmutableListMultimap<K, V> extends ImmutableMultimap<K, V>
   @CanIgnoreReturnValue
   @Deprecated
   @Override
-  @DoNotCall("Always throws UnsupportedOperationException")
-  public final ImmutableList<V> replaceValues(K key, Iterable<? extends V> values) {
+  public ImmutableList<V> replaceValues(K key, Iterable<? extends V> values) {
     throw new UnsupportedOperationException();
   }
 

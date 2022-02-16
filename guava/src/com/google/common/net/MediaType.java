@@ -45,7 +45,7 @@ import java.nio.charset.UnsupportedCharsetException;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
-import javax.annotation.CheckForNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * Represents an <a href="http://en.wikipedia.org/wiki/Internet_media_type">Internet Media Type</a>
@@ -75,7 +75,6 @@ import javax.annotation.CheckForNull;
 @Beta
 @GwtCompatible
 @Immutable
-@ElementTypesAreNonnullByDefault
 public final class MediaType {
   private static final String CHARSET_ATTRIBUTE = "charset";
   private static final ImmutableListMultimap<String, String> UTF_8_CONSTANT_PARAMETERS =
@@ -764,11 +763,11 @@ public final class MediaType {
   private final String subtype;
   private final ImmutableListMultimap<String, String> parameters;
 
-  @LazyInit @CheckForNull private String toString;
+  @LazyInit private String toString;
 
   @LazyInit private int hashCode;
 
-  @LazyInit @CheckForNull private Optional<Charset> parsedCharset;
+  @LazyInit private Optional<Charset> parsedCharset;
 
   private MediaType(String type, String subtype, ImmutableListMultimap<String, String> parameters) {
     this.type = type;
@@ -1136,7 +1135,7 @@ public final class MediaType {
   }
 
   @Override
-  public boolean equals(@CheckForNull Object obj) {
+  public boolean equals(@Nullable Object obj) {
     if (obj == this) {
       return true;
     } else if (obj instanceof MediaType) {

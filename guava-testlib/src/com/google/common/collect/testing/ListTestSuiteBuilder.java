@@ -114,8 +114,6 @@ public final class ListTestSuiteBuilder<E>
               .named(getName() + " reserialized")
               .withFeatures(computeReserializedCollectionFeatures(parentBuilder.getFeatures()))
               .suppressing(parentBuilder.getSuppressedTests())
-              .withSetUp(parentBuilder.getSetUp())
-              .withTearDown(parentBuilder.getTearDown())
               .createTestSuite());
     }
     return derivedSuites;
