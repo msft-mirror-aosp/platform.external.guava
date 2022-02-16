@@ -22,32 +22,27 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 /** @see com.google.common.collect.Maps#immutableEntry(Object, Object) */
 @GwtCompatible(serializable = true)
-@ElementTypesAreNonnullByDefault
-class ImmutableEntry<K extends @Nullable Object, V extends @Nullable Object>
-    extends AbstractMapEntry<K, V> implements Serializable {
-  @ParametricNullness final K key;
-  @ParametricNullness final V value;
+class ImmutableEntry<K, V> extends AbstractMapEntry<K, V> implements Serializable {
+  final @Nullable K key;
+  final @Nullable V value;
 
-  ImmutableEntry(@ParametricNullness K key, @ParametricNullness V value) {
+  ImmutableEntry(@Nullable K key, @Nullable V value) {
     this.key = key;
     this.value = value;
   }
 
   @Override
-  @ParametricNullness
-  public final K getKey() {
+  public final @Nullable K getKey() {
     return key;
   }
 
   @Override
-  @ParametricNullness
-  public final V getValue() {
+  public final @Nullable V getValue() {
     return value;
   }
 
   @Override
-  @ParametricNullness
-  public final V setValue(@ParametricNullness V value) {
+  public final V setValue(V value) {
     throw new UnsupportedOperationException();
   }
 

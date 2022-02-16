@@ -21,8 +21,7 @@ import com.google.common.base.Objects;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.Collection;
 import java.util.Iterator;
-import javax.annotation.CheckForNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 
 /**
  * A collection which forwards all its method calls to another collection. Subclasses should
@@ -47,9 +46,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * @since 2.0
  */
 @GwtCompatible
-@ElementTypesAreNonnullByDefault
-public abstract class ForwardingCollection<E extends @Nullable Object> extends ForwardingObject
-    implements Collection<E> {
+public abstract class ForwardingCollection<E> extends ForwardingObject implements Collection<E> {
   // TODO(lowasser): identify places where thread safety is actually lost
 
   /** Constructor for use by subclasses. */
@@ -80,19 +77,19 @@ public abstract class ForwardingCollection<E extends @Nullable Object> extends F
   }
 
   @Override
-  public boolean contains(@CheckForNull Object object) {
+  public boolean contains(Object object) {
     return delegate().contains(object);
   }
 
   @CanIgnoreReturnValue
   @Override
-  public boolean add(@ParametricNullness E element) {
+  public boolean add(E element) {
     return delegate().add(element);
   }
 
   @CanIgnoreReturnValue
   @Override
-  public boolean remove(@CheckForNull Object object) {
+  public boolean remove(Object object) {
     return delegate().remove(object);
   }
 
@@ -119,14 +116,13 @@ public abstract class ForwardingCollection<E extends @Nullable Object> extends F
   }
 
   @Override
-  public @Nullable Object[] toArray() {
+  public Object[] toArray() {
     return delegate().toArray();
   }
 
   @CanIgnoreReturnValue
   @Override
-  @SuppressWarnings("nullness") // b/192354773 in our checker affects toArray declarations
-  public <T extends @Nullable Object> T[] toArray(T[] array) {
+  public <T> T[] toArray(T[] array) {
     return delegate().toArray(array);
   }
 
@@ -137,7 +133,7 @@ public abstract class ForwardingCollection<E extends @Nullable Object> extends F
    *
    * @since 7.0
    */
-  protected boolean standardContains(@CheckForNull Object object) {
+  protected boolean standardContains(@NullableDecl Object object) {
     return Iterators.contains(iterator(), object);
   }
 
@@ -169,7 +165,7 @@ public abstract class ForwardingCollection<E extends @Nullable Object> extends F
    *
    * @since 7.0
    */
-  protected boolean standardRemove(@CheckForNull Object object) {
+  protected boolean standardRemove(@NullableDecl Object object) {
     Iterator<E> iterator = iterator();
     while (iterator.hasNext()) {
       if (Objects.equal(iterator.next(), object)) {
@@ -242,8 +238,8 @@ public abstract class ForwardingCollection<E extends @Nullable Object> extends F
    *
    * @since 7.0
    */
-  protected @Nullable Object[] standardToArray() {
-    @Nullable Object[] newArray = new @Nullable Object[size()];
+  protected Object[] standardToArray() {
+    Object[] newArray = new Object[size()];
     return toArray(newArray);
   }
 
@@ -254,7 +250,7 @@ public abstract class ForwardingCollection<E extends @Nullable Object> extends F
    *
    * @since 7.0
    */
-  protected <T extends @Nullable Object> T[] standardToArray(T[] array) {
+  protected <T> T[] standardToArray(T[] array) {
     return ObjectArrays.toArrayImpl(this, array);
   }
 }

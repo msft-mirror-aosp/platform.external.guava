@@ -31,7 +31,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.RandomAccess;
-import javax.annotation.CheckForNull;
+import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 
 /**
  * Static utility methods pertaining to {@code int} primitives, that are not already found in either
@@ -44,7 +44,6 @@ import javax.annotation.CheckForNull;
  * @since 1.0
  */
 @GwtCompatible(emulated = true)
-@ElementTypesAreNonnullByDefault
 public final class Ints extends IntsMethodsForWeb {
   private Ints() {}
 
@@ -594,13 +593,13 @@ public final class Ints extends IntsMethodsForWeb {
     }
 
     @Override
-    public boolean contains(@CheckForNull Object target) {
+    public boolean contains(Object target) {
       // Overridden to prevent a ton of boxing
       return (target instanceof Integer) && Ints.indexOf(array, (Integer) target, start, end) != -1;
     }
 
     @Override
-    public int indexOf(@CheckForNull Object target) {
+    public int indexOf(Object target) {
       // Overridden to prevent a ton of boxing
       if (target instanceof Integer) {
         int i = Ints.indexOf(array, (Integer) target, start, end);
@@ -612,7 +611,7 @@ public final class Ints extends IntsMethodsForWeb {
     }
 
     @Override
-    public int lastIndexOf(@CheckForNull Object target) {
+    public int lastIndexOf(Object target) {
       // Overridden to prevent a ton of boxing
       if (target instanceof Integer) {
         int i = Ints.lastIndexOf(array, (Integer) target, start, end);
@@ -643,7 +642,7 @@ public final class Ints extends IntsMethodsForWeb {
     }
 
     @Override
-    public boolean equals(@CheckForNull Object object) {
+    public boolean equals(@NullableDecl Object object) {
       if (object == this) {
         return true;
       }
@@ -707,7 +706,7 @@ public final class Ints extends IntsMethodsForWeb {
    * @since 11.0
    */
   @Beta
-  @CheckForNull
+  @NullableDecl
   public static Integer tryParse(String string) {
     return tryParse(string, 10);
   }
@@ -733,7 +732,7 @@ public final class Ints extends IntsMethodsForWeb {
    * @since 19.0
    */
   @Beta
-  @CheckForNull
+  @NullableDecl
   public static Integer tryParse(String string, int radix) {
     Long result = Longs.tryParse(string, radix);
     if (result == null || result.longValue() != result.intValue()) {

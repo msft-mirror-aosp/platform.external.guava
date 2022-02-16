@@ -690,7 +690,6 @@ public class TreeRangeMapTest extends TestCase {
     }
   }
 
-
   public void testSubRangeMapExhaustive() {
     for (Range<Integer> range1 : RANGES) {
       for (Range<Integer> range2 : RANGES) {

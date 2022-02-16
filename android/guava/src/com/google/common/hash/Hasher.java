@@ -18,7 +18,6 @@ import com.google.common.annotations.Beta;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * A {@link PrimitiveSink} that can compute a hash code after reading the input. Each hasher should
@@ -55,7 +54,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  */
 @Beta
 @CanIgnoreReturnValue
-@ElementTypesAreNonnullByDefault
 public interface Hasher extends PrimitiveSink {
   @Override
   Hasher putByte(byte b);
@@ -121,8 +119,7 @@ public interface Hasher extends PrimitiveSink {
   Hasher putString(CharSequence charSequence, Charset charset);
 
   /** A simple convenience for {@code funnel.funnel(object, this)}. */
-  <T extends @Nullable Object> Hasher putObject(
-      @ParametricNullness T instance, Funnel<? super T> funnel);
+  <T> Hasher putObject(T instance, Funnel<? super T> funnel);
 
   /**
    * Computes a hash code based on the data that have been provided to this hasher. The result is
