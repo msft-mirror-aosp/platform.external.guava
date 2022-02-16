@@ -550,7 +550,7 @@ public class LocalCache<K, V> implements ConcurrentMap<K, V> {
     @Override
     public Entry<K, V> next() {
       if (nextEntry == null) {
-        boolean unused = hasNext();
+        hasNext();
 
         if (nextEntry == null) {
           throw new NoSuchElementException();

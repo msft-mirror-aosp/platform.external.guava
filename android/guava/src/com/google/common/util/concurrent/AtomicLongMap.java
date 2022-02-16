@@ -28,7 +28,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
-import javax.annotation.CheckForNull;
+import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 
 /**
  * A map containing {@code long} values that can be atomically updated. While writes to a
@@ -54,7 +54,6 @@ import javax.annotation.CheckForNull;
  * @since 11.0
  */
 @GwtCompatible
-@ElementTypesAreNonnullByDefault
 public final class AtomicLongMap<K> implements Serializable {
   private final ConcurrentHashMap<K, AtomicLong> map;
 
@@ -326,7 +325,7 @@ public final class AtomicLongMap<K> implements Serializable {
     return sum;
   }
 
-  @CheckForNull private transient Map<K, Long> asMap;
+  @NullableDecl private transient Map<K, Long> asMap;
 
   /** Returns a live, read-only view of the map backing this {@code AtomicLongMap}. */
   public Map<K, Long> asMap() {

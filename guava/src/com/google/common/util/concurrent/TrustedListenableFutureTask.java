@@ -21,7 +21,6 @@ import com.google.j2objc.annotations.WeakOuter;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 import java.util.concurrent.RunnableFuture;
-import javax.annotation.CheckForNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
@@ -31,16 +30,14 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * performance reasons.
  */
 @GwtCompatible
-@ElementTypesAreNonnullByDefault
-class TrustedListenableFutureTask<V extends @Nullable Object> extends FluentFuture.TrustedFuture<V>
+class TrustedListenableFutureTask<V> extends FluentFuture.TrustedFuture<V>
     implements RunnableFuture<V> {
 
-  static <V extends @Nullable Object> TrustedListenableFutureTask<V> create(
-      AsyncCallable<V> callable) {
+  static <V> TrustedListenableFutureTask<V> create(AsyncCallable<V> callable) {
     return new TrustedListenableFutureTask<V>(callable);
   }
 
-  static <V extends @Nullable Object> TrustedListenableFutureTask<V> create(Callable<V> callable) {
+  static <V> TrustedListenableFutureTask<V> create(Callable<V> callable) {
     return new TrustedListenableFutureTask<V>(callable);
   }
 
@@ -53,8 +50,7 @@ class TrustedListenableFutureTask<V extends @Nullable Object> extends FluentFutu
    *     result, consider using constructions of the form: {@code ListenableFuture<?> f =
    *     ListenableFutureTask.create(runnable, null)}
    */
-  static <V extends @Nullable Object> TrustedListenableFutureTask<V> create(
-      Runnable runnable, @ParametricNullness V result) {
+  static <V> TrustedListenableFutureTask<V> create(Runnable runnable, @Nullable V result) {
     return new TrustedListenableFutureTask<V>(Executors.callable(runnable, result));
   }
 
@@ -65,7 +61,7 @@ class TrustedListenableFutureTask<V extends @Nullable Object> extends FluentFutu
    * <p>{@code volatile} is required for j2objc transpiling:
    * https://developers.google.com/j2objc/guides/j2objc-memory-model#atomicity
    */
-  @CheckForNull private volatile InterruptibleTask<?> task;
+  private volatile InterruptibleTask<?> task;
 
   TrustedListenableFutureTask(Callable<V> callable) {
     this.task = new TrustedFutureInterruptibleTask(callable);
@@ -77,7 +73,7 @@ class TrustedListenableFutureTask<V extends @Nullable Object> extends FluentFutu
 
   @Override
   public void run() {
-    InterruptibleTask<?> localTask = task;
+    InterruptibleTask localTask = task;
     if (localTask != null) {
       localTask.run();
     }
@@ -93,7 +89,7 @@ class TrustedListenableFutureTask<V extends @Nullable Object> extends FluentFutu
     super.afterDone();
 
     if (wasInterrupted()) {
-      InterruptibleTask<?> localTask = task;
+      InterruptibleTask localTask = task;
       if (localTask != null) {
         localTask.interruptTask();
       }
@@ -103,9 +99,8 @@ class TrustedListenableFutureTask<V extends @Nullable Object> extends FluentFutu
   }
 
   @Override
-  @CheckForNull
   protected String pendingToString() {
-    InterruptibleTask<?> localTask = task;
+    InterruptibleTask localTask = task;
     if (localTask != null) {
       return "task=[" + localTask + "]";
     }
@@ -126,19 +121,17 @@ class TrustedListenableFutureTask<V extends @Nullable Object> extends FluentFutu
     }
 
     @Override
-    @ParametricNullness
     V runInterruptibly() throws Exception {
       return callable.call();
     }
 
     @Override
-    void afterRanInterruptiblySuccess(@ParametricNullness V result) {
-      TrustedListenableFutureTask.this.set(result);
-    }
-
-    @Override
-    void afterRanInterruptiblyFailure(Throwable error) {
-      setException(error);
+    void afterRanInterruptibly(V result, Throwable error) {
+      if (error == null) {
+        TrustedListenableFutureTask.this.set(result);
+      } else {
+        setException(error);
+      }
     }
 
     @Override
@@ -171,13 +164,12 @@ class TrustedListenableFutureTask<V extends @Nullable Object> extends FluentFutu
     }
 
     @Override
-    void afterRanInterruptiblySuccess(ListenableFuture<V> result) {
-      setFuture(result);
-    }
-
-    @Override
-    void afterRanInterruptiblyFailure(Throwable error) {
-      setException(error);
+    void afterRanInterruptibly(ListenableFuture<V> result, Throwable error) {
+      if (error == null) {
+        setFuture(result);
+      } else {
+        setException(error);
+      }
     }
 
     @Override

@@ -16,14 +16,12 @@
 
 package com.google.common.util.concurrent;
 
-import static com.google.common.util.concurrent.NullnessCasts.uncheckedCastNullableTToT;
-
 /** Emulation for InterruptibleTask in GWT. */
-abstract class InterruptibleTask<T> implements Runnable {
+abstract class InterruptibleTask<V> implements Runnable {
 
   @Override
   public void run() {
-    T result = null;
+    V result = null;
     Throwable error = null;
     if (isDone()) {
       return;
@@ -33,21 +31,14 @@ abstract class InterruptibleTask<T> implements Runnable {
     } catch (Throwable t) {
       error = t;
     }
-    if (error == null) {
-      // The cast is safe because of the `run` and `error` checks.
-      afterRanInterruptiblySuccess(uncheckedCastNullableTToT(result));
-    } else {
-      afterRanInterruptiblyFailure(error);
-    }
+    afterRanInterruptibly(result, error);
   }
 
   abstract boolean isDone();
 
-  abstract T runInterruptibly() throws Exception;
+  abstract V runInterruptibly() throws Exception;
 
-  abstract void afterRanInterruptiblySuccess(T result);
-
-  abstract void afterRanInterruptiblyFailure(Throwable error);
+  abstract void afterRanInterruptibly(V result, Throwable error);
 
   final void interruptTask() {}
 

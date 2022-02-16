@@ -21,7 +21,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.SortedSet;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * Interface that extends {@code Table} and whose rows are sorted.
@@ -34,10 +33,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * @since 8.0
  */
 @GwtCompatible
-@ElementTypesAreNonnullByDefault
-public interface RowSortedTable<
-        R extends @Nullable Object, C extends @Nullable Object, V extends @Nullable Object>
-    extends Table<R, C, V> {
+public interface RowSortedTable<R, C, V> extends Table<R, C, V> {
   /**
    * {@inheritDoc}
    *

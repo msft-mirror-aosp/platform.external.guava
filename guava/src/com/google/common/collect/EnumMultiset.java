@@ -31,7 +31,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.function.ObjIntConsumer;
-import javax.annotation.CheckForNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * Multiset implementation specialized for enum elements, supporting all single-element operations
@@ -45,7 +45,6 @@ import javax.annotation.CheckForNull;
  * @since 2.0
  */
 @GwtCompatible(emulated = true)
-@ElementTypesAreNonnullByDefault
 public final class EnumMultiset<E extends Enum<E>> extends AbstractMultiset<E>
     implements Serializable {
   /** Creates an empty {@code EnumMultiset}. */
@@ -95,7 +94,7 @@ public final class EnumMultiset<E extends Enum<E>> extends AbstractMultiset<E>
     this.counts = new int[enumConstants.length];
   }
 
-  private boolean isActuallyE(@CheckForNull Object o) {
+  private boolean isActuallyE(@Nullable Object o) {
     if (o instanceof Enum) {
       Enum<?> e = (Enum<?>) o;
       int index = e.ordinal();
@@ -108,7 +107,7 @@ public final class EnumMultiset<E extends Enum<E>> extends AbstractMultiset<E>
    * Returns {@code element} cast to {@code E}, if it actually is a nonnull E. Otherwise, throws
    * either a NullPointerException or a ClassCastException as appropriate.
    */
-  private void checkIsE(Object element) {
+  void checkIsE(@Nullable Object element) {
     checkNotNull(element);
     if (!isActuallyE(element)) {
       throw new ClassCastException("Expected an " + type + " but got " + element);
@@ -126,9 +125,8 @@ public final class EnumMultiset<E extends Enum<E>> extends AbstractMultiset<E>
   }
 
   @Override
-  public int count(@CheckForNull Object element) {
-    // isActuallyE checks for null, but we check explicitly to help nullness checkers.
-    if (element == null || !isActuallyE(element)) {
+  public int count(@Nullable Object element) {
+    if (!isActuallyE(element)) {
       return 0;
     }
     Enum<?> e = (Enum<?>) element;
@@ -159,9 +157,8 @@ public final class EnumMultiset<E extends Enum<E>> extends AbstractMultiset<E>
   // Modification Operations
   @CanIgnoreReturnValue
   @Override
-  public int remove(@CheckForNull Object element, int occurrences) {
-    // isActuallyE checks for null, but we check explicitly to help nullness checkers.
-    if (element == null || !isActuallyE(element)) {
+  public int remove(@Nullable Object element, int occurrences) {
+    if (!isActuallyE(element)) {
       return 0;
     }
     Enum<?> e = (Enum<?>) element;

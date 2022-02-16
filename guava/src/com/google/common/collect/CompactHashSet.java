@@ -20,7 +20,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.CollectPreconditions.checkRemove;
 import static com.google.common.collect.CompactHashing.UNSET;
 import static com.google.common.collect.Hashing.smearedHash;
-import static java.util.Objects.requireNonNull;
 
 import com.google.common.annotations.GwtIncompatible;
 import com.google.common.annotations.VisibleForTesting;
@@ -45,7 +44,6 @@ import java.util.Set;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.function.Consumer;
-import javax.annotation.CheckForNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
@@ -76,12 +74,11 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * @author Jon Noack
  */
 @GwtIncompatible // not worth using in GWT for now
-@ElementTypesAreNonnullByDefault
-class CompactHashSet<E extends @Nullable Object> extends AbstractSet<E> implements Serializable {
+class CompactHashSet<E> extends AbstractSet<E> implements Serializable {
   // TODO(user): cache all field accesses in local vars
 
   /** Creates an empty {@code CompactHashSet} instance. */
-  public static <E extends @Nullable Object> CompactHashSet<E> create() {
+  public static <E> CompactHashSet<E> create() {
     return new CompactHashSet<>();
   }
 
@@ -92,8 +89,7 @@ class CompactHashSet<E extends @Nullable Object> extends AbstractSet<E> implemen
    * @param collection the elements that the set should contain
    * @return a new {@code CompactHashSet} containing those elements (minus duplicates)
    */
-  public static <E extends @Nullable Object> CompactHashSet<E> create(
-      Collection<? extends E> collection) {
+  public static <E> CompactHashSet<E> create(Collection<? extends E> collection) {
     CompactHashSet<E> set = createWithExpectedSize(collection.size());
     set.addAll(collection);
     return set;
@@ -107,7 +103,7 @@ class CompactHashSet<E extends @Nullable Object> extends AbstractSet<E> implemen
    * @return a new {@code CompactHashSet} containing those elements (minus duplicates)
    */
   @SafeVarargs
-  public static <E extends @Nullable Object> CompactHashSet<E> create(E... elements) {
+  public static <E> CompactHashSet<E> create(E... elements) {
     CompactHashSet<E> set = createWithExpectedSize(elements.length);
     Collections.addAll(set, elements);
     return set;
@@ -122,8 +118,7 @@ class CompactHashSet<E extends @Nullable Object> extends AbstractSet<E> implemen
    *     elements without resizing
    * @throws IllegalArgumentException if {@code expectedSize} is negative
    */
-  public static <E extends @Nullable Object> CompactHashSet<E> createWithExpectedSize(
-      int expectedSize) {
+  public static <E> CompactHashSet<E> createWithExpectedSize(int expectedSize) {
     return new CompactHashSet<>(expectedSize);
   }
 
@@ -140,10 +135,6 @@ class CompactHashSet<E extends @Nullable Object> extends AbstractSet<E> implemen
    * implementation. Experimentally determined.
    */
   private static final int MAX_HASH_BUCKET_LENGTH = 9;
-
-  // See CompactHashMap for a detailed description of how the following fields work. That
-  // description talks about `keys`, `values`, and `entries`; here the `keys` and `values` arrays
-  // are replaced by a single `elements` array but everything else works similarly.
 
   /**
    * The hashtable object. This can be either:
@@ -164,7 +155,7 @@ class CompactHashSet<E extends @Nullable Object> extends AbstractSet<E> implemen
    *   <li>null, if no entries have yet been added to the map
    * </ul>
    */
-  @CheckForNull private transient Object table;
+  @Nullable private transient Object table;
 
   /**
    * Contains the logical entries, in the range of [0, size()). The high bits of each int are the
@@ -174,20 +165,20 @@ class CompactHashSet<E extends @Nullable Object> extends AbstractSet<E> implemen
    *
    * <pre>
    * hash  = aaaaaaaa
-   * mask  = 00000fff
-   * next  = 00000bbb
-   * entry = aaaaabbb
+   * mask  = 0000ffff
+   * next  = 0000bbbb
+   * entry = aaaabbbb
    * </pre>
    *
    * <p>The pointers in [size(), entries.length) are all "null" (UNSET).
    */
-  @CheckForNull private transient int[] entries;
+  private transient int @Nullable [] entries;
 
   /**
    * The elements contained in the set, in the range of [0, size()). The elements in [size(),
    * elements.length) are all {@code null}.
    */
-  @VisibleForTesting @CheckForNull transient @Nullable Object[] elements;
+  @VisibleForTesting transient Object @Nullable [] elements;
 
   /**
    * Keeps track of metadata like the number of hash table bits and modifications of this data
@@ -246,7 +237,7 @@ class CompactHashSet<E extends @Nullable Object> extends AbstractSet<E> implemen
 
   @SuppressWarnings("unchecked")
   @VisibleForTesting
-  @CheckForNull
+  @Nullable
   Set<E> delegateOrNull() {
     if (table instanceof Set) {
       return (Set<E>) table;
@@ -258,12 +249,13 @@ class CompactHashSet<E extends @Nullable Object> extends AbstractSet<E> implemen
     return new LinkedHashSet<>(tableSize, 1.0f);
   }
 
+  @SuppressWarnings("unchecked")
   @VisibleForTesting
   @CanIgnoreReturnValue
   Set<E> convertToHashFloodingResistantImplementation() {
     Set<E> newDelegate = createHashFloodingResistantDelegate(hashTableMask() + 1);
     for (int i = firstEntryIndex(); i >= 0; i = getSuccessor(i)) {
-      newDelegate.add(element(i));
+      newDelegate.add((E) elements[i]);
     }
     this.table = newDelegate;
     this.entries = null;
@@ -295,29 +287,29 @@ class CompactHashSet<E extends @Nullable Object> extends AbstractSet<E> implemen
 
   @CanIgnoreReturnValue
   @Override
-  public boolean add(@ParametricNullness E object) {
+  public boolean add(@Nullable E object) {
     if (needsAllocArrays()) {
       allocArrays();
     }
-    Set<E> delegate = delegateOrNull();
+    @Nullable Set<E> delegate = delegateOrNull();
     if (delegate != null) {
       return delegate.add(object);
     }
-    int[] entries = requireEntries();
-    @Nullable Object[] elements = requireElements();
+    int[] entries = this.entries;
+    Object[] elements = this.elements;
 
     int newEntryIndex = this.size; // current size, and pointer to the entry to be appended
     int newSize = newEntryIndex + 1;
     int hash = smearedHash(object);
     int mask = hashTableMask();
     int tableIndex = hash & mask;
-    int next = CompactHashing.tableGet(requireTable(), tableIndex);
+    int next = CompactHashing.tableGet(table, tableIndex);
     if (next == UNSET) { // uninitialized bucket
       if (newSize > mask) {
         // Resize and add new entry
         mask = resizeTable(mask, CompactHashing.newCapacity(mask), hash, newEntryIndex);
       } else {
-        CompactHashing.tableSet(requireTable(), tableIndex, newEntryIndex + 1);
+        CompactHashing.tableSet(table, tableIndex, newEntryIndex + 1);
       }
     } else {
       int entryIndex;
@@ -356,14 +348,14 @@ class CompactHashSet<E extends @Nullable Object> extends AbstractSet<E> implemen
   /**
    * Creates a fresh entry with the specified object at the specified position in the entry arrays.
    */
-  void insertEntry(int entryIndex, @ParametricNullness E object, int hash, int mask) {
-    setEntry(entryIndex, CompactHashing.maskCombine(hash, UNSET, mask));
-    setElement(entryIndex, object);
+  void insertEntry(int entryIndex, @Nullable E object, int hash, int mask) {
+    this.entries[entryIndex] = CompactHashing.maskCombine(hash, UNSET, mask);
+    this.elements[entryIndex] = object;
   }
 
   /** Resizes the entries storage if necessary. */
   private void resizeMeMaybe(int newSize) {
-    int entriesSize = requireEntries().length;
+    int entriesSize = entries.length;
     if (newSize > entriesSize) {
       // 1.5x but round up to nearest odd (this is optimal for memory consumption on Android)
       int newCapacity =
@@ -379,12 +371,12 @@ class CompactHashSet<E extends @Nullable Object> extends AbstractSet<E> implemen
    * the current capacity.
    */
   void resizeEntries(int newCapacity) {
-    this.entries = Arrays.copyOf(requireEntries(), newCapacity);
-    this.elements = Arrays.copyOf(requireElements(), newCapacity);
+    this.entries = Arrays.copyOf(entries, newCapacity);
+    this.elements = Arrays.copyOf(elements, newCapacity);
   }
 
   @CanIgnoreReturnValue
-  private int resizeTable(int oldMask, int newCapacity, int targetHash, int targetEntryIndex) {
+  private int resizeTable(int mask, int newCapacity, int targetHash, int targetEntryIndex) {
     Object newTable = CompactHashing.createTable(newCapacity);
     int newMask = newCapacity - 1;
 
@@ -393,25 +385,25 @@ class CompactHashSet<E extends @Nullable Object> extends AbstractSet<E> implemen
       CompactHashing.tableSet(newTable, targetHash & newMask, targetEntryIndex + 1);
     }
 
-    Object oldTable = requireTable();
-    int[] entries = requireEntries();
+    Object table = this.table;
+    int[] entries = this.entries;
 
     // Loop over current hashtable
-    for (int oldTableIndex = 0; oldTableIndex <= oldMask; oldTableIndex++) {
-      int oldNext = CompactHashing.tableGet(oldTable, oldTableIndex);
-      while (oldNext != UNSET) {
-        int entryIndex = oldNext - 1;
-        int oldEntry = entries[entryIndex];
+    for (int tableIndex = 0; tableIndex <= mask; tableIndex++) {
+      int next = CompactHashing.tableGet(table, tableIndex);
+      while (next != UNSET) {
+        int entryIndex = next - 1;
+        int entry = entries[entryIndex];
 
         // Rebuild hash using entry hashPrefix and tableIndex ("hashSuffix")
-        int hash = CompactHashing.getHashPrefix(oldEntry, oldMask) | oldTableIndex;
+        int hash = CompactHashing.getHashPrefix(entry, mask) | tableIndex;
 
         int newTableIndex = hash & newMask;
         int newNext = CompactHashing.tableGet(newTable, newTableIndex);
-        CompactHashing.tableSet(newTable, newTableIndex, oldNext);
+        CompactHashing.tableSet(newTable, newTableIndex, next);
         entries[entryIndex] = CompactHashing.maskCombine(hash, newNext, newMask);
 
-        oldNext = CompactHashing.getNext(oldEntry, oldMask);
+        next = CompactHashing.getNext(entry, mask);
       }
     }
 
@@ -421,26 +413,26 @@ class CompactHashSet<E extends @Nullable Object> extends AbstractSet<E> implemen
   }
 
   @Override
-  public boolean contains(@CheckForNull Object object) {
+  public boolean contains(@Nullable Object object) {
     if (needsAllocArrays()) {
       return false;
     }
-    Set<E> delegate = delegateOrNull();
+    @Nullable Set<E> delegate = delegateOrNull();
     if (delegate != null) {
       return delegate.contains(object);
     }
     int hash = smearedHash(object);
     int mask = hashTableMask();
-    int next = CompactHashing.tableGet(requireTable(), hash & mask);
+    int next = CompactHashing.tableGet(table, hash & mask);
     if (next == UNSET) {
       return false;
     }
     int hashPrefix = CompactHashing.getHashPrefix(hash, mask);
     do {
       int entryIndex = next - 1;
-      int entry = entry(entryIndex);
+      int entry = entries[entryIndex];
       if (CompactHashing.getHashPrefix(entry, mask) == hashPrefix
-          && Objects.equal(object, element(entryIndex))) {
+          && Objects.equal(object, elements[entryIndex])) {
         return true;
       }
       next = CompactHashing.getNext(entry, mask);
@@ -450,24 +442,18 @@ class CompactHashSet<E extends @Nullable Object> extends AbstractSet<E> implemen
 
   @CanIgnoreReturnValue
   @Override
-  public boolean remove(@CheckForNull Object object) {
+  public boolean remove(@Nullable Object object) {
     if (needsAllocArrays()) {
       return false;
     }
-    Set<E> delegate = delegateOrNull();
+    @Nullable Set<E> delegate = delegateOrNull();
     if (delegate != null) {
       return delegate.remove(object);
     }
     int mask = hashTableMask();
     int index =
         CompactHashing.remove(
-            object,
-            /* value= */ null,
-            mask,
-            requireTable(),
-            requireEntries(),
-            requireElements(),
-            /* values= */ null);
+            object, /* value= */ null, mask, table, entries, elements, /* values= */ null);
     if (index == -1) {
       return false;
     }
@@ -483,13 +469,10 @@ class CompactHashSet<E extends @Nullable Object> extends AbstractSet<E> implemen
    * Moves the last entry in the entry array into {@code dstIndex}, and nulls out its old position.
    */
   void moveLastEntry(int dstIndex, int mask) {
-    Object table = requireTable();
-    int[] entries = requireEntries();
-    @Nullable Object[] elements = requireElements();
     int srcIndex = size() - 1;
     if (dstIndex < srcIndex) {
       // move last entry to deleted spot
-      Object object = elements[srcIndex];
+      @Nullable Object object = elements[srcIndex];
       elements[dstIndex] = object;
       elements[srcIndex] = null;
 
@@ -541,7 +524,7 @@ class CompactHashSet<E extends @Nullable Object> extends AbstractSet<E> implemen
 
   @Override
   public Iterator<E> iterator() {
-    Set<E> delegate = delegateOrNull();
+    @Nullable Set<E> delegate = delegateOrNull();
     if (delegate != null) {
       return delegate.iterator();
     }
@@ -555,15 +538,15 @@ class CompactHashSet<E extends @Nullable Object> extends AbstractSet<E> implemen
         return currentIndex >= 0;
       }
 
+      @SuppressWarnings("unchecked") // known to be Es
       @Override
-      @ParametricNullness
       public E next() {
         checkForConcurrentModification();
         if (!hasNext()) {
           throw new NoSuchElementException();
         }
         indexToRemove = currentIndex;
-        E result = element(currentIndex);
+        E result = (E) elements[currentIndex];
         currentIndex = getSuccessor(currentIndex);
         return result;
       }
@@ -573,7 +556,7 @@ class CompactHashSet<E extends @Nullable Object> extends AbstractSet<E> implemen
         checkForConcurrentModification();
         checkRemove(indexToRemove >= 0);
         incrementExpectedModCount();
-        CompactHashSet.this.remove(element(indexToRemove));
+        CompactHashSet.this.remove(elements[indexToRemove]);
         currentIndex = adjustAfterRemove(currentIndex, indexToRemove);
         indexToRemove = -1;
       }
@@ -595,29 +578,29 @@ class CompactHashSet<E extends @Nullable Object> extends AbstractSet<E> implemen
     if (needsAllocArrays()) {
       return Spliterators.spliterator(new Object[0], Spliterator.DISTINCT | Spliterator.ORDERED);
     }
-    Set<E> delegate = delegateOrNull();
+    @Nullable Set<E> delegate = delegateOrNull();
     return (delegate != null)
         ? delegate.spliterator()
-        : Spliterators.spliterator(
-            requireElements(), 0, size, Spliterator.DISTINCT | Spliterator.ORDERED);
+        : Spliterators.spliterator(elements, 0, size, Spliterator.DISTINCT | Spliterator.ORDERED);
   }
 
+  @SuppressWarnings("unchecked") // known to be Es
   @Override
   public void forEach(Consumer<? super E> action) {
     checkNotNull(action);
-    Set<E> delegate = delegateOrNull();
+    @Nullable Set<E> delegate = delegateOrNull();
     if (delegate != null) {
       delegate.forEach(action);
     } else {
       for (int i = firstEntryIndex(); i >= 0; i = getSuccessor(i)) {
-        action.accept(element(i));
+        action.accept((E) elements[i]);
       }
     }
   }
 
   @Override
   public int size() {
-    Set<E> delegate = delegateOrNull();
+    @Nullable Set<E> delegate = delegateOrNull();
     return (delegate != null) ? delegate.size() : size;
   }
 
@@ -627,28 +610,27 @@ class CompactHashSet<E extends @Nullable Object> extends AbstractSet<E> implemen
   }
 
   @Override
-  public @Nullable Object[] toArray() {
+  public Object[] toArray() {
     if (needsAllocArrays()) {
       return new Object[0];
     }
-    Set<E> delegate = delegateOrNull();
-    return (delegate != null) ? delegate.toArray() : Arrays.copyOf(requireElements(), size);
+    @Nullable Set<E> delegate = delegateOrNull();
+    return (delegate != null) ? delegate.toArray() : Arrays.copyOf(elements, size);
   }
 
   @CanIgnoreReturnValue
   @Override
-  @SuppressWarnings("nullness") // b/192354773 in our checker affects toArray declarations
-  public <T extends @Nullable Object> T[] toArray(T[] a) {
+  public <T> T[] toArray(T[] a) {
     if (needsAllocArrays()) {
       if (a.length > 0) {
         a[0] = null;
       }
       return a;
     }
-    Set<E> delegate = delegateOrNull();
+    @Nullable Set<E> delegate = delegateOrNull();
     return (delegate != null)
         ? delegate.toArray(a)
-        : ObjectArrays.toArrayImpl(requireElements(), 0, size, a);
+        : ObjectArrays.toArrayImpl(elements, 0, size, a);
   }
 
   /**
@@ -659,7 +641,7 @@ class CompactHashSet<E extends @Nullable Object> extends AbstractSet<E> implemen
     if (needsAllocArrays()) {
       return;
     }
-    Set<E> delegate = delegateOrNull();
+    @Nullable Set<E> delegate = delegateOrNull();
     if (delegate != null) {
       Set<E> newDelegate = createHashFloodingResistantDelegate(size());
       newDelegate.addAll(delegate);
@@ -667,7 +649,7 @@ class CompactHashSet<E extends @Nullable Object> extends AbstractSet<E> implemen
       return;
     }
     int size = this.size;
-    if (size < requireEntries().length) {
+    if (size < entries.length) {
       resizeEntries(size);
     }
     int minimumTableSize = CompactHashing.tableSize(size);
@@ -683,7 +665,7 @@ class CompactHashSet<E extends @Nullable Object> extends AbstractSet<E> implemen
       return;
     }
     incrementModCount();
-    Set<E> delegate = delegateOrNull();
+    @Nullable Set<E> delegate = delegateOrNull();
     if (delegate != null) {
       metadata =
           Ints.constrainToRange(size(), CompactHashing.DEFAULT_SIZE, CompactHashing.MAX_SIZE);
@@ -691,9 +673,9 @@ class CompactHashSet<E extends @Nullable Object> extends AbstractSet<E> implemen
       table = null;
       size = 0;
     } else {
-      Arrays.fill(requireElements(), 0, size, null);
-      CompactHashing.tableClear(requireTable());
-      Arrays.fill(requireEntries(), 0, size, 0);
+      Arrays.fill(elements, 0, size, null);
+      CompactHashing.tableClear(table);
+      Arrays.fill(entries, 0, size, 0);
       this.size = 0;
     }
   }
@@ -718,39 +700,5 @@ class CompactHashSet<E extends @Nullable Object> extends AbstractSet<E> implemen
       E element = (E) stream.readObject();
       add(element);
     }
-  }
-
-  /*
-   * For discussion of the safety of the following methods, see the comments near the end of
-   * CompactHashMap.
-   */
-
-  private Object requireTable() {
-    return requireNonNull(table);
-  }
-
-  private int[] requireEntries() {
-    return requireNonNull(entries);
-  }
-
-  private @Nullable Object[] requireElements() {
-    return requireNonNull(elements);
-  }
-
-  @SuppressWarnings("unchecked")
-  private E element(int i) {
-    return (E) requireElements()[i];
-  }
-
-  private int entry(int i) {
-    return requireEntries()[i];
-  }
-
-  private void setElement(int i, E value) {
-    requireElements()[i] = value;
-  }
-
-  private void setEntry(int i, int value) {
-    requireEntries()[i] = value;
   }
 }

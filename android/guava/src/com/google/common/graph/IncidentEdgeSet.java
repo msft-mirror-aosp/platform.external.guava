@@ -18,16 +18,15 @@ package com.google.common.graph;
 
 import java.util.AbstractSet;
 import java.util.Set;
-import javax.annotation.CheckForNull;
+import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 
 /**
  * Abstract base class for an incident edges set that allows different implementations of {@link
  * AbstractSet#iterator()}.
  */
-@ElementTypesAreNonnullByDefault
 abstract class IncidentEdgeSet<N> extends AbstractSet<EndpointPair<N>> {
-  final N node;
-  final BaseGraph<N> graph;
+  protected final N node;
+  protected final BaseGraph<N> graph;
 
   IncidentEdgeSet(BaseGraph<N> graph, N node) {
     this.graph = graph;
@@ -35,7 +34,7 @@ abstract class IncidentEdgeSet<N> extends AbstractSet<EndpointPair<N>> {
   }
 
   @Override
-  public boolean remove(@CheckForNull Object o) {
+  public boolean remove(Object o) {
     throw new UnsupportedOperationException();
   }
 
@@ -51,7 +50,7 @@ abstract class IncidentEdgeSet<N> extends AbstractSet<EndpointPair<N>> {
   }
 
   @Override
-  public boolean contains(@CheckForNull Object obj) {
+  public boolean contains(@NullableDecl Object obj) {
     if (!(obj instanceof EndpointPair)) {
       return false;
     }
