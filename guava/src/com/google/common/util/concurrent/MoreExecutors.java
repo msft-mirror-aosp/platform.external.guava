@@ -51,7 +51,6 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * Factory and utility methods for {@link java.util.concurrent.Executor}, {@link ExecutorService},
@@ -63,7 +62,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * @since 3.0
  */
 @GwtCompatible(emulated = true)
-@ElementTypesAreNonnullByDefault
 public final class MoreExecutors {
   private MoreExecutors() {}
 
@@ -455,12 +453,6 @@ public final class MoreExecutors {
    *       (In simple cases, callers can avoid this by registering all tasks with the same {@link
    *       MoreExecutors#newSequentialExecutor} wrapper around {@code directExecutor()}. More
    *       complex cases may require using thread pools or making deeper changes.)
-   *   <li>If an exception propagates out of a {@code Runnable}, it is not necessarily seen by any
-   *       {@code UncaughtExceptionHandler} for the thread. For example, if the callback passed to
-   *       {@link Futures#addCallback} throws an exception, that exception will be typically be
-   *       logged by the {@link ListenableFuture} implementation, even if the thread is configured
-   *       to do something different. In other cases, no code will catch the exception, and it may
-   *       terminate whichever thread happens to trigger the execution.
    * </ul>
    *
    * Additionally, beware of executing tasks with {@code directExecutor} while holding a lock. Since
@@ -479,6 +471,7 @@ public final class MoreExecutors {
    *
    * <p>This should be preferred to {@link #newDirectExecutorService()} because implementing the
    * {@link ExecutorService} subinterface necessitates significant performance overhead.
+   *
    *
    * @since 18.0
    */
@@ -618,11 +611,6 @@ public final class MoreExecutors {
     public final void execute(Runnable command) {
       delegate.execute(command);
     }
-
-    @Override
-    public final String toString() {
-      return super.toString() + "[" + delegate + "]";
-    }
   }
 
   @GwtIncompatible // TODO
@@ -638,14 +626,13 @@ public final class MoreExecutors {
 
     @Override
     public ListenableScheduledFuture<?> schedule(Runnable command, long delay, TimeUnit unit) {
-      TrustedListenableFutureTask<@Nullable Void> task =
-          TrustedListenableFutureTask.create(command, null);
+      TrustedListenableFutureTask<Void> task = TrustedListenableFutureTask.create(command, null);
       ScheduledFuture<?> scheduled = delegate.schedule(task, delay, unit);
-      return new ListenableScheduledTask<@Nullable Void>(task, scheduled);
+      return new ListenableScheduledTask<>(task, scheduled);
     }
 
     @Override
-    public <V extends @Nullable Object> ListenableScheduledFuture<V> schedule(
+    public <V> ListenableScheduledFuture<V> schedule(
         Callable<V> callable, long delay, TimeUnit unit) {
       TrustedListenableFutureTask<V> task = TrustedListenableFutureTask.create(callable);
       ScheduledFuture<?> scheduled = delegate.schedule(task, delay, unit);
@@ -657,7 +644,7 @@ public final class MoreExecutors {
         Runnable command, long initialDelay, long period, TimeUnit unit) {
       NeverSuccessfulListenableFutureTask task = new NeverSuccessfulListenableFutureTask(command);
       ScheduledFuture<?> scheduled = delegate.scheduleAtFixedRate(task, initialDelay, period, unit);
-      return new ListenableScheduledTask<@Nullable Void>(task, scheduled);
+      return new ListenableScheduledTask<>(task, scheduled);
     }
 
     @Override
@@ -666,10 +653,10 @@ public final class MoreExecutors {
       NeverSuccessfulListenableFutureTask task = new NeverSuccessfulListenableFutureTask(command);
       ScheduledFuture<?> scheduled =
           delegate.scheduleWithFixedDelay(task, initialDelay, delay, unit);
-      return new ListenableScheduledTask<@Nullable Void>(task, scheduled);
+      return new ListenableScheduledTask<>(task, scheduled);
     }
 
-    private static final class ListenableScheduledTask<V extends @Nullable Object>
+    private static final class ListenableScheduledTask<V>
         extends SimpleForwardingListenableFuture<V> implements ListenableScheduledFuture<V> {
 
       private final ScheduledFuture<?> scheduledDelegate;
@@ -705,7 +692,7 @@ public final class MoreExecutors {
 
     @GwtIncompatible // TODO
     private static final class NeverSuccessfulListenableFutureTask
-        extends AbstractFuture.TrustedFuture<@Nullable Void> implements Runnable {
+        extends AbstractFuture.TrustedFuture<Void> implements Runnable {
       private final Runnable delegate;
 
       public NeverSuccessfulListenableFutureTask(Runnable delegate) {
@@ -720,11 +707,6 @@ public final class MoreExecutors {
           setException(t);
           throw Throwables.propagate(t);
         }
-      }
-
-      @Override
-      protected String pendingToString() {
-        return "task=[" + delegate + "]";
       }
     }
   }
@@ -744,9 +726,7 @@ public final class MoreExecutors {
    * An implementation of {@link ExecutorService#invokeAny} for {@link ListeningExecutorService}
    * implementations.
    */
-  @GwtIncompatible
-  @ParametricNullness
-  static <T extends @Nullable Object> T invokeAnyImpl(
+  @GwtIncompatible static <T> T invokeAnyImpl(
       ListeningExecutorService executorService,
       Collection<? extends Callable<T>> tasks,
       boolean timed,
@@ -761,9 +741,7 @@ public final class MoreExecutors {
    * implementations.
    */
   @SuppressWarnings("GoodTime") // should accept a java.time.Duration
-  @GwtIncompatible
-  @ParametricNullness
-  static <T extends @Nullable Object> T invokeAnyImpl(
+  @GwtIncompatible static <T> T invokeAnyImpl(
       ListeningExecutorService executorService,
       Collection<? extends Callable<T>> tasks,
       boolean timed,
@@ -843,7 +821,7 @@ public final class MoreExecutors {
    * Submits the task and adds a listener that adds the future to {@code queue} when it completes.
    */
   @GwtIncompatible // TODO
-  private static <T extends @Nullable Object> ListenableFuture<T> submitAndAddQueueListener(
+  private static <T> ListenableFuture<T> submitAndAddQueueListener(
       ListeningExecutorService executorService,
       Callable<T> task,
       final BlockingQueue<Future<T>> queue) {
@@ -955,6 +933,7 @@ public final class MoreExecutors {
    * right before each task is run. The renaming is best effort, if a {@link SecurityManager}
    * prevents the renaming then it will be skipped but the tasks will still execute.
    *
+   *
    * @param executor The executor to decorate
    * @param nameSupplier The source of names for each task
    */
@@ -978,6 +957,7 @@ public final class MoreExecutors {
    * right before each task is run. The renaming is best effort, if a {@link SecurityManager}
    * prevents the renaming then it will be skipped but the tasks will still execute.
    *
+   *
    * @param service The executor to decorate
    * @param nameSupplier The source of names for each task
    */
@@ -988,7 +968,7 @@ public final class MoreExecutors {
     checkNotNull(nameSupplier);
     return new WrappingExecutorService(service) {
       @Override
-      protected <T extends @Nullable Object> Callable<T> wrapTask(Callable<T> callable) {
+      protected <T> Callable<T> wrapTask(Callable<T> callable) {
         return Callables.threadRenaming(callable, nameSupplier);
       }
 
@@ -1007,6 +987,7 @@ public final class MoreExecutors {
    * right before each task is run. The renaming is best effort, if a {@link SecurityManager}
    * prevents the renaming then it will be skipped but the tasks will still execute.
    *
+   *
    * @param service The executor to decorate
    * @param nameSupplier The source of names for each task
    */
@@ -1017,7 +998,7 @@ public final class MoreExecutors {
     checkNotNull(nameSupplier);
     return new WrappingScheduledExecutorService(service) {
       @Override
-      protected <T extends @Nullable Object> Callable<T> wrapTask(Callable<T> callable) {
+      protected <T> Callable<T> wrapTask(Callable<T> callable) {
         return Callables.threadRenaming(callable, nameSupplier);
       }
 

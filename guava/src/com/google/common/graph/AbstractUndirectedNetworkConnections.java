@@ -18,12 +18,10 @@ package com.google.common.graph;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-import static java.util.Objects.requireNonNull;
 
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
-import javax.annotation.CheckForNull;
 
 /**
  * A base implementation of {@link NetworkConnections} for undirected networks.
@@ -32,12 +30,11 @@ import javax.annotation.CheckForNull;
  * @param <N> Node parameter type
  * @param <E> Edge parameter type
  */
-@ElementTypesAreNonnullByDefault
 abstract class AbstractUndirectedNetworkConnections<N, E> implements NetworkConnections<N, E> {
   /** Keys are edges incident to the origin node, values are the node at the other end. */
-  final Map<E, N> incidentEdgeMap;
+  protected final Map<E, N> incidentEdgeMap;
 
-  AbstractUndirectedNetworkConnections(Map<E, N> incidentEdgeMap) {
+  protected AbstractUndirectedNetworkConnections(Map<E, N> incidentEdgeMap) {
     this.incidentEdgeMap = checkNotNull(incidentEdgeMap);
   }
 
@@ -68,12 +65,10 @@ abstract class AbstractUndirectedNetworkConnections<N, E> implements NetworkConn
 
   @Override
   public N adjacentNode(E edge) {
-    // We're relying on callers to call this method only with an edge that's in the graph.
-    return requireNonNull(incidentEdgeMap.get(edge));
+    return checkNotNull(incidentEdgeMap.get(edge));
   }
 
   @Override
-  @CheckForNull
   public N removeInEdge(E edge, boolean isSelfLoop) {
     if (!isSelfLoop) {
       return removeOutEdge(edge);
@@ -84,8 +79,7 @@ abstract class AbstractUndirectedNetworkConnections<N, E> implements NetworkConn
   @Override
   public N removeOutEdge(E edge) {
     N previousNode = incidentEdgeMap.remove(edge);
-    // We're relying on callers to call this method only with an edge that's in the graph.
-    return requireNonNull(previousNode);
+    return checkNotNull(previousNode);
   }
 
   @Override

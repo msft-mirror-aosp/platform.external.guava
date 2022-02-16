@@ -97,12 +97,8 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * @author Bob Lee ({@code com.google.common.collect.MapMaker})
  * @author Doug Lea ({@code ConcurrentHashMap})
  */
-@SuppressWarnings({
-  "GoodTime", // lots of violations (nanosecond math)
-  "nullness", // too much trouble for the payoff
-})
+@SuppressWarnings("GoodTime") // lots of violations (nanosecond math)
 @GwtCompatible(emulated = true)
-// TODO(cpovirk): Annotate for nullness.
 class LocalCache<K, V> extends AbstractMap<K, V> implements ConcurrentMap<K, V> {
 
   /*
@@ -2192,7 +2188,7 @@ class LocalCache<K, V> extends AbstractMap<K, V> implements ConcurrentMap<K, V> 
     V compute(K key, int hash, BiFunction<? super K, ? super V, ? extends V> function) {
       ReferenceEntry<K, V> e;
       ValueReference<K, V> valueReference = null;
-      ComputingValueReference<K, V> computingValueReference = null;
+      LoadingValueReference<K, V> loadingValueReference = null;
       boolean createNewEntry = true;
       V newValue;
 
@@ -2233,33 +2229,33 @@ class LocalCache<K, V> extends AbstractMap<K, V> implements ConcurrentMap<K, V> 
 
         // note valueReference can be an existing value or even itself another loading value if
         // the value for the key is already being computed.
-        computingValueReference = new ComputingValueReference<>(valueReference);
+        loadingValueReference = new LoadingValueReference<>(valueReference);
 
         if (e == null) {
           createNewEntry = true;
           e = newEntry(key, hash, first);
-          e.setValueReference(computingValueReference);
+          e.setValueReference(loadingValueReference);
           table.set(index, e);
         } else {
-          e.setValueReference(computingValueReference);
+          e.setValueReference(loadingValueReference);
         }
 
-        newValue = computingValueReference.compute(key, function);
+        newValue = loadingValueReference.compute(key, function);
         if (newValue != null) {
           if (valueReference != null && newValue == valueReference.get()) {
-            computingValueReference.set(newValue);
+            loadingValueReference.set(newValue);
             e.setValueReference(valueReference);
             recordWrite(e, 0, now); // no change in weight
             return newValue;
           }
           try {
             return getAndRecordStats(
-                key, hash, computingValueReference, Futures.immediateFuture(newValue));
+                key, hash, loadingValueReference, Futures.immediateFuture(newValue));
           } catch (ExecutionException exception) {
             throw new AssertionError("impossible; Futures.immediateFuture can't throw");
           }
-        } else if (createNewEntry || valueReference.isLoading()) {
-          removeLoadingValue(key, hash, computingValueReference);
+        } else if (createNewEntry) {
+          removeLoadingValue(key, hash, loadingValueReference);
           return null;
         } else {
           removeEntry(e, hash, RemovalCause.EXPLICIT);
@@ -3607,17 +3603,6 @@ class LocalCache<K, V> extends AbstractMap<K, V> implements ConcurrentMap<K, V> 
     }
   }
 
-  static class ComputingValueReference<K, V> extends LoadingValueReference<K, V> {
-    ComputingValueReference(ValueReference<K, V> oldValue) {
-      super(oldValue);
-    }
-
-    @Override
-    public boolean isLoading() {
-      return false;
-    }
-  }
-
   // Queues
 
   /**
@@ -3942,7 +3927,7 @@ class LocalCache<K, V> extends AbstractMap<K, V> implements ConcurrentMap<K, V> 
     Segment<K, V>[] segments = this.segments;
     long sum = 0;
     for (int i = 0; i < segments.length; ++i) {
-      sum += segments[i].count;
+      sum += Math.max(0, segments[i].count); // see https://github.com/google/guava/issues/2108
     }
     return sum;
   }

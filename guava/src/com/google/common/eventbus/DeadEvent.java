@@ -16,6 +16,7 @@ package com.google.common.eventbus;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.annotations.Beta;
 import com.google.common.base.MoreObjects;
 
 /**
@@ -27,7 +28,7 @@ import com.google.common.base.MoreObjects;
  * @author Cliff Biffle
  * @since 10.0
  */
-@ElementTypesAreNonnullByDefault
+@Beta
 public class DeadEvent {
 
   private final Object source;

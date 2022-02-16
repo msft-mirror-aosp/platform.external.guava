@@ -26,7 +26,6 @@ import java.io.ObjectOutputStream;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * Implementation of {@link Multimap} using hash tables.
@@ -42,16 +41,11 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * concurrent update operations, wrap your multimap with a call to {@link
  * Multimaps#synchronizedSetMultimap}.
  *
- * <p><b>Warning:</b> Do not modify either a key <i>or a value</i> of a {@code HashMultimap} in a
- * way that affects its {@link Object#equals} behavior. Undefined behavior and bugs will result.
- *
  * @author Jared Levy
  * @since 2.0
  */
 @GwtCompatible(serializable = true, emulated = true)
-@ElementTypesAreNonnullByDefault
-public final class HashMultimap<K extends @Nullable Object, V extends @Nullable Object>
-    extends HashMultimapGwtSerializationDependencies<K, V> {
+public final class HashMultimap<K, V> extends HashMultimapGwtSerializationDependencies<K, V> {
   private static final int DEFAULT_VALUES_PER_KEY = 2;
 
   @VisibleForTesting transient int expectedValuesPerKey = DEFAULT_VALUES_PER_KEY;
@@ -62,8 +56,7 @@ public final class HashMultimap<K extends @Nullable Object, V extends @Nullable 
    * <p>This method will soon be deprecated in favor of {@code
    * MultimapBuilder.hashKeys().hashSetValues().build()}.
    */
-  public static <K extends @Nullable Object, V extends @Nullable Object>
-      HashMultimap<K, V> create() {
+  public static <K, V> HashMultimap<K, V> create() {
     return new HashMultimap<>();
   }
 
@@ -79,8 +72,7 @@ public final class HashMultimap<K extends @Nullable Object, V extends @Nullable 
    * @throws IllegalArgumentException if {@code expectedKeys} or {@code expectedValuesPerKey} is
    *     negative
    */
-  public static <K extends @Nullable Object, V extends @Nullable Object> HashMultimap<K, V> create(
-      int expectedKeys, int expectedValuesPerKey) {
+  public static <K, V> HashMultimap<K, V> create(int expectedKeys, int expectedValuesPerKey) {
     return new HashMultimap<>(expectedKeys, expectedValuesPerKey);
   }
 
@@ -94,8 +86,7 @@ public final class HashMultimap<K extends @Nullable Object, V extends @Nullable 
    *
    * @param multimap the multimap whose contents are copied to this multimap
    */
-  public static <K extends @Nullable Object, V extends @Nullable Object> HashMultimap<K, V> create(
-      Multimap<? extends K, ? extends V> multimap) {
+  public static <K, V> HashMultimap<K, V> create(Multimap<? extends K, ? extends V> multimap) {
     return new HashMultimap<>(multimap);
   }
 

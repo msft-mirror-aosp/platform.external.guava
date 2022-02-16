@@ -22,7 +22,6 @@ import com.google.common.annotations.GwtIncompatible;
  * java.util.ServiceLoader} mechanism.
  */
 @GwtIncompatible
-@ElementTypesAreNonnullByDefault
 interface PatternCompiler {
   /**
    * Compiles the given pattern.

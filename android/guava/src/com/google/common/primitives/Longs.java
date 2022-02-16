@@ -30,7 +30,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.RandomAccess;
-import javax.annotation.CheckForNull;
+import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 
 /**
  * Static utility methods pertaining to {@code long} primitives, that are not already found in
@@ -43,7 +43,6 @@ import javax.annotation.CheckForNull;
  * @since 1.0
  */
 @GwtCompatible
-@ElementTypesAreNonnullByDefault
 public final class Longs {
   private Longs() {}
 
@@ -362,7 +361,7 @@ public final class Longs {
    * @since 14.0
    */
   @Beta
-  @CheckForNull
+  @NullableDecl
   public static Long tryParse(String string) {
     return tryParse(string, 10);
   }
@@ -388,7 +387,7 @@ public final class Longs {
    * @since 19.0
    */
   @Beta
-  @CheckForNull
+  @NullableDecl
   public static Long tryParse(String string, int radix) {
     if (checkNotNull(string).isEmpty()) {
       return null;
@@ -690,13 +689,13 @@ public final class Longs {
     }
 
     @Override
-    public boolean contains(@CheckForNull Object target) {
+    public boolean contains(Object target) {
       // Overridden to prevent a ton of boxing
       return (target instanceof Long) && Longs.indexOf(array, (Long) target, start, end) != -1;
     }
 
     @Override
-    public int indexOf(@CheckForNull Object target) {
+    public int indexOf(Object target) {
       // Overridden to prevent a ton of boxing
       if (target instanceof Long) {
         int i = Longs.indexOf(array, (Long) target, start, end);
@@ -708,7 +707,7 @@ public final class Longs {
     }
 
     @Override
-    public int lastIndexOf(@CheckForNull Object target) {
+    public int lastIndexOf(Object target) {
       // Overridden to prevent a ton of boxing
       if (target instanceof Long) {
         int i = Longs.lastIndexOf(array, (Long) target, start, end);
@@ -739,7 +738,7 @@ public final class Longs {
     }
 
     @Override
-    public boolean equals(@CheckForNull Object object) {
+    public boolean equals(@NullableDecl Object object) {
       if (object == this) {
         return true;
       }

@@ -94,8 +94,6 @@ public class SortedSetTestSuiteBuilder<E> extends SetTestSuiteBuilder<E> {
         .named(parentBuilder.getName() + " subSet " + from + "-" + to)
         .withFeatures(features)
         .suppressing(parentBuilder.getSuppressedTests())
-        .withSetUp(parentBuilder.getSetUp())
-        .withTearDown(parentBuilder.getTearDown())
         .createTestSuite();
   }
 

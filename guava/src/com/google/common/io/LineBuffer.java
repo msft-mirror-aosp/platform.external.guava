@@ -30,7 +30,6 @@ import java.io.IOException;
  * @since 1.0
  */
 @GwtIncompatible
-@ElementTypesAreNonnullByDefault
 abstract class LineBuffer {
   /** Holds partial line contents. */
   private StringBuilder line = new StringBuilder();
