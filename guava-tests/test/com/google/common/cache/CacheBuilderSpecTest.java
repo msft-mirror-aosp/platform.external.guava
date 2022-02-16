@@ -468,13 +468,11 @@ public class CacheBuilderSpecTest extends TestCase {
         .testEquals();
   }
 
-  @SuppressWarnings("ReturnValueIgnored")
   public void testMaximumWeight_withWeigher() {
     CacheBuilder<Object, Object> builder = CacheBuilder.from(parse("maximumWeight=9000"));
     builder.weigher(constantWeigher(42)).build(CacheLoader.from(Suppliers.ofInstance(null)));
   }
 
-  @SuppressWarnings("ReturnValueIgnored")
   public void testMaximumWeight_withoutWeigher() {
     CacheBuilder<Object, Object> builder = CacheBuilder.from(parse("maximumWeight=9000"));
     try {
@@ -484,13 +482,11 @@ public class CacheBuilderSpecTest extends TestCase {
     }
   }
 
-  @SuppressWarnings("ReturnValueIgnored")
   public void testMaximumSize_withWeigher() {
     CacheBuilder<Object, Object> builder = CacheBuilder.from(parse("maximumSize=9000"));
     builder.weigher(constantWeigher(42)).build(CacheLoader.from(Suppliers.ofInstance(null)));
   }
 
-  @SuppressWarnings("ReturnValueIgnored")
   public void testMaximumSize_withoutWeigher() {
     CacheBuilder<Object, Object> builder = CacheBuilder.from(parse("maximumSize=9000"));
     builder.build(CacheLoader.from(Suppliers.ofInstance(null)));

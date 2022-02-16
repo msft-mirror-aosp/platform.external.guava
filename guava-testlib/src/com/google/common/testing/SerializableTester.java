@@ -29,6 +29,7 @@ import junit.framework.AssertionFailedError;
  * serialization tests require more setup. This no-op behavior allows test authors to intersperse
  * {@code SerializableTester} calls with other, GWT-compatible tests.
  *
+ *
  * @author Mike Bostock
  * @since 10.0
  */

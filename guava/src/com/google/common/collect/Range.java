@@ -27,7 +27,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.SortedSet;
-import javax.annotation.CheckForNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * A range (or "interval") defines the <i>boundaries</i> around a contiguous span of values of some
@@ -117,7 +117,6 @@ import javax.annotation.CheckForNull;
  */
 @GwtCompatible
 @SuppressWarnings("rawtypes")
-@ElementTypesAreNonnullByDefault
 public final class Range<C extends Comparable> extends RangeGwtSerializationDependencies
     implements Predicate<C>, Serializable {
 
@@ -330,7 +329,7 @@ public final class Range<C extends Comparable> extends RangeGwtSerializationDepe
   public static <C extends Comparable<?>> Range<C> encloseAll(Iterable<C> values) {
     checkNotNull(values);
     if (values instanceof SortedSet) {
-      SortedSet<C> set = (SortedSet<C>) values;
+      SortedSet<? extends C> set = cast(values);
       Comparator<?> comparator = set.comparator();
       if (Ordering.natural().equals(comparator) || comparator == null) {
         return closed(set.first(), set.last());
@@ -457,7 +456,7 @@ public final class Range<C extends Comparable> extends RangeGwtSerializationDepe
 
     // this optimizes testing equality of two range-backed sets
     if (values instanceof SortedSet) {
-      SortedSet<? extends C> set = (SortedSet<? extends C>) values;
+      SortedSet<? extends C> set = cast(values);
       Comparator<?> comparator = set.comparator();
       if (Ordering.natural().equals(comparator) || comparator == null) {
         return contains(set.first()) && contains(set.last());
@@ -664,7 +663,7 @@ public final class Range<C extends Comparable> extends RangeGwtSerializationDepe
    * {@code [3..3)}, {@code (3..3]}, {@code (4..4]} are all unequal.
    */
   @Override
-  public boolean equals(@CheckForNull Object object) {
+  public boolean equals(@Nullable Object object) {
     if (object instanceof Range) {
       Range<?> other = (Range<?>) object;
       return lowerBound.equals(other.lowerBound) && upperBound.equals(other.upperBound);
@@ -693,6 +692,11 @@ public final class Range<C extends Comparable> extends RangeGwtSerializationDepe
     sb.append("..");
     upperBound.describeAsUpperBound(sb);
     return sb.toString();
+  }
+
+  /** Used to avoid http://bugs.sun.com/view_bug.do?bug_id=6558557 */
+  private static <T> SortedSet<T> cast(Iterable<T> iterable) {
+    return (SortedSet<T>) iterable;
   }
 
   Object readResolve() {

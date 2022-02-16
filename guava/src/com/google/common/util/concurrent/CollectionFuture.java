@@ -19,34 +19,32 @@ import static java.util.Collections.unmodifiableList;
 
 import com.google.common.annotations.GwtCompatible;
 import com.google.common.collect.ImmutableCollection;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import java.util.Collections;
 import java.util.List;
-import javax.annotation.CheckForNull;
+import java.util.concurrent.Future;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 /** Aggregate future that collects (stores) results of each future. */
 @GwtCompatible(emulated = true)
-@ElementTypesAreNonnullByDefault
-abstract class CollectionFuture<V extends @Nullable Object, C extends @Nullable Object>
-    extends AggregateFuture<V, C> {
+abstract class CollectionFuture<V, C> extends AggregateFuture<V, C> {
   /*
    * We access this field racily but safely. For discussion of a similar situation, see the comments
    * on the fields of TimeoutFuture. This field is slightly different than the fields discussed
    * there: cancel() never reads this field, only writes to it. That makes the race here completely
    * harmless, rather than just 99.99% harmless.
    */
-  @CheckForNull private List<@Nullable Present<V>> values;
+  private List<Present<V>> values;
 
   CollectionFuture(
       ImmutableCollection<? extends ListenableFuture<? extends V>> futures,
       boolean allMustSucceed) {
     super(futures, allMustSucceed, true);
 
-    List<@Nullable Present<V>> values =
+    List<Present<V>> values =
         futures.isEmpty()
-            ? Collections.<@Nullable Present<V>>emptyList()
-            : Lists.<@Nullable Present<V>>newArrayListWithCapacity(futures.size());
+            ? ImmutableList.<Present<V>>of()
+            : Lists.<Present<V>>newArrayListWithCapacity(futures.size());
 
     // Populate the results list with null initially.
     for (int i = 0; i < futures.size(); ++i) {
@@ -57,8 +55,8 @@ abstract class CollectionFuture<V extends @Nullable Object, C extends @Nullable 
   }
 
   @Override
-  final void collectOneValue(int index, @ParametricNullness V returnValue) {
-    List<@Nullable Present<V>> localValues = values;
+  final void collectOneValue(int index, @Nullable V returnValue) {
+    List<Present<V>> localValues = values;
     if (localValues != null) {
       localValues.set(index, new Present<>(returnValue));
     }
@@ -66,7 +64,7 @@ abstract class CollectionFuture<V extends @Nullable Object, C extends @Nullable 
 
   @Override
   final void handleAllCompleted() {
-    List<@Nullable Present<V>> localValues = values;
+    List<Present<V>> localValues = values;
     if (localValues != null) {
       set(combine(localValues));
     }
@@ -78,11 +76,10 @@ abstract class CollectionFuture<V extends @Nullable Object, C extends @Nullable 
     this.values = null;
   }
 
-  abstract C combine(List<@Nullable Present<V>> values);
+  abstract C combine(List<Present<V>> values);
 
   /** Used for {@link Futures#allAsList} and {@link Futures#successfulAsList}. */
-  static final class ListFuture<V extends @Nullable Object>
-      extends CollectionFuture<V, List<@Nullable V>> {
+  static final class ListFuture<V> extends CollectionFuture<V, List<V>> {
     ListFuture(
         ImmutableCollection<? extends ListenableFuture<? extends V>> futures,
         boolean allMustSucceed) {
@@ -91,8 +88,8 @@ abstract class CollectionFuture<V extends @Nullable Object, C extends @Nullable 
     }
 
     @Override
-    public List<@Nullable V> combine(List<@Nullable Present<V>> values) {
-      List<@Nullable V> result = newArrayListWithCapacity(values.size());
+    public List<V> combine(List<Present<V>> values) {
+      List<V> result = newArrayListWithCapacity(values.size());
       for (Present<V> element : values) {
         result.add(element != null ? element.value : null);
       }
@@ -101,7 +98,7 @@ abstract class CollectionFuture<V extends @Nullable Object, C extends @Nullable 
   }
 
   /** The result of a successful {@code Future}. */
-  private static final class Present<V extends @Nullable Object> {
+  private static final class Present<V> {
     V value;
 
     Present(V value) {

@@ -33,7 +33,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * Utilities for treating interruptible operations as uninterruptible. In all cases, if a thread is
@@ -44,7 +43,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * @since 10.0
  */
 @GwtCompatible(emulated = true)
-@ElementTypesAreNonnullByDefault
 public final class Uninterruptibles {
 
   // Implementation Note: As of 3-7-11, the logic for each blocking/timeout
@@ -195,9 +193,7 @@ public final class Uninterruptibles {
    * @throws CancellationException if the computation was cancelled
    */
   @CanIgnoreReturnValue
-  @ParametricNullness
-  public static <V extends @Nullable Object> V getUninterruptibly(Future<V> future)
-      throws ExecutionException {
+  public static <V> V getUninterruptibly(Future<V> future) throws ExecutionException {
     boolean interrupted = false;
     try {
       while (true) {
@@ -235,9 +231,8 @@ public final class Uninterruptibles {
   @CanIgnoreReturnValue
   @GwtIncompatible // TODO
   @SuppressWarnings("GoodTime") // should accept a java.time.Duration
-  @ParametricNullness
-  public static <V extends @Nullable Object> V getUninterruptibly(
-      Future<V> future, long timeout, TimeUnit unit) throws ExecutionException, TimeoutException {
+  public static <V> V getUninterruptibly(Future<V> future, long timeout, TimeUnit unit)
+      throws ExecutionException, TimeoutException {
     boolean interrupted = false;
     try {
       long remainingNanos = unit.toNanos(timeout);

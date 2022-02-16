@@ -34,8 +34,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import javax.annotation.CheckForNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * A TimeLimiter that runs method calls in the background using an {@link ExecutorService}. If the
@@ -47,7 +45,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  */
 @Beta
 @GwtIncompatible
-@ElementTypesAreNonnullByDefault
 public final class SimpleTimeLimiter implements TimeLimiter {
 
   private final ExecutorService executor;
@@ -88,14 +85,11 @@ public final class SimpleTimeLimiter implements TimeLimiter {
     InvocationHandler handler =
         new InvocationHandler() {
           @Override
-          @CheckForNull
-          public Object invoke(
-              Object obj, final Method method, @CheckForNull final @Nullable Object[] args)
+          public Object invoke(Object obj, final Method method, final Object[] args)
               throws Throwable {
-            Callable<@Nullable Object> callable =
-                new Callable<@Nullable Object>() {
+            Callable<Object> callable =
+                new Callable<Object>() {
                   @Override
-                  @CheckForNull
                   public Object call() throws Exception {
                     try {
                       return method.invoke(target, args);
@@ -119,7 +113,7 @@ public final class SimpleTimeLimiter implements TimeLimiter {
     return interfaceType.cast(object);
   }
 
-  private <T extends @Nullable Object> T callWithTimeout(
+  private <T> T callWithTimeout(
       Callable<T> callable, long timeoutDuration, TimeUnit timeoutUnit, boolean amInterruptible)
       throws Exception {
     checkNotNull(callable);
@@ -149,8 +143,7 @@ public final class SimpleTimeLimiter implements TimeLimiter {
 
   @CanIgnoreReturnValue
   @Override
-  public <T extends @Nullable Object> T callWithTimeout(
-      Callable<T> callable, long timeoutDuration, TimeUnit timeoutUnit)
+  public <T> T callWithTimeout(Callable<T> callable, long timeoutDuration, TimeUnit timeoutUnit)
       throws TimeoutException, InterruptedException, ExecutionException {
     checkNotNull(callable);
     checkNotNull(timeoutUnit);
@@ -171,7 +164,7 @@ public final class SimpleTimeLimiter implements TimeLimiter {
 
   @CanIgnoreReturnValue
   @Override
-  public <T extends @Nullable Object> T callUninterruptiblyWithTimeout(
+  public <T> T callUninterruptiblyWithTimeout(
       Callable<T> callable, long timeoutDuration, TimeUnit timeoutUnit)
       throws TimeoutException, ExecutionException {
     checkNotNull(callable);

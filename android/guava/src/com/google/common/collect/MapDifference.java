@@ -19,8 +19,7 @@ package com.google.common.collect;
 import com.google.common.annotations.GwtCompatible;
 import com.google.errorprone.annotations.DoNotMock;
 import java.util.Map;
-import javax.annotation.CheckForNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 
 /**
  * An object representing the differences between two maps.
@@ -30,8 +29,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  */
 @DoNotMock("Use Maps.difference")
 @GwtCompatible
-@ElementTypesAreNonnullByDefault
-public interface MapDifference<K extends @Nullable Object, V extends @Nullable Object> {
+public interface MapDifference<K, V> {
   /**
    * Returns {@code true} if there are no differences between the two maps; that is, if the maps are
    * equal.
@@ -69,7 +67,7 @@ public interface MapDifference<K extends @Nullable Object, V extends @Nullable O
    * #entriesDiffering()} of the two instances are equal.
    */
   @Override
-  boolean equals(@CheckForNull Object object);
+  boolean equals(@NullableDecl Object object);
 
   /**
    * Returns the hash code for this instance. This is defined as the hash code of
@@ -89,13 +87,11 @@ public interface MapDifference<K extends @Nullable Object, V extends @Nullable O
    * @since 2.0
    */
   @DoNotMock("Use Maps.difference")
-  interface ValueDifference<V extends @Nullable Object> {
+  interface ValueDifference<V> {
     /** Returns the value from the left map (possibly null). */
-    @ParametricNullness
     V leftValue();
 
     /** Returns the value from the right map (possibly null). */
-    @ParametricNullness
     V rightValue();
 
     /**
@@ -103,7 +99,7 @@ public interface MapDifference<K extends @Nullable Object, V extends @Nullable O
      * {@link #rightValue()} values are also equal.
      */
     @Override
-    boolean equals(@CheckForNull Object other);
+    boolean equals(@NullableDecl Object other);
 
     /**
      * The hash code equals the value {@code Arrays.asList(leftValue(), rightValue()).hashCode()}.

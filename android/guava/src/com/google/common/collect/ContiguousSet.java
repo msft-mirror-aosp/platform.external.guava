@@ -16,12 +16,10 @@ package com.google.common.collect;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static java.util.Objects.requireNonNull;
 
 import com.google.common.annotations.Beta;
 import com.google.common.annotations.GwtCompatible;
 import com.google.common.annotations.GwtIncompatible;
-import com.google.errorprone.annotations.DoNotCall;
 import java.util.Collections;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -50,7 +48,6 @@ import java.util.Set;
  */
 @GwtCompatible(emulated = true)
 @SuppressWarnings("rawtypes") // allow ungenerified Comparable types
-@ElementTypesAreNonnullByDefault
 public abstract class ContiguousSet<C extends Comparable> extends ImmutableSortedSet<C> {
   /**
    * Returns a {@code ContiguousSet} containing the same values in the given domain {@linkplain
@@ -76,19 +73,13 @@ public abstract class ContiguousSet<C extends Comparable> extends ImmutableSorte
       throw new IllegalArgumentException(e);
     }
 
-    boolean empty;
-    if (effectiveRange.isEmpty()) {
-      empty = true;
-    } else {
-      /*
-       * requireNonNull is safe because the effectiveRange operations above would have thrown or
-       * effectiveRange.isEmpty() would have returned true.
-       */
-      C afterLower = requireNonNull(range.lowerBound.leastValueAbove(domain));
-      C beforeUpper = requireNonNull(range.upperBound.greatestValueBelow(domain));
-      // Per class spec, we are allowed to throw CCE if necessary
-      empty = Range.compareOrThrow(afterLower, beforeUpper) > 0;
-    }
+    // Per class spec, we are allowed to throw CCE if necessary
+    boolean empty =
+        effectiveRange.isEmpty()
+            || Range.compareOrThrow(
+                    range.lowerBound.leastValueAbove(domain),
+                    range.upperBound.greatestValueBelow(domain))
+                > 0;
 
     return empty
         ? new EmptyContiguousSet<C>(domain)
@@ -200,14 +191,15 @@ public abstract class ContiguousSet<C extends Comparable> extends ImmutableSorte
   /*
    * These methods perform most headSet, subSet, and tailSet logic, besides parameter validation.
    */
-  @SuppressWarnings("MissingOverride") // Supermethod does not exist under GWT.
+  // TODO(kevinb): we can probably make these real @Overrides now
+  /* @Override */
   abstract ContiguousSet<C> headSetImpl(C toElement, boolean inclusive);
 
-  @SuppressWarnings("MissingOverride") // Supermethod does not exist under GWT.
+  /* @Override */
   abstract ContiguousSet<C> subSetImpl(
       C fromElement, boolean fromInclusive, C toElement, boolean toInclusive);
 
-  @SuppressWarnings("MissingOverride") // Supermethod does not exist under GWT.
+  /* @Override */
   abstract ContiguousSet<C> tailSetImpl(C fromElement, boolean inclusive);
 
   /**
@@ -260,7 +252,6 @@ public abstract class ContiguousSet<C extends Comparable> extends ImmutableSorte
    * @deprecated Use {@link #create}.
    */
   @Deprecated
-  @DoNotCall("Always throws UnsupportedOperationException")
   public static <E> ImmutableSortedSet.Builder<E> builder() {
     throw new UnsupportedOperationException();
   }
