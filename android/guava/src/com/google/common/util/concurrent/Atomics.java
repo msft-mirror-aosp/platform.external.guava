@@ -17,7 +17,7 @@ package com.google.common.util.concurrent;
 import com.google.common.annotations.GwtIncompatible;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.atomic.AtomicReferenceArray;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 
 /**
  * Static utility methods pertaining to classes in the {@code java.util.concurrent.atomic} package.
@@ -26,7 +26,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * @since 10.0
  */
 @GwtIncompatible
-@ElementTypesAreNonnullByDefault
 public final class Atomics {
   private Atomics() {}
 
@@ -35,8 +34,8 @@ public final class Atomics {
    *
    * @return a new {@code AtomicReference} with no initial value
    */
-  public static <V> AtomicReference<@Nullable V> newReference() {
-    return new AtomicReference<>();
+  public static <V> AtomicReference<V> newReference() {
+    return new AtomicReference<V>();
   }
 
   /**
@@ -45,9 +44,8 @@ public final class Atomics {
    * @param initialValue the initial value
    * @return a new {@code AtomicReference} with the given initial value
    */
-  public static <V extends @Nullable Object> AtomicReference<V> newReference(
-      @ParametricNullness V initialValue) {
-    return new AtomicReference<>(initialValue);
+  public static <V> AtomicReference<V> newReference(@NullableDecl V initialValue) {
+    return new AtomicReference<V>(initialValue);
   }
 
   /**
@@ -56,8 +54,8 @@ public final class Atomics {
    * @param length the length of the array
    * @return a new {@code AtomicReferenceArray} with the given length
    */
-  public static <E> AtomicReferenceArray<@Nullable E> newReferenceArray(int length) {
-    return new AtomicReferenceArray<>(length);
+  public static <E> AtomicReferenceArray<E> newReferenceArray(int length) {
+    return new AtomicReferenceArray<E>(length);
   }
 
   /**
@@ -67,7 +65,7 @@ public final class Atomics {
    * @param array the array to copy elements from
    * @return a new {@code AtomicReferenceArray} copied from the given array
    */
-  public static <E extends @Nullable Object> AtomicReferenceArray<E> newReferenceArray(E[] array) {
-    return new AtomicReferenceArray<>(array);
+  public static <E> AtomicReferenceArray<E> newReferenceArray(E[] array) {
+    return new AtomicReferenceArray<E>(array);
   }
 }

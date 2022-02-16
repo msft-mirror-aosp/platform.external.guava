@@ -22,7 +22,6 @@ import java.nio.Buffer;
  * https://github.com/google/guava/issues/3990
  */
 @GwtIncompatible
-@ElementTypesAreNonnullByDefault
 final class Java8Compatibility {
   static void clear(Buffer b) {
     b.clear();
@@ -36,16 +35,8 @@ final class Java8Compatibility {
     b.limit(limit);
   }
 
-  static void mark(Buffer b) {
-    b.mark();
-  }
-
   static void position(Buffer b, int position) {
     b.position(position);
-  }
-
-  static void reset(Buffer b) {
-    b.reset();
   }
 
   private Java8Compatibility() {}

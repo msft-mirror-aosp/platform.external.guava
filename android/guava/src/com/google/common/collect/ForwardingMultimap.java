@@ -22,8 +22,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import javax.annotation.CheckForNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 
 /**
  * A multimap which forwards all its method calls to another multimap. Subclasses should override
@@ -38,9 +37,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * @since 2.0
  */
 @GwtCompatible
-@ElementTypesAreNonnullByDefault
-public abstract class ForwardingMultimap<K extends @Nullable Object, V extends @Nullable Object>
-    extends ForwardingObject implements Multimap<K, V> {
+public abstract class ForwardingMultimap<K, V> extends ForwardingObject implements Multimap<K, V> {
 
   /** Constructor for use by subclasses. */
   protected ForwardingMultimap() {}
@@ -59,17 +56,17 @@ public abstract class ForwardingMultimap<K extends @Nullable Object, V extends @
   }
 
   @Override
-  public boolean containsEntry(@CheckForNull Object key, @CheckForNull Object value) {
+  public boolean containsEntry(@NullableDecl Object key, @NullableDecl Object value) {
     return delegate().containsEntry(key, value);
   }
 
   @Override
-  public boolean containsKey(@CheckForNull Object key) {
+  public boolean containsKey(@NullableDecl Object key) {
     return delegate().containsKey(key);
   }
 
   @Override
-  public boolean containsValue(@CheckForNull Object value) {
+  public boolean containsValue(@NullableDecl Object value) {
     return delegate().containsValue(value);
   }
 
@@ -79,7 +76,7 @@ public abstract class ForwardingMultimap<K extends @Nullable Object, V extends @
   }
 
   @Override
-  public Collection<V> get(@ParametricNullness K key) {
+  public Collection<V> get(@NullableDecl K key) {
     return delegate().get(key);
   }
 
@@ -100,13 +97,13 @@ public abstract class ForwardingMultimap<K extends @Nullable Object, V extends @
 
   @CanIgnoreReturnValue
   @Override
-  public boolean put(@ParametricNullness K key, @ParametricNullness V value) {
+  public boolean put(K key, V value) {
     return delegate().put(key, value);
   }
 
   @CanIgnoreReturnValue
   @Override
-  public boolean putAll(@ParametricNullness K key, Iterable<? extends V> values) {
+  public boolean putAll(K key, Iterable<? extends V> values) {
     return delegate().putAll(key, values);
   }
 
@@ -118,19 +115,19 @@ public abstract class ForwardingMultimap<K extends @Nullable Object, V extends @
 
   @CanIgnoreReturnValue
   @Override
-  public boolean remove(@CheckForNull Object key, @CheckForNull Object value) {
+  public boolean remove(@NullableDecl Object key, @NullableDecl Object value) {
     return delegate().remove(key, value);
   }
 
   @CanIgnoreReturnValue
   @Override
-  public Collection<V> removeAll(@CheckForNull Object key) {
+  public Collection<V> removeAll(@NullableDecl Object key) {
     return delegate().removeAll(key);
   }
 
   @CanIgnoreReturnValue
   @Override
-  public Collection<V> replaceValues(@ParametricNullness K key, Iterable<? extends V> values) {
+  public Collection<V> replaceValues(K key, Iterable<? extends V> values) {
     return delegate().replaceValues(key, values);
   }
 
@@ -145,7 +142,7 @@ public abstract class ForwardingMultimap<K extends @Nullable Object, V extends @
   }
 
   @Override
-  public boolean equals(@CheckForNull Object object) {
+  public boolean equals(@NullableDecl Object object) {
     return object == this || delegate().equals(object);
   }
 

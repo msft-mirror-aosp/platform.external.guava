@@ -47,7 +47,6 @@ import java.util.Comparator;
  */
 @Beta
 @GwtCompatible
-@ElementTypesAreNonnullByDefault
 public final class UnsignedInts {
   static final long INT_MASK = 0xffffffffL;
 

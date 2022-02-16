@@ -23,7 +23,6 @@ import java.io.ObjectOutputStream;
 import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.Map;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * Provides static methods for serializing collection classes.
@@ -34,7 +33,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * @author Jared Levy
  */
 @GwtIncompatible
-@ElementTypesAreNonnullByDefault
 final class Serialization {
   private Serialization() {}
 
@@ -56,8 +54,7 @@ final class Serialization {
    * <p>The serialized output consists of the number of entries, first key, first value, second key,
    * second value, and so on.
    */
-  static <K extends @Nullable Object, V extends @Nullable Object> void writeMap(
-      Map<K, V> map, ObjectOutputStream stream) throws IOException {
+  static <K, V> void writeMap(Map<K, V> map, ObjectOutputStream stream) throws IOException {
     stream.writeInt(map.size());
     for (Map.Entry<K, V> entry : map.entrySet()) {
       stream.writeObject(entry.getKey());
@@ -69,8 +66,8 @@ final class Serialization {
    * Populates a map by reading an input stream, as part of deserialization. See {@link #writeMap}
    * for the data format.
    */
-  static <K extends @Nullable Object, V extends @Nullable Object> void populateMap(
-      Map<K, V> map, ObjectInputStream stream) throws IOException, ClassNotFoundException {
+  static <K, V> void populateMap(Map<K, V> map, ObjectInputStream stream)
+      throws IOException, ClassNotFoundException {
     int size = stream.readInt();
     populateMap(map, stream, size);
   }
@@ -79,8 +76,7 @@ final class Serialization {
    * Populates a map by reading an input stream, as part of deserialization. See {@link #writeMap}
    * for the data format. The size is determined by a prior call to {@link #readCount}.
    */
-  static <K extends @Nullable Object, V extends @Nullable Object> void populateMap(
-      Map<K, V> map, ObjectInputStream stream, int size)
+  static <K, V> void populateMap(Map<K, V> map, ObjectInputStream stream, int size)
       throws IOException, ClassNotFoundException {
     for (int i = 0; i < size; i++) {
       @SuppressWarnings("unchecked") // reading data stored by writeMap
@@ -98,8 +94,8 @@ final class Serialization {
    * <p>The serialized output consists of the number of distinct elements, the first element, its
    * count, the second element, its count, and so on.
    */
-  static <E extends @Nullable Object> void writeMultiset(
-      Multiset<E> multiset, ObjectOutputStream stream) throws IOException {
+  static <E> void writeMultiset(Multiset<E> multiset, ObjectOutputStream stream)
+      throws IOException {
     int entryCount = multiset.entrySet().size();
     stream.writeInt(entryCount);
     for (Multiset.Entry<E> entry : multiset.entrySet()) {
@@ -112,8 +108,8 @@ final class Serialization {
    * Populates a multiset by reading an input stream, as part of deserialization. See {@link
    * #writeMultiset} for the data format.
    */
-  static <E extends @Nullable Object> void populateMultiset(
-      Multiset<E> multiset, ObjectInputStream stream) throws IOException, ClassNotFoundException {
+  static <E> void populateMultiset(Multiset<E> multiset, ObjectInputStream stream)
+      throws IOException, ClassNotFoundException {
     int distinctElements = stream.readInt();
     populateMultiset(multiset, stream, distinctElements);
   }
@@ -123,7 +119,7 @@ final class Serialization {
    * #writeMultiset} for the data format. The number of distinct elements is determined by a prior
    * call to {@link #readCount}.
    */
-  static <E extends @Nullable Object> void populateMultiset(
+  static <E> void populateMultiset(
       Multiset<E> multiset, ObjectInputStream stream, int distinctElements)
       throws IOException, ClassNotFoundException {
     for (int i = 0; i < distinctElements; i++) {
@@ -142,8 +138,8 @@ final class Serialization {
    * <p>The serialized output consists of the number of distinct keys, and then for each distinct
    * key: the key, the number of values for that key, and the key's values.
    */
-  static <K extends @Nullable Object, V extends @Nullable Object> void writeMultimap(
-      Multimap<K, V> multimap, ObjectOutputStream stream) throws IOException {
+  static <K, V> void writeMultimap(Multimap<K, V> multimap, ObjectOutputStream stream)
+      throws IOException {
     stream.writeInt(multimap.asMap().size());
     for (Map.Entry<K, Collection<V>> entry : multimap.asMap().entrySet()) {
       stream.writeObject(entry.getKey());
@@ -158,8 +154,7 @@ final class Serialization {
    * Populates a multimap by reading an input stream, as part of deserialization. See {@link
    * #writeMultimap} for the data format.
    */
-  static <K extends @Nullable Object, V extends @Nullable Object> void populateMultimap(
-      Multimap<K, V> multimap, ObjectInputStream stream)
+  static <K, V> void populateMultimap(Multimap<K, V> multimap, ObjectInputStream stream)
       throws IOException, ClassNotFoundException {
     int distinctKeys = stream.readInt();
     populateMultimap(multimap, stream, distinctKeys);
@@ -170,7 +165,7 @@ final class Serialization {
    * #writeMultimap} for the data format. The number of distinct keys is determined by a prior call
    * to {@link #readCount}.
    */
-  static <K extends @Nullable Object, V extends @Nullable Object> void populateMultimap(
+  static <K, V> void populateMultimap(
       Multimap<K, V> multimap, ObjectInputStream stream, int distinctKeys)
       throws IOException, ClassNotFoundException {
     for (int i = 0; i < distinctKeys; i++) {

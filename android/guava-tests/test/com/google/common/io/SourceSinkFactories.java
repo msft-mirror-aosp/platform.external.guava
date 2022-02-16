@@ -407,9 +407,9 @@ public class SourceSinkFactories {
       StringBuilder builder = new StringBuilder();
       CharBuffer buffer = CharBuffer.allocate(100);
       while (reader.read(buffer) != -1) {
-        Java8Compatibility.flip(buffer);
+        buffer.flip();
         builder.append(buffer);
-        Java8Compatibility.clear(buffer);
+        buffer.clear();
       }
       return builder.toString();
     }

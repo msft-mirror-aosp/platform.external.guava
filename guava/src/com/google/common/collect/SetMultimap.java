@@ -22,7 +22,6 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import javax.annotation.CheckForNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
@@ -42,9 +41,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * {@code equals} comparisons. Use caution if mutable objects are used as keys or values in a {@code
  * SetMultimap}.
  *
- * <p><b>Warning:</b> Do not modify either a key <i>or a value</i> of a {@code SetMultimap} in a way
- * that affects its {@link Object#equals} behavior. Undefined behavior and bugs will result.
- *
  * <p>See the Guava User Guide article on <a href=
  * "https://github.com/google/guava/wiki/NewCollectionTypesExplained#multimap"> {@code
  * Multimap}</a>.
@@ -53,9 +49,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * @since 2.0
  */
 @GwtCompatible
-@ElementTypesAreNonnullByDefault
-public interface SetMultimap<K extends @Nullable Object, V extends @Nullable Object>
-    extends Multimap<K, V> {
+public interface SetMultimap<K, V> extends Multimap<K, V> {
   /**
    * {@inheritDoc}
    *
@@ -64,7 +58,7 @@ public interface SetMultimap<K extends @Nullable Object, V extends @Nullable Obj
    * interface.
    */
   @Override
-  Set<V> get(@ParametricNullness K key);
+  Set<V> get(@Nullable K key);
 
   /**
    * {@inheritDoc}
@@ -75,7 +69,7 @@ public interface SetMultimap<K extends @Nullable Object, V extends @Nullable Obj
    */
   @CanIgnoreReturnValue
   @Override
-  Set<V> removeAll(@CheckForNull Object key);
+  Set<V> removeAll(@Nullable Object key);
 
   /**
    * {@inheritDoc}
@@ -88,7 +82,7 @@ public interface SetMultimap<K extends @Nullable Object, V extends @Nullable Obj
    */
   @CanIgnoreReturnValue
   @Override
-  Set<V> replaceValues(@ParametricNullness K key, Iterable<? extends V> values);
+  Set<V> replaceValues(K key, Iterable<? extends V> values);
 
   /**
    * {@inheritDoc}
@@ -120,5 +114,5 @@ public interface SetMultimap<K extends @Nullable Object, V extends @Nullable Obj
    * empty {@code ListMultimap}.
    */
   @Override
-  boolean equals(@CheckForNull Object obj);
+  boolean equals(@Nullable Object obj);
 }

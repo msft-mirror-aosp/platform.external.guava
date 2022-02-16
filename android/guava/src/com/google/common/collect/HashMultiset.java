@@ -18,7 +18,6 @@ package com.google.common.collect;
 
 import com.google.common.annotations.GwtCompatible;
 import com.google.common.annotations.GwtIncompatible;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * Multiset implementation that uses hashing for key and entry access.
@@ -28,11 +27,10 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * @since 2.0
  */
 @GwtCompatible(serializable = true, emulated = true)
-@ElementTypesAreNonnullByDefault
-public final class HashMultiset<E extends @Nullable Object> extends AbstractMapBasedMultiset<E> {
+public class HashMultiset<E> extends AbstractMapBasedMultiset<E> {
 
   /** Creates a new, empty {@code HashMultiset} using the default initial capacity. */
-  public static <E extends @Nullable Object> HashMultiset<E> create() {
+  public static <E> HashMultiset<E> create() {
     return create(ObjectCountHashMap.DEFAULT_SIZE);
   }
 
@@ -43,7 +41,7 @@ public final class HashMultiset<E extends @Nullable Object> extends AbstractMapB
    * @param distinctElements the expected number of distinct elements
    * @throws IllegalArgumentException if {@code distinctElements} is negative
    */
-  public static <E extends @Nullable Object> HashMultiset<E> create(int distinctElements) {
+  public static <E> HashMultiset<E> create(int distinctElements) {
     return new HashMultiset<E>(distinctElements);
   }
 
@@ -54,8 +52,7 @@ public final class HashMultiset<E extends @Nullable Object> extends AbstractMapB
    *
    * @param elements the elements that the multiset should contain
    */
-  public static <E extends @Nullable Object> HashMultiset<E> create(
-      Iterable<? extends E> elements) {
+  public static <E> HashMultiset<E> create(Iterable<? extends E> elements) {
     HashMultiset<E> multiset = create(Multisets.inferDistinctElements(elements));
     Iterables.addAll(multiset, elements);
     return multiset;
@@ -66,8 +63,8 @@ public final class HashMultiset<E extends @Nullable Object> extends AbstractMapB
   }
 
   @Override
-  ObjectCountHashMap<E> newBackingMap(int distinctElements) {
-    return new ObjectCountHashMap<>(distinctElements);
+  void init(int distinctElements) {
+    backingMap = new ObjectCountHashMap<>(distinctElements);
   }
 
   @GwtIncompatible // Not needed in emulated source.
