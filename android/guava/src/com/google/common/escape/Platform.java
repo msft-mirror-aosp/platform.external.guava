@@ -22,7 +22,6 @@ import com.google.common.annotations.GwtCompatible;
  * @author Jesse Wilson
  */
 @GwtCompatible(emulated = true)
-@ElementTypesAreNonnullByDefault
 final class Platform {
   private Platform() {}
 

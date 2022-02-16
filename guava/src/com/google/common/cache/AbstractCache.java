@@ -38,7 +38,6 @@ import java.util.concurrent.ExecutionException;
  * @since 10.0
  */
 @GwtCompatible
-@ElementTypesAreNonnullByDefault
 public abstract class AbstractCache<K, V> implements Cache<K, V> {
 
   /** Constructor for use by subclasses. */
@@ -59,12 +58,8 @@ public abstract class AbstractCache<K, V> implements Cache<K, V> {
    *
    * @since 11.0
    */
-  /*
-   * <? extends Object> is mostly the same as <?> to plain Java. But to nullness checkers, they
-   * differ: <? extends Object> means "non-null types," while <?> means "all types."
-   */
   @Override
-  public ImmutableMap<K, V> getAllPresent(Iterable<? extends Object> keys) {
+  public ImmutableMap<K, V> getAllPresent(Iterable<?> keys) {
     Map<K, V> result = Maps.newLinkedHashMap();
     for (Object key : keys) {
       if (!result.containsKey(key)) {
@@ -108,8 +103,7 @@ public abstract class AbstractCache<K, V> implements Cache<K, V> {
 
   /** @since 11.0 */
   @Override
-  // For discussion of <? extends Object>, see getAllPresent.
-  public void invalidateAll(Iterable<? extends Object> keys) {
+  public void invalidateAll(Iterable<?> keys) {
     for (Object key : keys) {
       invalidate(key);
     }

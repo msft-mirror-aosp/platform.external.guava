@@ -19,8 +19,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.annotations.Beta;
 import com.google.common.annotations.GwtCompatible;
 import java.util.Map;
-import javax.annotation.CheckForNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 
 /**
  * A {@link UnicodeEscaper} that uses an array to quickly look up replacement characters for a given
@@ -43,7 +42,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  */
 @Beta
 @GwtCompatible
-@ElementTypesAreNonnullByDefault
 public abstract class ArrayBasedUnicodeEscaper extends UnicodeEscaper {
   // The replacement array (see ArrayBasedEscaperMap).
   private final char[][] replacements;
@@ -75,7 +73,7 @@ public abstract class ArrayBasedUnicodeEscaper extends UnicodeEscaper {
       Map<Character, String> replacementMap,
       int safeMin,
       int safeMax,
-      @Nullable String unsafeReplacement) {
+      @NullableDecl String unsafeReplacement) {
     this(ArrayBasedEscaperMap.create(replacementMap), safeMin, safeMax, unsafeReplacement);
   }
 
@@ -98,7 +96,7 @@ public abstract class ArrayBasedUnicodeEscaper extends UnicodeEscaper {
       ArrayBasedEscaperMap escaperMap,
       int safeMin,
       int safeMax,
-      @Nullable String unsafeReplacement) {
+      @NullableDecl String unsafeReplacement) {
     checkNotNull(escaperMap); // GWT specific check (do not optimize)
     this.replacements = escaperMap.getReplacementArray();
     this.replacementsLength = replacements.length;
@@ -159,11 +157,8 @@ public abstract class ArrayBasedUnicodeEscaper extends UnicodeEscaper {
    * Escapes a single Unicode code point using the replacement array and safe range values. If the
    * given character does not have an explicit replacement and lies outside the safe range then
    * {@link #escapeUnsafe} is called.
-   *
-   * @return the replacement characters, or {@code null} if no escaping was required
    */
   @Override
-  @CheckForNull
   protected final char[] escape(int cp) {
     if (cp < replacementsLength) {
       char[] chars = replacements[cp];
@@ -204,6 +199,5 @@ public abstract class ArrayBasedUnicodeEscaper extends UnicodeEscaper {
    * @param cp the Unicode code point to escape
    * @return the replacement characters, or {@code null} if no escaping was required
    */
-  @CheckForNull
   protected abstract char[] escapeUnsafe(int cp);
 }

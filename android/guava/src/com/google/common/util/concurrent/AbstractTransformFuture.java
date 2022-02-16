@@ -24,17 +24,13 @@ import com.google.errorprone.annotations.ForOverride;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
-import javax.annotation.CheckForNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 
 /** Implementations of {@code Futures.transform*}. */
 @GwtCompatible
-@ElementTypesAreNonnullByDefault
-@SuppressWarnings("nullness") // TODO(b/147136275): Remove once our checker understands & and |.
-abstract class AbstractTransformFuture<
-        I extends @Nullable Object, O extends @Nullable Object, F, T extends @Nullable Object>
-    extends FluentFuture.TrustedFuture<O> implements Runnable {
-  static <I extends @Nullable Object, O extends @Nullable Object> ListenableFuture<O> create(
+abstract class AbstractTransformFuture<I, O, F, T> extends FluentFuture.TrustedFuture<O>
+    implements Runnable {
+  static <I, O> ListenableFuture<O> create(
       ListenableFuture<I> input,
       AsyncFunction<? super I, ? extends O> function,
       Executor executor) {
@@ -44,7 +40,7 @@ abstract class AbstractTransformFuture<
     return output;
   }
 
-  static <I extends @Nullable Object, O extends @Nullable Object> ListenableFuture<O> create(
+  static <I, O> ListenableFuture<O> create(
       ListenableFuture<I> input, Function<? super I, ? extends O> function, Executor executor) {
     checkNotNull(function);
     TransformFuture<I, O> output = new TransformFuture<>(input, function);
@@ -56,8 +52,8 @@ abstract class AbstractTransformFuture<
    * In certain circumstances, this field might theoretically not be visible to an afterDone() call
    * triggered by cancel(). For details, see the comments on the fields of TimeoutFuture.
    */
-  @CheckForNull ListenableFuture<? extends I> inputFuture;
-  @CheckForNull F function;
+  @NullableDecl ListenableFuture<? extends I> inputFuture;
+  @NullableDecl F function;
 
   AbstractTransformFuture(ListenableFuture<? extends I> inputFuture, F function) {
     this.inputFuture = checkNotNull(inputFuture);
@@ -169,12 +165,12 @@ abstract class AbstractTransformFuture<
 
   /** Template method for subtypes to actually run the transform. */
   @ForOverride
-  @ParametricNullness
-  abstract T doTransform(F function, @ParametricNullness I result) throws Exception;
+  @NullableDecl
+  abstract T doTransform(F function, @NullableDecl I result) throws Exception;
 
   /** Template method for subtypes to actually set the result. */
   @ForOverride
-  abstract void setResult(@ParametricNullness T result);
+  abstract void setResult(@NullableDecl T result);
 
   @Override
   protected final void afterDone() {
@@ -184,7 +180,6 @@ abstract class AbstractTransformFuture<
   }
 
   @Override
-  @CheckForNull
   protected String pendingToString() {
     ListenableFuture<? extends I> localInputFuture = inputFuture;
     F localFunction = function;
@@ -205,8 +200,7 @@ abstract class AbstractTransformFuture<
    * An {@link AbstractTransformFuture} that delegates to an {@link AsyncFunction} and {@link
    * #setFuture(ListenableFuture)}.
    */
-  private static final class AsyncTransformFuture<
-          I extends @Nullable Object, O extends @Nullable Object>
+  private static final class AsyncTransformFuture<I, O>
       extends AbstractTransformFuture<
           I, O, AsyncFunction<? super I, ? extends O>, ListenableFuture<? extends O>> {
     AsyncTransformFuture(
@@ -216,8 +210,7 @@ abstract class AbstractTransformFuture<
 
     @Override
     ListenableFuture<? extends O> doTransform(
-        AsyncFunction<? super I, ? extends O> function, @ParametricNullness I input)
-        throws Exception {
+        AsyncFunction<? super I, ? extends O> function, @NullableDecl I input) throws Exception {
       ListenableFuture<? extends O> outputFuture = function.apply(input);
       checkNotNull(
           outputFuture,
@@ -237,7 +230,7 @@ abstract class AbstractTransformFuture<
    * An {@link AbstractTransformFuture} that delegates to a {@link Function} and {@link
    * #set(Object)}.
    */
-  private static final class TransformFuture<I extends @Nullable Object, O extends @Nullable Object>
+  private static final class TransformFuture<I, O>
       extends AbstractTransformFuture<I, O, Function<? super I, ? extends O>, O> {
     TransformFuture(
         ListenableFuture<? extends I> inputFuture, Function<? super I, ? extends O> function) {
@@ -245,13 +238,13 @@ abstract class AbstractTransformFuture<
     }
 
     @Override
-    @ParametricNullness
-    O doTransform(Function<? super I, ? extends O> function, @ParametricNullness I input) {
+    @NullableDecl
+    O doTransform(Function<? super I, ? extends O> function, @NullableDecl I input) {
       return function.apply(input);
     }
 
     @Override
-    void setResult(@ParametricNullness O result) {
+    void setResult(@NullableDecl O result) {
       set(result);
     }
   }

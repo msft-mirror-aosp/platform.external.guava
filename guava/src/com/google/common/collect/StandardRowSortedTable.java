@@ -26,7 +26,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.SortedSet;
-import javax.annotation.CheckForNull;
 
 /**
  * Implementation of {@code Table} whose iteration ordering across row keys is sorted by their
@@ -46,7 +45,6 @@ import javax.annotation.CheckForNull;
  * @author Jared Levy
  */
 @GwtCompatible
-@ElementTypesAreNonnullByDefault
 class StandardRowSortedTable<R, C, V> extends StandardTable<R, C, V>
     implements RowSortedTable<R, C, V> {
   /*
@@ -104,7 +102,6 @@ class StandardRowSortedTable<R, C, V> extends StandardTable<R, C, V>
     }
 
     @Override
-    @CheckForNull
     public Comparator<? super R> comparator() {
       return sortedBackingMap().comparator();
     }

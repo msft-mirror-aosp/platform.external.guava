@@ -20,7 +20,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkPositionIndex;
 import static com.google.common.collect.CollectPreconditions.checkEntryNotNull;
 import static com.google.common.collect.ImmutableMapEntry.createEntryArray;
-import static java.util.Objects.requireNonNull;
 
 import com.google.common.annotations.GwtCompatible;
 import com.google.common.annotations.GwtIncompatible;
@@ -29,7 +28,6 @@ import com.google.common.collect.ImmutableMapEntry.NonTerminalImmutableMapEntry;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.io.Serializable;
 import java.util.function.BiConsumer;
-import javax.annotation.CheckForNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
@@ -40,7 +38,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * @author Gregory Kick
  */
 @GwtCompatible(serializable = true, emulated = true)
-@ElementTypesAreNonnullByDefault
 final class RegularImmutableMap<K, V> extends ImmutableMap<K, V> {
   @SuppressWarnings("unchecked")
   static final ImmutableMap<Object, Object> EMPTY =
@@ -68,7 +65,7 @@ final class RegularImmutableMap<K, V> extends ImmutableMap<K, V> {
   // entries in insertion order
   @VisibleForTesting final transient Entry<K, V>[] entries;
   // array of linked lists of entries
-  @CheckForNull private final transient @Nullable ImmutableMapEntry<K, V>[] table;
+  private final transient ImmutableMapEntry<K, V>[] table;
   // 'and' with an int to get a table index
   private final transient int mask;
 
@@ -81,30 +78,27 @@ final class RegularImmutableMap<K, V> extends ImmutableMap<K, V> {
    * the entries in entryArray with its own entry objects (though they will have the same key/value
    * contents), and may take ownership of entryArray.
    */
-  static <K, V> ImmutableMap<K, V> fromEntryArray(int n, @Nullable Entry<K, V>[] entryArray) {
+  static <K, V> ImmutableMap<K, V> fromEntryArray(int n, Entry<K, V>[] entryArray) {
     checkPositionIndex(n, entryArray.length);
     if (n == 0) {
       return (RegularImmutableMap<K, V>) EMPTY;
     }
-    /*
-     * The cast is safe: n==entryArray.length means that we have filled the whole array with Entry
-     * instances, in which case it is safe to cast it from an array of nullable entries to an array
-     * of non-null entries.
-     */
-    @SuppressWarnings("nullness")
-    Entry<K, V>[] entries =
-        (n == entryArray.length) ? (Entry<K, V>[]) entryArray : createEntryArray(n);
+    Entry<K, V>[] entries;
+    if (n == entryArray.length) {
+      entries = entryArray;
+    } else {
+      entries = createEntryArray(n);
+    }
     int tableSize = Hashing.closedTableSize(n, MAX_LOAD_FACTOR);
-    @Nullable ImmutableMapEntry<K, V>[] table = createEntryArray(tableSize);
+    ImmutableMapEntry<K, V>[] table = createEntryArray(tableSize);
     int mask = tableSize - 1;
     for (int entryIndex = 0; entryIndex < n; entryIndex++) {
-      // requireNonNull is safe because the first `n` elements have been filled in.
-      Entry<K, V> entry = requireNonNull(entryArray[entryIndex]);
+      Entry<K, V> entry = entryArray[entryIndex];
       K key = entry.getKey();
       V value = entry.getValue();
       checkEntryNotNull(key, value);
       int tableIndex = Hashing.smear(key.hashCode()) & mask;
-      ImmutableMapEntry<K, V> existing = table[tableIndex];
+      @Nullable ImmutableMapEntry<K, V> existing = table[tableIndex];
       // prepend, not append, so the entries can be immutable
       ImmutableMapEntry<K, V> newEntry =
           (existing == null)
@@ -134,8 +128,7 @@ final class RegularImmutableMap<K, V> extends ImmutableMap<K, V> {
     return makeImmutable(entry, entry.getKey(), entry.getValue());
   }
 
-  private RegularImmutableMap(
-      Entry<K, V>[] entries, @CheckForNull @Nullable ImmutableMapEntry<K, V>[] table, int mask) {
+  private RegularImmutableMap(Entry<K, V>[] entries, ImmutableMapEntry<K, V>[] table, int mask) {
     this.entries = entries;
     this.table = table;
     this.mask = mask;
@@ -147,7 +140,7 @@ final class RegularImmutableMap<K, V> extends ImmutableMap<K, V> {
    */
   @CanIgnoreReturnValue
   static int checkNoConflictInKeyBucket(
-      Object key, Entry<?, ?> entry, @CheckForNull ImmutableMapEntry<?, ?> keyBucketHead) {
+      Object key, Entry<?, ?> entry, @Nullable ImmutableMapEntry<?, ?> keyBucketHead) {
     int bucketSize = 0;
     for (; keyBucketHead != null; keyBucketHead = keyBucketHead.getNextInKeyBucket()) {
       checkNoConflict(!key.equals(keyBucketHead.getKey()), "key", entry, keyBucketHead);
@@ -157,16 +150,12 @@ final class RegularImmutableMap<K, V> extends ImmutableMap<K, V> {
   }
 
   @Override
-  @CheckForNull
-  public V get(@CheckForNull Object key) {
+  public V get(@Nullable Object key) {
     return get(key, table, mask);
   }
 
-  @CheckForNull
-  static <V> V get(
-      @CheckForNull Object key,
-      @CheckForNull @Nullable ImmutableMapEntry<?, V>[] keyTable,
-      int mask) {
+  static <V> @Nullable V get(
+      @Nullable Object key, ImmutableMapEntry<?, V> @Nullable [] keyTable, int mask) {
     if (key == null || keyTable == null) {
       return null;
     }
@@ -231,7 +220,7 @@ final class RegularImmutableMap<K, V> extends ImmutableMap<K, V> {
     }
 
     @Override
-    public boolean contains(@CheckForNull Object object) {
+    public boolean contains(Object object) {
       return map.containsKey(object);
     }
 
