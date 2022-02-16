@@ -38,7 +38,6 @@ import java.util.Map;
  */
 @Beta
 @GwtCompatible
-@ElementTypesAreNonnullByDefault
 public final class ArrayBasedEscaperMap {
   /**
    * Returns a new ArrayBasedEscaperMap for creating ArrayBasedCharEscaper or
@@ -74,7 +73,7 @@ public final class ArrayBasedEscaperMap {
     }
     char max = Collections.max(map.keySet());
     char[][] replacements = new char[max + 1][];
-    for (Character c : map.keySet()) {
+    for (char c : map.keySet()) {
       replacements[c] = map.get(c).toCharArray();
     }
     return replacements;

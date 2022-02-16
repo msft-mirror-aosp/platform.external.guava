@@ -88,7 +88,6 @@ public class MoreExecutorsTest extends JSR166TestCase {
         public void run() {}
       };
 
-
   public void testDirectExecutorServiceServiceInThreadExecution() throws Exception {
     final ListeningExecutorService executor = newDirectExecutorService();
     final ThreadLocal<Integer> threadLocalCount =
@@ -167,7 +166,6 @@ public class MoreExecutorsTest extends JSR166TestCase {
 
     assertEquals(10, threadLocalCount.get().intValue());
   }
-
 
   public void testDirectExecutorServiceServiceTermination() throws Exception {
     final ExecutorService executor = newDirectExecutorService();
@@ -354,7 +352,6 @@ public class MoreExecutorsTest extends JSR166TestCase {
     verify(delegate).execute(task);
   }
 
-
   public void testListeningDecorator_scheduleSuccess() throws Exception {
     final CountDownLatch completed = new CountDownLatch(1);
     ScheduledThreadPoolExecutor delegate =
@@ -380,7 +377,6 @@ public class MoreExecutorsTest extends JSR166TestCase {
     assertEquals(0, delegate.getQueue().size());
   }
 
-
   public void testListeningDecorator_scheduleFailure() throws Exception {
     ScheduledThreadPoolExecutor delegate = new ScheduledThreadPoolExecutor(1);
     ListeningScheduledExecutorService service = listeningDecorator(delegate);
@@ -390,7 +386,6 @@ public class MoreExecutorsTest extends JSR166TestCase {
     assertExecutionException(future, ex);
     assertEquals(0, delegate.getQueue().size());
   }
-
 
   public void testListeningDecorator_schedulePeriodic() throws Exception {
     ScheduledThreadPoolExecutor delegate = new ScheduledThreadPoolExecutor(1);
@@ -411,7 +406,6 @@ public class MoreExecutorsTest extends JSR166TestCase {
     assertEquals(5, runnable.count);
     assertEquals(0, delegate.getQueue().size());
   }
-
 
   public void testListeningDecorator_cancelled() throws Exception {
     ScheduledThreadPoolExecutor delegate = new ScheduledThreadPoolExecutor(1);
@@ -566,7 +560,6 @@ public class MoreExecutorsTest extends JSR166TestCase {
     }
   }
 
-
   public void testAddDelayedShutdownHook_success() throws InterruptedException {
     TestApplication application = new TestApplication();
     ExecutorService service = mock(ExecutorService.class);
@@ -578,7 +571,6 @@ public class MoreExecutorsTest extends JSR166TestCase {
     shutdownFirst.verify(service).awaitTermination(2, TimeUnit.SECONDS);
   }
 
-
   public void testAddDelayedShutdownHook_interrupted() throws InterruptedException {
     TestApplication application = new TestApplication();
     ExecutorService service = mock(ExecutorService.class);
@@ -588,7 +580,6 @@ public class MoreExecutorsTest extends JSR166TestCase {
     verify(service).shutdown();
   }
 
-
   public void testGetExitingExecutorService_executorSetToUseDaemonThreads() {
     TestApplication application = new TestApplication();
     ThreadPoolExecutor executor =
@@ -596,7 +587,6 @@ public class MoreExecutorsTest extends JSR166TestCase {
     assertNotNull(application.getExitingExecutorService(executor));
     assertTrue(executor.getThreadFactory().newThread(EMPTY_RUNNABLE).isDaemon());
   }
-
 
   public void testGetExitingExecutorService_executorDelegatesToOriginal() {
     TestApplication application = new TestApplication();
@@ -606,7 +596,6 @@ public class MoreExecutorsTest extends JSR166TestCase {
     application.getExitingExecutorService(executor).execute(EMPTY_RUNNABLE);
     verify(executor).execute(EMPTY_RUNNABLE);
   }
-
 
   public void testGetExitingExecutorService_shutdownHookRegistered() throws InterruptedException {
     TestApplication application = new TestApplication();
@@ -618,14 +607,12 @@ public class MoreExecutorsTest extends JSR166TestCase {
     verify(executor).shutdown();
   }
 
-
   public void testGetExitingScheduledExecutorService_executorSetToUseDaemonThreads() {
     TestApplication application = new TestApplication();
     ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1);
     assertNotNull(application.getExitingScheduledExecutorService(executor));
     assertTrue(executor.getThreadFactory().newThread(EMPTY_RUNNABLE).isDaemon());
   }
-
 
   public void testGetExitingScheduledExecutorService_executorDelegatesToOriginal() {
     TestApplication application = new TestApplication();
@@ -635,7 +622,6 @@ public class MoreExecutorsTest extends JSR166TestCase {
     application.getExitingScheduledExecutorService(executor).execute(EMPTY_RUNNABLE);
     verify(executor).execute(EMPTY_RUNNABLE);
   }
-
 
   public void testGetScheduledExitingExecutorService_shutdownHookRegistered()
       throws InterruptedException {
@@ -669,7 +655,6 @@ public class MoreExecutorsTest extends JSR166TestCase {
     assertEquals(oldName, Thread.currentThread().getName());
   }
 
-
   public void testExecutors_nullCheck() throws Exception {
     new ClassSanityTester()
         .setDefault(RateLimiter.class, RateLimiter.create(1.0))
@@ -699,13 +684,11 @@ public class MoreExecutorsTest extends JSR166TestCase {
   /* Half of a 1-second timeout in nanoseconds */
   private static final long HALF_SECOND_NANOS = NANOSECONDS.convert(1L, SECONDS) / 2;
 
-
   public void testShutdownAndAwaitTermination_immediateShutdown() throws Exception {
     ExecutorService service = Executors.newSingleThreadExecutor();
     assertTrue(shutdownAndAwaitTermination(service, 1L, SECONDS));
     assertTrue(service.isTerminated());
   }
-
 
   public void testShutdownAndAwaitTermination_immediateShutdownInternal() throws Exception {
     ExecutorService service = mock(ExecutorService.class);
@@ -715,7 +698,6 @@ public class MoreExecutorsTest extends JSR166TestCase {
     verify(service).shutdown();
     verify(service).awaitTermination(HALF_SECOND_NANOS, NANOSECONDS);
   }
-
 
   public void testShutdownAndAwaitTermination_forcedShutDownInternal() throws Exception {
     ExecutorService service = mock(ExecutorService.class);
@@ -729,7 +711,6 @@ public class MoreExecutorsTest extends JSR166TestCase {
     verify(service).shutdownNow();
   }
 
-
   public void testShutdownAndAwaitTermination_nonTerminationInternal() throws Exception {
     ExecutorService service = mock(ExecutorService.class);
     when(service.awaitTermination(HALF_SECOND_NANOS, NANOSECONDS))
@@ -740,7 +721,6 @@ public class MoreExecutorsTest extends JSR166TestCase {
     verify(service, times(2)).awaitTermination(HALF_SECOND_NANOS, NANOSECONDS);
     verify(service).shutdownNow();
   }
-
 
   public void testShutdownAndAwaitTermination_interruptedInternal() throws Exception {
     final ExecutorService service = mock(ExecutorService.class);

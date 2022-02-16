@@ -22,7 +22,6 @@ import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.graph.GraphConstants.PARALLEL_EDGES_NOT_ALLOWED;
 import static com.google.common.graph.GraphConstants.REUSING_EDGE;
 import static com.google.common.graph.GraphConstants.SELF_LOOPS_NOT_ALLOWED;
-import static java.util.Objects.requireNonNull;
 
 import com.google.common.collect.ImmutableList;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
@@ -40,7 +39,6 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
  * @param <N> Node parameter type
  * @param <E> Edge parameter type
  */
-@ElementTypesAreNonnullByDefault
 final class StandardMutableNetwork<N, E> extends StandardNetwork<N, E>
     implements MutableNetwork<N, E> {
 
@@ -154,10 +152,9 @@ final class StandardMutableNetwork<N, E> extends StandardNetwork<N, E>
       return false;
     }
 
-    // requireNonNull is safe because of the edgeToReferenceNode check above.
-    NetworkConnections<N, E> connectionsU = requireNonNull(nodeConnections.get(nodeU));
+    NetworkConnections<N, E> connectionsU = nodeConnections.get(nodeU);
     N nodeV = connectionsU.adjacentNode(edge);
-    NetworkConnections<N, E> connectionsV = requireNonNull(nodeConnections.get(nodeV));
+    NetworkConnections<N, E> connectionsV = nodeConnections.get(nodeV);
     connectionsU.removeOutEdge(edge);
     connectionsV.removeInEdge(edge, allowsSelfLoops() && nodeU.equals(nodeV));
     edgeToReferenceNode.remove(edge);

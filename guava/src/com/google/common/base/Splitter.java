@@ -29,7 +29,6 @@ import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
-import javax.annotation.CheckForNull;
 
 /**
  * Extracts non-overlapping substrings from an input string, typically by recognizing appearances of
@@ -100,7 +99,6 @@ import javax.annotation.CheckForNull;
  * @since 1.0
  */
 @GwtCompatible(emulated = true)
-@ElementTypesAreNonnullByDefault
 public final class Splitter {
   private final CharMatcher trimmer;
   private final boolean omitEmptyStrings;
@@ -566,7 +564,6 @@ public final class Splitter {
       this.toSplit = toSplit;
     }
 
-    @CheckForNull
     @Override
     protected String computeNext() {
       /*

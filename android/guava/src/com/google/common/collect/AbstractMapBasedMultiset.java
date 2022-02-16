@@ -31,12 +31,11 @@ import java.io.Serializable;
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-import javax.annotation.CheckForNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 
 /**
  * Basic implementation of {@code Multiset<E>} backed by an instance of {@code
- * ObjectCountHashMap<E>}.
+ * AbstractObjectCountMap<E>}.
  *
  * <p>For serialization to work, the subclass must specify explicit {@code readObject} and {@code
  * writeObject} methods.
@@ -44,21 +43,19 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * @author Kevin Bourrillion
  */
 @GwtCompatible(emulated = true)
-@ElementTypesAreNonnullByDefault
-abstract class AbstractMapBasedMultiset<E extends @Nullable Object> extends AbstractMultiset<E>
-    implements Serializable {
+abstract class AbstractMapBasedMultiset<E> extends AbstractMultiset<E> implements Serializable {
 
   transient ObjectCountHashMap<E> backingMap;
   transient long size;
 
   AbstractMapBasedMultiset(int distinctElements) {
-    backingMap = newBackingMap(distinctElements);
+    init(distinctElements);
   }
 
-  abstract ObjectCountHashMap<E> newBackingMap(int distinctElements);
+  abstract void init(int distinctElements);
 
   @Override
-  public final int count(@CheckForNull Object element) {
+  public final int count(@NullableDecl Object element) {
     return backingMap.get(element);
   }
 
@@ -72,7 +69,7 @@ abstract class AbstractMapBasedMultiset<E extends @Nullable Object> extends Abst
    */
   @CanIgnoreReturnValue
   @Override
-  public final int add(@ParametricNullness E element, int occurrences) {
+  public final int add(@NullableDecl E element, int occurrences) {
     if (occurrences == 0) {
       return count(element);
     }
@@ -93,7 +90,7 @@ abstract class AbstractMapBasedMultiset<E extends @Nullable Object> extends Abst
 
   @CanIgnoreReturnValue
   @Override
-  public final int remove(@CheckForNull Object element, int occurrences) {
+  public final int remove(@NullableDecl Object element, int occurrences) {
     if (occurrences == 0) {
       return count(element);
     }
@@ -117,7 +114,7 @@ abstract class AbstractMapBasedMultiset<E extends @Nullable Object> extends Abst
 
   @CanIgnoreReturnValue
   @Override
-  public final int setCount(@ParametricNullness E element, int count) {
+  public final int setCount(@NullableDecl E element, int count) {
     checkNonnegative(count, "count");
     int oldCount = (count == 0) ? backingMap.remove(element) : backingMap.put(element, count);
     size += (count - oldCount);
@@ -125,7 +122,7 @@ abstract class AbstractMapBasedMultiset<E extends @Nullable Object> extends Abst
   }
 
   @Override
-  public final boolean setCount(@ParametricNullness E element, int oldCount, int newCount) {
+  public final boolean setCount(@NullableDecl E element, int oldCount, int newCount) {
     checkNonnegative(oldCount, "oldCount");
     checkNonnegative(newCount, "newCount");
     int entryIndex = backingMap.indexOf(element);
@@ -163,12 +160,11 @@ abstract class AbstractMapBasedMultiset<E extends @Nullable Object> extends Abst
    * Skeleton of per-entry iterators. We could push this down and win a few bytes, but it's complex
    * enough it's not especially worth it.
    */
-  abstract class Itr<T extends @Nullable Object> implements Iterator<T> {
+  abstract class Itr<T> implements Iterator<T> {
     int entryIndex = backingMap.firstIndex();
     int toRemove = -1;
     int expectedModCount = backingMap.modCount;
 
-    @ParametricNullness
     abstract T result(int entryIndex);
 
     private void checkForConcurrentModification() {
@@ -184,7 +180,6 @@ abstract class AbstractMapBasedMultiset<E extends @Nullable Object> extends Abst
     }
 
     @Override
-    @ParametricNullness
     public T next() {
       if (!hasNext()) {
         throw new NoSuchElementException();
@@ -210,7 +205,6 @@ abstract class AbstractMapBasedMultiset<E extends @Nullable Object> extends Abst
   final Iterator<E> elementIterator() {
     return new Itr<E>() {
       @Override
-      @ParametricNullness
       E result(int entryIndex) {
         return backingMap.getKey(entryIndex);
       }
@@ -264,7 +258,7 @@ abstract class AbstractMapBasedMultiset<E extends @Nullable Object> extends Abst
   private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
     stream.defaultReadObject();
     int distinctElements = Serialization.readCount(stream);
-    backingMap = newBackingMap(ObjectCountHashMap.DEFAULT_SIZE);
+    init(ObjectCountHashMap.DEFAULT_SIZE);
     Serialization.populateMultiset(this, stream, distinctElements);
   }
 

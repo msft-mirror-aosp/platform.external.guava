@@ -27,7 +27,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.annotation.CheckForNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * A reference queue with an associated background thread that dequeues references and invokes
@@ -37,7 +37,7 @@ import javax.annotation.CheckForNull;
  * finalized. If this object is garbage collected earlier, the backing thread will not invoke {@code
  * finalizeReferent()} on the remaining references.
  *
- * <p>As an example of how this is used, imagine you have a class {@code MyServer} that creates a
+ * <p>As an example of how this is used, imagine you have a class {@code MyServer} that creates a a
  * {@link java.net.ServerSocket ServerSocket}, and you would like to ensure that the {@code
  * ServerSocket} is closed even if the {@code MyServer} object is garbage-collected without calling
  * its {@code close} method. You <em>could</em> use a finalizer to accomplish this, but that has a
@@ -89,7 +89,6 @@ import javax.annotation.CheckForNull;
  * @since 2.0
  */
 @GwtIncompatible
-@ElementTypesAreNonnullByDefault
 public class FinalizableReferenceQueue implements Closeable {
   /*
    * The Finalizer thread keeps a phantom reference to this object. When the client (for example, a
@@ -229,7 +228,7 @@ public class FinalizableReferenceQueue implements Closeable {
      *
      * @throws SecurityException if we don't have the appropriate privileges
      */
-    @CheckForNull
+    @Nullable
     Class<?> loadFinalizer();
   }
 
@@ -243,8 +242,7 @@ public class FinalizableReferenceQueue implements Closeable {
     @VisibleForTesting static boolean disabled;
 
     @Override
-    @CheckForNull
-    public Class<?> loadFinalizer() {
+    public @Nullable Class<?> loadFinalizer() {
       if (disabled) {
         return null;
       }
@@ -281,8 +279,7 @@ public class FinalizableReferenceQueue implements Closeable {
             + "issue, or move Guava to your system class path.";
 
     @Override
-    @CheckForNull
-    public Class<?> loadFinalizer() {
+    public @Nullable Class<?> loadFinalizer() {
       try {
         /*
          * We use URLClassLoader because it's the only concrete class loader implementation in the

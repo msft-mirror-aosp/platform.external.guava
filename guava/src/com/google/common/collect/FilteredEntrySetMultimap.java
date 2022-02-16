@@ -20,8 +20,6 @@ import com.google.common.annotations.GwtCompatible;
 import com.google.common.base.Predicate;
 import java.util.Map.Entry;
 import java.util.Set;
-import javax.annotation.CheckForNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * Implementation of {@link Multimaps#filterEntries(SetMultimap, Predicate)}.
@@ -29,9 +27,8 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * @author Louis Wasserman
  */
 @GwtCompatible
-@ElementTypesAreNonnullByDefault
-final class FilteredEntrySetMultimap<K extends @Nullable Object, V extends @Nullable Object>
-    extends FilteredEntryMultimap<K, V> implements FilteredSetMultimap<K, V> {
+final class FilteredEntrySetMultimap<K, V> extends FilteredEntryMultimap<K, V>
+    implements FilteredSetMultimap<K, V> {
 
   FilteredEntrySetMultimap(SetMultimap<K, V> unfiltered, Predicate<? super Entry<K, V>> predicate) {
     super(unfiltered, predicate);
@@ -43,17 +40,17 @@ final class FilteredEntrySetMultimap<K extends @Nullable Object, V extends @Null
   }
 
   @Override
-  public Set<V> get(@ParametricNullness K key) {
+  public Set<V> get(K key) {
     return (Set<V>) super.get(key);
   }
 
   @Override
-  public Set<V> removeAll(@CheckForNull Object key) {
+  public Set<V> removeAll(Object key) {
     return (Set<V>) super.removeAll(key);
   }
 
   @Override
-  public Set<V> replaceValues(@ParametricNullness K key, Iterable<? extends V> values) {
+  public Set<V> replaceValues(K key, Iterable<? extends V> values) {
     return (Set<V>) super.replaceValues(key, values);
   }
 

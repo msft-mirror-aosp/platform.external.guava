@@ -29,7 +29,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * Implementation of {@code Multimap} that uses an {@code ArrayList} to store the values for a given
@@ -60,8 +59,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * @since 2.0
  */
 @GwtCompatible(serializable = true, emulated = true)
-@ElementTypesAreNonnullByDefault
-public final class ArrayListMultimap<K extends @Nullable Object, V extends @Nullable Object>
+public final class ArrayListMultimap<K, V>
     extends ArrayListMultimapGwtSerializationDependencies<K, V> {
   // Default from ArrayList
   private static final int DEFAULT_VALUES_PER_KEY = 3;
@@ -74,8 +72,7 @@ public final class ArrayListMultimap<K extends @Nullable Object, V extends @Null
    * <p>This method will soon be deprecated in favor of {@code
    * MultimapBuilder.hashKeys().arrayListValues().build()}.
    */
-  public static <K extends @Nullable Object, V extends @Nullable Object>
-      ArrayListMultimap<K, V> create() {
+  public static <K, V> ArrayListMultimap<K, V> create() {
     return new ArrayListMultimap<>();
   }
 
@@ -91,8 +88,7 @@ public final class ArrayListMultimap<K extends @Nullable Object, V extends @Null
    * @throws IllegalArgumentException if {@code expectedKeys} or {@code expectedValuesPerKey} is
    *     negative
    */
-  public static <K extends @Nullable Object, V extends @Nullable Object>
-      ArrayListMultimap<K, V> create(int expectedKeys, int expectedValuesPerKey) {
+  public static <K, V> ArrayListMultimap<K, V> create(int expectedKeys, int expectedValuesPerKey) {
     return new ArrayListMultimap<>(expectedKeys, expectedValuesPerKey);
   }
 
@@ -104,8 +100,7 @@ public final class ArrayListMultimap<K extends @Nullable Object, V extends @Null
    *
    * @param multimap the multimap whose contents are copied to this multimap
    */
-  public static <K extends @Nullable Object, V extends @Nullable Object>
-      ArrayListMultimap<K, V> create(Multimap<? extends K, ? extends V> multimap) {
+  public static <K, V> ArrayListMultimap<K, V> create(Multimap<? extends K, ? extends V> multimap) {
     return new ArrayListMultimap<>(multimap);
   }
 

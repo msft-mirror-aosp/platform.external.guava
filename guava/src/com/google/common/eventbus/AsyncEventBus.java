@@ -14,6 +14,7 @@
 
 package com.google.common.eventbus;
 
+import com.google.common.annotations.Beta;
 import java.util.concurrent.Executor;
 
 /**
@@ -23,7 +24,7 @@ import java.util.concurrent.Executor;
  * @author Cliff Biffle
  * @since 10.0
  */
-@ElementTypesAreNonnullByDefault
+@Beta
 public class AsyncEventBus extends EventBus {
 
   /**

@@ -17,13 +17,11 @@
 package com.google.common.collect;
 
 import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.collect.NullnessCasts.uncheckedCastNullableTToT;
 
 import com.google.common.annotations.GwtCompatible;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.NoSuchElementException;
-import javax.annotation.CheckForNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 
 /**
  * This class provides a skeletal implementation of the {@code Iterator} interface, to make this
@@ -63,8 +61,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 // When making changes to this class, please also update the copy at
 // com.google.common.base.AbstractIterator
 @GwtCompatible
-@ElementTypesAreNonnullByDefault
-public abstract class AbstractIterator<T extends @Nullable Object> extends UnmodifiableIterator<T> {
+public abstract class AbstractIterator<T> extends UnmodifiableIterator<T> {
   private State state = State.NOT_READY;
 
   /** Constructor for use by subclasses. */
@@ -84,7 +81,7 @@ public abstract class AbstractIterator<T extends @Nullable Object> extends Unmod
     FAILED,
   }
 
-  @CheckForNull private T next;
+  @NullableDecl private T next;
 
   /**
    * Returns the next element. <b>Note:</b> the implementation must call {@link #endOfData()} when
@@ -110,7 +107,6 @@ public abstract class AbstractIterator<T extends @Nullable Object> extends Unmod
    *     this method. Any further attempts to use the iterator will result in an {@link
    *     IllegalStateException}.
    */
-  @CheckForNull
   protected abstract T computeNext();
 
   /**
@@ -121,7 +117,6 @@ public abstract class AbstractIterator<T extends @Nullable Object> extends Unmod
    *     simple statement {@code return endOfData();}
    */
   @CanIgnoreReturnValue
-  @CheckForNull
   protected final T endOfData() {
     state = State.DONE;
     return null;
@@ -153,14 +148,12 @@ public abstract class AbstractIterator<T extends @Nullable Object> extends Unmod
 
   @CanIgnoreReturnValue // TODO(kak): Should we remove this?
   @Override
-  @ParametricNullness
   public final T next() {
     if (!hasNext()) {
       throw new NoSuchElementException();
     }
     state = State.NOT_READY;
-    // Safe because hasNext() ensures that tryToComputeNext() has put a T into `next`.
-    T result = uncheckedCastNullableTToT(next);
+    T result = next;
     next = null;
     return result;
   }
@@ -172,12 +165,10 @@ public abstract class AbstractIterator<T extends @Nullable Object> extends Unmod
    * <p>Implementations of {@code AbstractIterator} that wish to expose this functionality should
    * implement {@code PeekingIterator}.
    */
-  @ParametricNullness
   public final T peek() {
     if (!hasNext()) {
       throw new NoSuchElementException();
     }
-    // Safe because hasNext() ensures that tryToComputeNext() has put a T into `next`.
-    return uncheckedCastNullableTToT(next);
+    return next;
   }
 }

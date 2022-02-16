@@ -29,7 +29,6 @@ import java.io.OutputStream;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.List;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * Provides utility methods for working with resources in the classpath. Note that even though these
@@ -45,7 +44,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  */
 @Beta
 @GwtIncompatible
-@ElementTypesAreNonnullByDefault
 public final class Resources {
   private Resources() {}
 
@@ -123,9 +121,8 @@ public final class Resources {
    * @throws IOException if an I/O error occurs
    */
   @CanIgnoreReturnValue // some processors won't return a useful result
-  @ParametricNullness
-  public static <T extends @Nullable Object> T readLines(
-      URL url, Charset charset, LineProcessor<T> callback) throws IOException {
+  public static <T> T readLines(URL url, Charset charset, LineProcessor<T> callback)
+      throws IOException {
     return asCharSource(url, charset).readLines(callback);
   }
 
