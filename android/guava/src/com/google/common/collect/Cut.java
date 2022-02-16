@@ -20,7 +20,7 @@ import com.google.common.annotations.GwtCompatible;
 import com.google.common.primitives.Booleans;
 import java.io.Serializable;
 import java.util.NoSuchElementException;
-import javax.annotation.CheckForNull;
+import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 
 /**
  * Implementation detail for the internal structure of {@link Range} instances. Represents a unique
@@ -32,11 +32,10 @@ import javax.annotation.CheckForNull;
  * @author Kevin Bourrillion
  */
 @GwtCompatible
-@ElementTypesAreNonnullByDefault
 abstract class Cut<C extends Comparable> implements Comparable<Cut<C>>, Serializable {
-  final C endpoint;
+  @NullableDecl final C endpoint;
 
-  Cut(C endpoint) {
+  Cut(@NullableDecl C endpoint) {
     this.endpoint = endpoint;
   }
 
@@ -54,10 +53,8 @@ abstract class Cut<C extends Comparable> implements Comparable<Cut<C>>, Serializ
 
   abstract void describeAsUpperBound(StringBuilder sb);
 
-  @CheckForNull
   abstract C leastValueAbove(DiscreteDomain<C> domain);
 
-  @CheckForNull
   abstract C greatestValueBelow(DiscreteDomain<C> domain);
 
   /*
@@ -91,15 +88,14 @@ abstract class Cut<C extends Comparable> implements Comparable<Cut<C>>, Serializ
 
   @SuppressWarnings("unchecked") // catching CCE
   @Override
-  public boolean equals(@CheckForNull Object obj) {
+  public boolean equals(Object obj) {
     if (obj instanceof Cut) {
       // It might not really be a Cut<C>, but we'll catch a CCE if it's not
       Cut<C> that = (Cut<C>) obj;
       try {
         int compareResult = compareTo(that);
         return compareResult == 0;
-      } catch (ClassCastException wastNotComparableToOurType) {
-        return false;
+      } catch (ClassCastException ignored) {
       }
     }
     return false;
@@ -124,13 +120,7 @@ abstract class Cut<C extends Comparable> implements Comparable<Cut<C>>, Serializ
     private static final BelowAll INSTANCE = new BelowAll();
 
     private BelowAll() {
-      /*
-       * No code ever sees this bogus value for `endpoint`: This class overrides both methods that
-       * use the `endpoint` field, compareTo() and endpoint(). Additionally, the main implementation
-       * of Cut.compareTo checks for belowAll before reading accessing `endpoint` on another Cut
-       * instance.
-       */
-      super("");
+      super(null);
     }
 
     @Override
@@ -229,8 +219,7 @@ abstract class Cut<C extends Comparable> implements Comparable<Cut<C>>, Serializ
     private static final AboveAll INSTANCE = new AboveAll();
 
     private AboveAll() {
-      // For discussion of "", see BelowAll.
-      super("");
+      super(null);
     }
 
     @Override
@@ -337,7 +326,7 @@ abstract class Cut<C extends Comparable> implements Comparable<Cut<C>>, Serializ
         case CLOSED:
           return this;
         case OPEN:
-          C previous = domain.previous(endpoint);
+          @NullableDecl C previous = domain.previous(endpoint);
           return (previous == null) ? Cut.<C>belowAll() : new AboveValue<C>(previous);
         default:
           throw new AssertionError();
@@ -348,7 +337,7 @@ abstract class Cut<C extends Comparable> implements Comparable<Cut<C>>, Serializ
     Cut<C> withUpperBoundType(BoundType boundType, DiscreteDomain<C> domain) {
       switch (boundType) {
         case CLOSED:
-          C previous = domain.previous(endpoint);
+          @NullableDecl C previous = domain.previous(endpoint);
           return (previous == null) ? Cut.<C>aboveAll() : new AboveValue<C>(previous);
         case OPEN:
           return this;
@@ -373,7 +362,6 @@ abstract class Cut<C extends Comparable> implements Comparable<Cut<C>>, Serializ
     }
 
     @Override
-    @CheckForNull
     C greatestValueBelow(DiscreteDomain<C> domain) {
       return domain.previous(endpoint);
     }
@@ -421,7 +409,7 @@ abstract class Cut<C extends Comparable> implements Comparable<Cut<C>>, Serializ
         case OPEN:
           return this;
         case CLOSED:
-          C next = domain.next(endpoint);
+          @NullableDecl C next = domain.next(endpoint);
           return (next == null) ? Cut.<C>belowAll() : belowValue(next);
         default:
           throw new AssertionError();
@@ -432,7 +420,7 @@ abstract class Cut<C extends Comparable> implements Comparable<Cut<C>>, Serializ
     Cut<C> withUpperBoundType(BoundType boundType, DiscreteDomain<C> domain) {
       switch (boundType) {
         case OPEN:
-          C next = domain.next(endpoint);
+          @NullableDecl C next = domain.next(endpoint);
           return (next == null) ? Cut.<C>aboveAll() : belowValue(next);
         case CLOSED:
           return this;
@@ -452,7 +440,6 @@ abstract class Cut<C extends Comparable> implements Comparable<Cut<C>>, Serializ
     }
 
     @Override
-    @CheckForNull
     C leastValueAbove(DiscreteDomain<C> domain) {
       return domain.next(endpoint);
     }

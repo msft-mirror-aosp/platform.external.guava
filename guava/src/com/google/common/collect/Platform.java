@@ -21,8 +21,6 @@ import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * Methods factored out so that they can be emulated differently in GWT.
@@ -30,14 +28,12 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * @author Hayward Chan
  */
 @GwtCompatible(emulated = true)
-@ElementTypesAreNonnullByDefault
 final class Platform {
   private static final java.util.logging.Logger logger =
       java.util.logging.Logger.getLogger(Platform.class.getName());
 
   /** Returns the platform preferred implementation of a map based on a hash table. */
-  static <K extends @Nullable Object, V extends @Nullable Object>
-      Map<K, V> newHashMapWithExpectedSize(int expectedSize) {
+  static <K, V> Map<K, V> newHashMapWithExpectedSize(int expectedSize) {
     return Maps.newHashMapWithExpectedSize(expectedSize);
   }
 
@@ -45,26 +41,20 @@ final class Platform {
    * Returns the platform preferred implementation of an insertion ordered map based on a hash
    * table.
    */
-  static <K extends @Nullable Object, V extends @Nullable Object>
-      Map<K, V> newLinkedHashMapWithExpectedSize(int expectedSize) {
+  static <K, V> Map<K, V> newLinkedHashMapWithExpectedSize(int expectedSize) {
     return Maps.newLinkedHashMapWithExpectedSize(expectedSize);
   }
 
   /** Returns the platform preferred implementation of a set based on a hash table. */
-  static <E extends @Nullable Object> Set<E> newHashSetWithExpectedSize(int expectedSize) {
+  static <E> Set<E> newHashSetWithExpectedSize(int expectedSize) {
     return Sets.newHashSetWithExpectedSize(expectedSize);
-  }
-
-  /** Returns the platform preferred implementation of a thread-safe hash set. */
-  static <E> Set<E> newConcurrentHashSet() {
-    return ConcurrentHashMap.newKeySet();
   }
 
   /**
    * Returns the platform preferred implementation of an insertion ordered set based on a hash
    * table.
    */
-  static <E extends @Nullable Object> Set<E> newLinkedHashSetWithExpectedSize(int expectedSize) {
+  static <E> Set<E> newLinkedHashSetWithExpectedSize(int expectedSize) {
     return Sets.newLinkedHashSetWithExpectedSize(expectedSize);
   }
 
@@ -72,8 +62,7 @@ final class Platform {
    * Returns the platform preferred map implementation that preserves insertion order when used only
    * for insertions.
    */
-  static <K extends @Nullable Object, V extends @Nullable Object>
-      Map<K, V> preservesInsertionOrderOnPutsMap() {
+  static <K, V> Map<K, V> preservesInsertionOrderOnPutsMap() {
     return Maps.newLinkedHashMap();
   }
 
@@ -81,7 +70,7 @@ final class Platform {
    * Returns the platform preferred set implementation that preserves insertion order when used only
    * for insertions.
    */
-  static <E extends @Nullable Object> Set<E> preservesInsertionOrderOnAddsSet() {
+  static <E> Set<E> preservesInsertionOrderOnAddsSet() {
     return Sets.newLinkedHashSet();
   }
 
@@ -91,13 +80,7 @@ final class Platform {
    * @param reference any array of the desired type
    * @param length the length of the new array
    */
-  /*
-   * The new array contains nulls, even if the old array did not. If we wanted to be accurate, we
-   * would declare a return type of `@Nullable T[]`. However, we've decided not to think too hard
-   * about arrays for now, as they're a mess. (We previously discussed this in the review of
-   * ObjectArrays, which is the main caller of this method.)
-   */
-  static <T extends @Nullable Object> T[] newArray(T[] reference, int length) {
+  static <T> T[] newArray(T[] reference, int length) {
     Class<?> type = reference.getClass().getComponentType();
 
     // the cast is safe because
@@ -108,16 +91,7 @@ final class Platform {
   }
 
   /** Equivalent to Arrays.copyOfRange(source, from, to, arrayOfType.getClass()). */
-  /*
-   * Arrays are a mess from a nullness perspective, and Class instances for object-array types are
-   * even worse. For now, we just suppress and move on with our lives.
-   *
-   * - https://github.com/jspecify/jspecify/issues/65
-   *
-   * - https://github.com/jspecify/jdk/commit/71d826792b8c7ef95d492c50a274deab938f2552
-   */
-  @SuppressWarnings("nullness")
-  static <T extends @Nullable Object> T[] copy(Object[] source, int from, int to, T[] arrayOfType) {
+  static <T> T[] copy(Object[] source, int from, int to, T[] arrayOfType) {
     return Arrays.copyOfRange(source, from, to, (Class<? extends T[]>) arrayOfType.getClass());
   }
 
@@ -157,6 +131,7 @@ final class Platform {
             + " warning because you are sending a Guava type over GWT-RPC, which will break. You"
             + " can identify which type by looking at the class name in the attached stack trace.",
         new Throwable());
+
   }
 
   private Platform() {}

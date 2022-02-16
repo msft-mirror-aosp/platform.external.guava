@@ -17,7 +17,7 @@
 package com.google.common.graph;
 
 import java.util.Set;
-import javax.annotation.CheckForNull;
+import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 
 /**
  * A class to allow {@link ValueGraph} implementations to be backed by a provided delegate. This is
@@ -26,10 +26,9 @@ import javax.annotation.CheckForNull;
  * @author James Sexton
  * @author Joshua O'Madadhain
  */
-@ElementTypesAreNonnullByDefault
 abstract class ForwardingValueGraph<N, V> extends AbstractValueGraph<N, V> {
 
-  abstract ValueGraph<N, V> delegate();
+  protected abstract ValueGraph<N, V> delegate();
 
   @Override
   public Set<N> nodes() {
@@ -106,14 +105,14 @@ abstract class ForwardingValueGraph<N, V> extends AbstractValueGraph<N, V> {
   }
 
   @Override
-  @CheckForNull
-  public V edgeValueOrDefault(N nodeU, N nodeV, @CheckForNull V defaultValue) {
+  @NullableDecl
+  public V edgeValueOrDefault(N nodeU, N nodeV, @NullableDecl V defaultValue) {
     return delegate().edgeValueOrDefault(nodeU, nodeV, defaultValue);
   }
 
   @Override
-  @CheckForNull
-  public V edgeValueOrDefault(EndpointPair<N> endpoints, @CheckForNull V defaultValue) {
+  @NullableDecl
+  public V edgeValueOrDefault(EndpointPair<N> endpoints, @NullableDecl V defaultValue) {
     return delegate().edgeValueOrDefault(endpoints, defaultValue);
   }
 }

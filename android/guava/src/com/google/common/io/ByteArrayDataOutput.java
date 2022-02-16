@@ -26,7 +26,6 @@ import java.io.IOException;
  * @since 1.0
  */
 @GwtIncompatible
-@ElementTypesAreNonnullByDefault
 public interface ByteArrayDataOutput extends DataOutput {
   @Override
   void write(int b);
