@@ -21,14 +21,11 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.annotations.GwtCompatible;
 import java.io.Serializable;
 import java.util.Iterator;
-import javax.annotation.CheckForNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 /** An ordering that uses the reverse of a given order. */
 @GwtCompatible(serializable = true)
-@ElementTypesAreNonnullByDefault
-final class ReverseOrdering<T extends @Nullable Object> extends Ordering<T>
-    implements Serializable {
+final class ReverseOrdering<T> extends Ordering<T> implements Serializable {
   final Ordering<? super T> forwardOrder;
 
   ReverseOrdering(Ordering<? super T> forwardOrder) {
@@ -36,7 +33,7 @@ final class ReverseOrdering<T extends @Nullable Object> extends Ordering<T>
   }
 
   @Override
-  public int compare(@ParametricNullness T a, @ParametricNullness T b) {
+  public int compare(T a, T b) {
     return forwardOrder.compare(b, a);
   }
 
@@ -49,13 +46,12 @@ final class ReverseOrdering<T extends @Nullable Object> extends Ordering<T>
   // Override the min/max methods to "hoist" delegation outside loops
 
   @Override
-  public <E extends T> E min(@ParametricNullness E a, @ParametricNullness E b) {
+  public <E extends T> E min(E a, E b) {
     return forwardOrder.max(a, b);
   }
 
   @Override
-  public <E extends T> E min(
-      @ParametricNullness E a, @ParametricNullness E b, @ParametricNullness E c, E... rest) {
+  public <E extends T> E min(E a, E b, E c, E... rest) {
     return forwardOrder.max(a, b, c, rest);
   }
 
@@ -70,13 +66,12 @@ final class ReverseOrdering<T extends @Nullable Object> extends Ordering<T>
   }
 
   @Override
-  public <E extends T> E max(@ParametricNullness E a, @ParametricNullness E b) {
+  public <E extends T> E max(E a, E b) {
     return forwardOrder.min(a, b);
   }
 
   @Override
-  public <E extends T> E max(
-      @ParametricNullness E a, @ParametricNullness E b, @ParametricNullness E c, E... rest) {
+  public <E extends T> E max(E a, E b, E c, E... rest) {
     return forwardOrder.min(a, b, c, rest);
   }
 
@@ -96,7 +91,7 @@ final class ReverseOrdering<T extends @Nullable Object> extends Ordering<T>
   }
 
   @Override
-  public boolean equals(@CheckForNull Object object) {
+  public boolean equals(@Nullable Object object) {
     if (object == this) {
       return true;
     }

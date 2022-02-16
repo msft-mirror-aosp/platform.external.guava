@@ -21,7 +21,7 @@ import java.util.ServiceConfigurationError;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
-import javax.annotation.CheckForNull;
+import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 
 /**
  * Methods factored out so that they can be emulated differently in GWT.
@@ -29,7 +29,6 @@ import javax.annotation.CheckForNull;
  * @author Jesse Wilson
  */
 @GwtCompatible(emulated = true)
-@ElementTypesAreNonnullByDefault
 final class Platform {
   private static final Logger logger = Logger.getLogger(Platform.class.getName());
   private static final PatternCompiler patternCompiler = loadPatternCompiler();
@@ -55,28 +54,15 @@ final class Platform {
     return String.format(Locale.ROOT, "%.4g", value);
   }
 
-  static boolean stringIsNullOrEmpty(@CheckForNull String string) {
+  static boolean stringIsNullOrEmpty(@NullableDecl String string) {
     return string == null || string.isEmpty();
   }
 
-  /**
-   * Returns the string if it is not null, or an empty string otherwise.
-   *
-   * @param string the string to test and possibly return
-   * @return {@code string} if it is not null; {@code ""} otherwise
-   */
-  static String nullToEmpty(@CheckForNull String string) {
+  static String nullToEmpty(@NullableDecl String string) {
     return (string == null) ? "" : string;
   }
 
-  /**
-   * Returns the string if it is not empty, or a null string otherwise.
-   *
-   * @param string the string to test and possibly return
-   * @return {@code string} if it is not empty; {@code null} otherwise
-   */
-  @CheckForNull
-  static String emptyToNull(@CheckForNull String string) {
+  static String emptyToNull(@NullableDecl String string) {
     return stringIsNullOrEmpty(string) ? null : string;
   }
 

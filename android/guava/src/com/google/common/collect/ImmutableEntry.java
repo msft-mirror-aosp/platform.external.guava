@@ -18,36 +18,33 @@ package com.google.common.collect;
 
 import com.google.common.annotations.GwtCompatible;
 import java.io.Serializable;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 
 /** @see com.google.common.collect.Maps#immutableEntry(Object, Object) */
 @GwtCompatible(serializable = true)
-@ElementTypesAreNonnullByDefault
-class ImmutableEntry<K extends @Nullable Object, V extends @Nullable Object>
-    extends AbstractMapEntry<K, V> implements Serializable {
-  @ParametricNullness final K key;
-  @ParametricNullness final V value;
+class ImmutableEntry<K, V> extends AbstractMapEntry<K, V> implements Serializable {
+  @NullableDecl final K key;
+  @NullableDecl final V value;
 
-  ImmutableEntry(@ParametricNullness K key, @ParametricNullness V value) {
+  ImmutableEntry(@NullableDecl K key, @NullableDecl V value) {
     this.key = key;
     this.value = value;
   }
 
   @Override
-  @ParametricNullness
+  @NullableDecl
   public final K getKey() {
     return key;
   }
 
   @Override
-  @ParametricNullness
+  @NullableDecl
   public final V getValue() {
     return value;
   }
 
   @Override
-  @ParametricNullness
-  public final V setValue(@ParametricNullness V value) {
+  public final V setValue(V value) {
     throw new UnsupportedOperationException();
   }
 

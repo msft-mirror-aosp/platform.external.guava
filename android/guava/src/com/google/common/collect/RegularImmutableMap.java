@@ -19,15 +19,13 @@ package com.google.common.collect;
 import static com.google.common.base.Preconditions.checkElementIndex;
 import static com.google.common.base.Preconditions.checkPositionIndex;
 import static com.google.common.collect.CollectPreconditions.checkEntryNotNull;
-import static java.util.Objects.requireNonNull;
 
 import com.google.common.annotations.GwtCompatible;
 import com.google.common.annotations.VisibleForTesting;
 import java.util.AbstractMap;
 import java.util.Arrays;
 import java.util.Map.Entry;
-import javax.annotation.CheckForNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 
 /**
  * A hash-based implementation of {@link ImmutableMap}.
@@ -35,7 +33,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * @author Louis Wasserman
  */
 @GwtCompatible(serializable = true, emulated = true)
-@ElementTypesAreNonnullByDefault
 final class RegularImmutableMap<K, V> extends ImmutableMap<K, V> {
   private static final byte ABSENT = -1;
 
@@ -67,19 +64,16 @@ final class RegularImmutableMap<K, V> extends ImmutableMap<K, V> {
    * & (table.length - 1) instead of % table.length, though.
    */
 
-  @CheckForNull private final transient Object hashTable;
-  @VisibleForTesting final transient @Nullable Object[] alternatingKeysAndValues;
+  private final transient Object hashTable;
+  @VisibleForTesting final transient Object[] alternatingKeysAndValues;
   private final transient int size;
 
   @SuppressWarnings("unchecked")
-  static <K, V> RegularImmutableMap<K, V> create(
-      int n, @Nullable Object[] alternatingKeysAndValues) {
+  static <K, V> RegularImmutableMap<K, V> create(int n, Object[] alternatingKeysAndValues) {
     if (n == 0) {
       return (RegularImmutableMap<K, V>) EMPTY;
     } else if (n == 1) {
-      // requireNonNull is safe because the first `2*n` elements have been filled in.
-      checkEntryNotNull(
-          requireNonNull(alternatingKeysAndValues[0]), requireNonNull(alternatingKeysAndValues[1]));
+      checkEntryNotNull(alternatingKeysAndValues[0], alternatingKeysAndValues[1]);
       return new RegularImmutableMap<K, V>(null, alternatingKeysAndValues, 1);
     }
     checkPositionIndex(n, alternatingKeysAndValues.length >> 1);
@@ -92,15 +86,12 @@ final class RegularImmutableMap<K, V> extends ImmutableMap<K, V> {
    * Returns a hash table for the specified keys and values, and ensures that neither keys nor
    * values are null.
    */
-  @CheckForNull
   static Object createHashTable(
-      @Nullable Object[] alternatingKeysAndValues, int n, int tableSize, int keyOffset) {
+      Object[] alternatingKeysAndValues, int n, int tableSize, int keyOffset) {
     if (n == 1) {
       // for n=1 we don't create a hash table, but we need to do the checkEntryNotNull check!
-      // requireNonNull is safe because the first `2*n` elements have been filled in.
       checkEntryNotNull(
-          requireNonNull(alternatingKeysAndValues[keyOffset]),
-          requireNonNull(alternatingKeysAndValues[keyOffset ^ 1]));
+          alternatingKeysAndValues[keyOffset], alternatingKeysAndValues[keyOffset ^ 1]);
       return null;
     }
     int mask = tableSize - 1;
@@ -116,9 +107,8 @@ final class RegularImmutableMap<K, V> extends ImmutableMap<K, V> {
 
       for (int i = 0; i < n; i++) {
         int keyIndex = 2 * i + keyOffset;
-        // requireNonNull is safe because the first `2*n` elements have been filled in.
-        Object key = requireNonNull(alternatingKeysAndValues[keyIndex]);
-        Object value = requireNonNull(alternatingKeysAndValues[keyIndex ^ 1]);
+        Object key = alternatingKeysAndValues[keyIndex];
+        Object value = alternatingKeysAndValues[keyIndex ^ 1];
         checkEntryNotNull(key, value);
         for (int h = Hashing.smear(key.hashCode()); ; h++) {
           h &= mask;
@@ -126,7 +116,7 @@ final class RegularImmutableMap<K, V> extends ImmutableMap<K, V> {
           if (previousKeyIndex == BYTE_MASK) { // -1 signed becomes 255 unsigned
             hashTable[h] = (byte) keyIndex;
             break;
-          } else if (key.equals(alternatingKeysAndValues[previousKeyIndex])) {
+          } else if (alternatingKeysAndValues[previousKeyIndex].equals(key)) {
             throw duplicateKeyException(key, value, alternatingKeysAndValues, previousKeyIndex);
           }
         }
@@ -144,9 +134,8 @@ final class RegularImmutableMap<K, V> extends ImmutableMap<K, V> {
 
       for (int i = 0; i < n; i++) {
         int keyIndex = 2 * i + keyOffset;
-        // requireNonNull is safe because the first `2*n` elements have been filled in.
-        Object key = requireNonNull(alternatingKeysAndValues[keyIndex]);
-        Object value = requireNonNull(alternatingKeysAndValues[keyIndex ^ 1]);
+        Object key = alternatingKeysAndValues[keyIndex];
+        Object value = alternatingKeysAndValues[keyIndex ^ 1];
         checkEntryNotNull(key, value);
         for (int h = Hashing.smear(key.hashCode()); ; h++) {
           h &= mask;
@@ -154,7 +143,7 @@ final class RegularImmutableMap<K, V> extends ImmutableMap<K, V> {
           if (previousKeyIndex == SHORT_MASK) { // -1 signed becomes 65_535 unsigned
             hashTable[h] = (short) keyIndex;
             break;
-          } else if (key.equals(alternatingKeysAndValues[previousKeyIndex])) {
+          } else if (alternatingKeysAndValues[previousKeyIndex].equals(key)) {
             throw duplicateKeyException(key, value, alternatingKeysAndValues, previousKeyIndex);
           }
         }
@@ -169,9 +158,8 @@ final class RegularImmutableMap<K, V> extends ImmutableMap<K, V> {
 
       for (int i = 0; i < n; i++) {
         int keyIndex = 2 * i + keyOffset;
-        // requireNonNull is safe because the first `2*n` elements have been filled in.
-        Object key = requireNonNull(alternatingKeysAndValues[keyIndex]);
-        Object value = requireNonNull(alternatingKeysAndValues[keyIndex ^ 1]);
+        Object key = alternatingKeysAndValues[keyIndex];
+        Object value = alternatingKeysAndValues[keyIndex ^ 1];
         checkEntryNotNull(key, value);
         for (int h = Hashing.smear(key.hashCode()); ; h++) {
           h &= mask;
@@ -179,7 +167,7 @@ final class RegularImmutableMap<K, V> extends ImmutableMap<K, V> {
           if (previousKeyIndex == ABSENT) {
             hashTable[h] = keyIndex;
             break;
-          } else if (key.equals(alternatingKeysAndValues[previousKeyIndex])) {
+          } else if (alternatingKeysAndValues[previousKeyIndex].equals(key)) {
             throw duplicateKeyException(key, value, alternatingKeysAndValues, previousKeyIndex);
           }
         }
@@ -189,7 +177,7 @@ final class RegularImmutableMap<K, V> extends ImmutableMap<K, V> {
   }
 
   private static IllegalArgumentException duplicateKeyException(
-      Object key, Object value, @Nullable Object[] alternatingKeysAndValues, int previousKeyIndex) {
+      Object key, Object value, Object[] alternatingKeysAndValues, int previousKeyIndex) {
     return new IllegalArgumentException(
         "Multiple entries with same key: "
             + key
@@ -201,8 +189,7 @@ final class RegularImmutableMap<K, V> extends ImmutableMap<K, V> {
             + alternatingKeysAndValues[previousKeyIndex ^ 1]);
   }
 
-  private RegularImmutableMap(
-      @CheckForNull Object hashTable, @Nullable Object[] alternatingKeysAndValues, int size) {
+  private RegularImmutableMap(Object hashTable, Object[] alternatingKeysAndValues, int size) {
     this.hashTable = hashTable;
     this.alternatingKeysAndValues = alternatingKeysAndValues;
     this.size = size;
@@ -215,33 +202,22 @@ final class RegularImmutableMap<K, V> extends ImmutableMap<K, V> {
 
   @SuppressWarnings("unchecked")
   @Override
-  @CheckForNull
-  public V get(@CheckForNull Object key) {
-    Object result = get(hashTable, alternatingKeysAndValues, size, 0, key);
-    /*
-     * We can't simply cast the result of `RegularImmutableMap.get` to V because of a bug in our
-     * nullness checker (resulting from https://github.com/jspecify/checker-framework/issues/8).
-     */
-    if (result == null) {
-      return null;
-    } else {
-      return (V) result;
-    }
+  @NullableDecl
+  public V get(@NullableDecl Object key) {
+    return (V) get(hashTable, alternatingKeysAndValues, size, 0, key);
   }
 
-  @CheckForNull
   static Object get(
-      @CheckForNull Object hashTableObject,
-      @Nullable Object[] alternatingKeysAndValues,
+      @NullableDecl Object hashTableObject,
+      @NullableDecl Object[] alternatingKeysAndValues,
       int size,
       int keyOffset,
-      @CheckForNull Object key) {
+      @NullableDecl Object key) {
     if (key == null) {
       return null;
     } else if (size == 1) {
-      // requireNonNull is safe because the first 2 elements have been filled in.
-      return requireNonNull(alternatingKeysAndValues[keyOffset]).equals(key)
-          ? requireNonNull(alternatingKeysAndValues[keyOffset ^ 1])
+      return alternatingKeysAndValues[keyOffset].equals(key)
+          ? alternatingKeysAndValues[keyOffset ^ 1]
           : null;
     } else if (hashTableObject == null) {
       return null;
@@ -254,7 +230,7 @@ final class RegularImmutableMap<K, V> extends ImmutableMap<K, V> {
         int keyIndex = hashTable[h] & BYTE_MASK; // unsigned read
         if (keyIndex == BYTE_MASK) { // -1 signed becomes 255 unsigned
           return null;
-        } else if (key.equals(alternatingKeysAndValues[keyIndex])) {
+        } else if (alternatingKeysAndValues[keyIndex].equals(key)) {
           return alternatingKeysAndValues[keyIndex ^ 1];
         }
       }
@@ -266,7 +242,7 @@ final class RegularImmutableMap<K, V> extends ImmutableMap<K, V> {
         int keyIndex = hashTable[h] & SHORT_MASK; // unsigned read
         if (keyIndex == SHORT_MASK) { // -1 signed becomes 65_535 unsigned
           return null;
-        } else if (key.equals(alternatingKeysAndValues[keyIndex])) {
+        } else if (alternatingKeysAndValues[keyIndex].equals(key)) {
           return alternatingKeysAndValues[keyIndex ^ 1];
         }
       }
@@ -278,7 +254,7 @@ final class RegularImmutableMap<K, V> extends ImmutableMap<K, V> {
         int keyIndex = hashTable[h];
         if (keyIndex == ABSENT) {
           return null;
-        } else if (key.equals(alternatingKeysAndValues[keyIndex])) {
+        } else if (alternatingKeysAndValues[keyIndex].equals(key)) {
           return alternatingKeysAndValues[keyIndex ^ 1];
         }
       }
@@ -292,15 +268,11 @@ final class RegularImmutableMap<K, V> extends ImmutableMap<K, V> {
 
   static class EntrySet<K, V> extends ImmutableSet<Entry<K, V>> {
     private final transient ImmutableMap<K, V> map;
-    private final transient @Nullable Object[] alternatingKeysAndValues;
+    private final transient Object[] alternatingKeysAndValues;
     private final transient int keyOffset;
     private final transient int size;
 
-    EntrySet(
-        ImmutableMap<K, V> map,
-        @Nullable Object[] alternatingKeysAndValues,
-        int keyOffset,
-        int size) {
+    EntrySet(ImmutableMap<K, V> map, Object[] alternatingKeysAndValues, int keyOffset, int size) {
       this.map = map;
       this.alternatingKeysAndValues = alternatingKeysAndValues;
       this.keyOffset = keyOffset;
@@ -323,14 +295,10 @@ final class RegularImmutableMap<K, V> extends ImmutableMap<K, V> {
         @Override
         public Entry<K, V> get(int index) {
           checkElementIndex(index, size);
-          /*
-           * requireNonNull is safe because the first `2*(size+keyOffset)` elements have been filled
-           * in.
-           */
           @SuppressWarnings("unchecked")
-          K key = (K) requireNonNull(alternatingKeysAndValues[2 * index + keyOffset]);
+          K key = (K) alternatingKeysAndValues[2 * index + keyOffset];
           @SuppressWarnings("unchecked")
-          V value = (V) requireNonNull(alternatingKeysAndValues[2 * index + (keyOffset ^ 1)]);
+          V value = (V) alternatingKeysAndValues[2 * index + (keyOffset ^ 1)];
           return new AbstractMap.SimpleImmutableEntry<K, V>(key, value);
         }
 
@@ -347,7 +315,7 @@ final class RegularImmutableMap<K, V> extends ImmutableMap<K, V> {
     }
 
     @Override
-    public boolean contains(@CheckForNull Object object) {
+    public boolean contains(Object object) {
       if (object instanceof Entry) {
         Entry<?, ?> entry = (Entry<?, ?>) object;
         Object k = entry.getKey();
@@ -377,11 +345,11 @@ final class RegularImmutableMap<K, V> extends ImmutableMap<K, V> {
   }
 
   static final class KeysOrValuesAsList extends ImmutableList<Object> {
-    private final transient @Nullable Object[] alternatingKeysAndValues;
+    private final transient Object[] alternatingKeysAndValues;
     private final transient int offset;
     private final transient int size;
 
-    KeysOrValuesAsList(@Nullable Object[] alternatingKeysAndValues, int offset, int size) {
+    KeysOrValuesAsList(Object[] alternatingKeysAndValues, int offset, int size) {
       this.alternatingKeysAndValues = alternatingKeysAndValues;
       this.offset = offset;
       this.size = size;
@@ -390,8 +358,7 @@ final class RegularImmutableMap<K, V> extends ImmutableMap<K, V> {
     @Override
     public Object get(int index) {
       checkElementIndex(index, size);
-      // requireNonNull is safe because the first `2*(size+offset)` elements have been filled in.
-      return requireNonNull(alternatingKeysAndValues[2 * index + offset]);
+      return alternatingKeysAndValues[2 * index + offset];
     }
 
     @Override
@@ -430,7 +397,7 @@ final class RegularImmutableMap<K, V> extends ImmutableMap<K, V> {
     }
 
     @Override
-    public boolean contains(@CheckForNull Object object) {
+    public boolean contains(@NullableDecl Object object) {
       return map.get(object) != null;
     }
 

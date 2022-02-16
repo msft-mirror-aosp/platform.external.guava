@@ -17,11 +17,9 @@
 package com.google.common.collect;
 
 import static com.google.common.base.Preconditions.checkElementIndex;
-import static java.util.Objects.requireNonNull;
 
 import com.google.common.annotations.GwtCompatible;
 import com.google.common.annotations.VisibleForTesting;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * Implementation of {@link ImmutableList} backed by a simple array.
@@ -30,15 +28,13 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  */
 @GwtCompatible(serializable = true, emulated = true)
 @SuppressWarnings("serial") // uses writeReplace(), not default serialization
-@ElementTypesAreNonnullByDefault
 class RegularImmutableList<E> extends ImmutableList<E> {
   static final ImmutableList<Object> EMPTY = new RegularImmutableList<>(new Object[0], 0);
 
-  // The first `size` elements are non-null.
-  @VisibleForTesting final transient @Nullable Object[] array;
+  @VisibleForTesting final transient Object[] array;
   private final transient int size;
 
-  RegularImmutableList(@Nullable Object[] array, int size) {
+  RegularImmutableList(Object[] array, int size) {
     this.array = array;
     this.size = size;
   }
@@ -54,7 +50,6 @@ class RegularImmutableList<E> extends ImmutableList<E> {
   }
 
   @Override
-  @Nullable
   Object[] internalArray() {
     return array;
   }
@@ -70,7 +65,7 @@ class RegularImmutableList<E> extends ImmutableList<E> {
   }
 
   @Override
-  int copyIntoArray(@Nullable Object[] dst, int dstOff) {
+  int copyIntoArray(Object[] dst, int dstOff) {
     System.arraycopy(array, 0, dst, dstOff, size);
     return dstOff + size;
   }
@@ -80,8 +75,7 @@ class RegularImmutableList<E> extends ImmutableList<E> {
   @SuppressWarnings("unchecked")
   public E get(int index) {
     checkElementIndex(index, size);
-    // requireNonNull is safe because we guarantee that the first `size` elements are non-null.
-    return (E) requireNonNull(array[index]);
+    return (E) array[index];
   }
 
   // TODO(lowasser): benchmark optimizations for equals() and see if they're worthwhile

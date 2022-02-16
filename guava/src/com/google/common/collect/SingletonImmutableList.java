@@ -30,7 +30,6 @@ import java.util.Spliterator;
  */
 @GwtCompatible(serializable = true, emulated = true)
 @SuppressWarnings("serial") // uses writeReplace(), not default serialization
-@ElementTypesAreNonnullByDefault
 final class SingletonImmutableList<E> extends ImmutableList<E> {
 
   final transient E element;

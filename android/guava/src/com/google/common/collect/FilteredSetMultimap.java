@@ -17,7 +17,6 @@
 package com.google.common.collect;
 
 import com.google.common.annotations.GwtCompatible;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * A supertype for filtered {@link SetMultimap} implementations.
@@ -25,9 +24,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * @author Louis Wasserman
  */
 @GwtCompatible
-@ElementTypesAreNonnullByDefault
-interface FilteredSetMultimap<K extends @Nullable Object, V extends @Nullable Object>
-    extends FilteredMultimap<K, V>, SetMultimap<K, V> {
+interface FilteredSetMultimap<K, V> extends FilteredMultimap<K, V>, SetMultimap<K, V> {
   @Override
   SetMultimap<K, V> unfiltered();
 }
