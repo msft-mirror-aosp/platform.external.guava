@@ -19,7 +19,6 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 
 /** Forwarding wrapper around a {@code Lock}. */
-@ElementTypesAreNonnullByDefault
 abstract class ForwardingLock implements Lock {
   abstract Lock delegate();
 

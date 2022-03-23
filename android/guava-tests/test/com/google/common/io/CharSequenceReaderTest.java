@@ -211,7 +211,7 @@ public class CharSequenceReaderTest extends TestCase {
     reader = new CharSequenceReader(charSequence);
     CharBuffer buf2 = CharBuffer.allocate(expected.length());
     assertEquals(expected.length() == 0 ? -1 : expected.length(), reader.read(buf2));
-    Java8Compatibility.flip(buf2);
+    buf2.flip();
     assertEquals(expected, buf2.toString());
     assertFullyRead(reader);
 
@@ -220,9 +220,9 @@ public class CharSequenceReaderTest extends TestCase {
     buf2 = CharBuffer.allocate(5);
     builder = new StringBuilder();
     while (reader.read(buf2) != -1) {
-      Java8Compatibility.flip(buf2);
+      buf2.flip();
       builder.append(buf2);
-      Java8Compatibility.clear(buf2);
+      buf2.clear();
     }
     assertEquals(expected, builder.toString());
     assertFullyRead(reader);

@@ -23,7 +23,6 @@ import com.google.common.annotations.GwtIncompatible;
  * @author Colin Decker
  */
 @GwtIncompatible
-@ElementTypesAreNonnullByDefault
 public enum FileWriteMode {
   /** Specifies that writes to the opened file should append to the end of the file. */
   APPEND

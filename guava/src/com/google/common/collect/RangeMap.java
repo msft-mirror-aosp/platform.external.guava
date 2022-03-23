@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.function.BiFunction;
-import javax.annotation.CheckForNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
@@ -40,27 +39,21 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 @Beta
 @DoNotMock("Use ImmutableRangeMap or TreeRangeMap")
 @GwtIncompatible
-@ElementTypesAreNonnullByDefault
 public interface RangeMap<K extends Comparable, V> {
-  /*
-   * TODO(cpovirk): These docs sometimes say "map" and sometimes say "range map." Pick one, or at
-   * least decide on a policy for when to use which.
-   */
-
   /**
    * Returns the value associated with the specified key, or {@code null} if there is no such value.
    *
    * <p>Specifically, if any range in this range map contains the specified key, the value
    * associated with that range is returned.
    */
-  @CheckForNull
+  @Nullable
   V get(K key);
 
   /**
    * Returns the range containing this key and its associated value, if such a range is present in
    * the range map, or {@code null} otherwise.
    */
-  @CheckForNull
+  @Nullable
   Entry<Range<K>, V> getEntry(K key);
 
   /**
@@ -118,27 +111,25 @@ public interface RangeMap<K extends Comparable, V> {
   void remove(Range<K> range);
 
   /**
-   * Merges a value into a part of the map by applying a remapping function.
+   * Merges a value into the map over a range by applying a remapping function.
    *
-   * <p>If any parts of the range are already present in this map, those parts are mapped to new
-   * values by applying the remapping function. The remapping function accepts the map's existing
-   * value for that part of the range and the given value. It returns the value to be associated
-   * with that part of the map, or it returns {@code null} to clear that part of the map.
+   * <p>If any parts of the range are already present in this range map, those parts are mapped to
+   * new values by applying the remapping function. Any parts of the range not already present in
+   * this range map are mapped to the specified value, unless the value is {@code null}.
    *
-   * <p>Any parts of the range not already present in this map are mapped to the specified value,
-   * unless the value is {@code null}.
+   * <p>Any existing map entry spanning either range boundary may be split at the boundary, even if
+   * the merge does not affect its value.
    *
-   * <p>Any existing entry spanning either range boundary may be split at the boundary, even if the
-   * merge does not affect its value. For example, if {@code rangeMap} had one entry {@code [1, 5]
-   * => 3} then {@code rangeMap.merge(Range.closed(0,2), 3, Math::max)} could yield a map with the
-   * entries {@code [0, 1) => 3, [1, 2] => 3, (2, 5] => 3}.
+   * <p>For example, if {@code rangeMap} had one entry {@code [1, 5] => 3} then {@code
+   * rangeMap.merge(Range.closed(0,2), 3, Math::max)} could yield a range map with the entries
+   * {@code [0, 1) => 3, [1, 2] => 3, (2, 5] => 3}.
    *
    * @since 28.1
    */
   void merge(
       Range<K> range,
-      @CheckForNull V value,
-      BiFunction<? super V, ? super @Nullable V, ? extends @Nullable V> remappingFunction);
+      @Nullable V value,
+      BiFunction<? super V, ? super V, ? extends V> remappingFunction);
 
   /**
    * Returns a view of this range map as an unmodifiable {@code Map<Range<K>, V>}. Modifications to
@@ -177,7 +168,6 @@ public interface RangeMap<K extends Comparable, V> {
    * <p>The returned range map will throw an {@link IllegalArgumentException} on an attempt to
    * insert a range not {@linkplain Range#encloses(Range) enclosed} by {@code range}.
    */
-  // TODO(cpovirk): Consider documenting that IAE on the various methods that can throw it.
   RangeMap<K, V> subRangeMap(Range<K> range);
 
   /**
@@ -185,7 +175,7 @@ public interface RangeMap<K extends Comparable, V> {
    * #asMapOfRanges()}.
    */
   @Override
-  boolean equals(@CheckForNull Object o);
+  boolean equals(@Nullable Object o);
 
   /** Returns {@code asMapOfRanges().hashCode()}. */
   @Override

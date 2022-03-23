@@ -52,8 +52,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import javax.annotation.CheckForNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * Provides utility methods for working with {@linkplain File files}.
@@ -66,7 +64,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * @since 1.0
  */
 @GwtIncompatible
-@ElementTypesAreNonnullByDefault
 public final class Files {
 
   /** Maximum loop count when creating temp directories. */
@@ -532,7 +529,6 @@ public final class Files {
    */
   @Beta
   @Deprecated
-  @CheckForNull
   public
   static String readFirstLine(File file, Charset charset) throws IOException {
     return asCharSource(file, charset).readFirstLine();
@@ -592,10 +588,8 @@ public final class Files {
   @Beta
   @Deprecated
   @CanIgnoreReturnValue // some processors won't return a useful result
-  @ParametricNullness
   public
-  static <T extends @Nullable Object> T readLines(
-      File file, Charset charset, LineProcessor<T> callback) throws IOException {
+  static <T> T readLines(File file, Charset charset, LineProcessor<T> callback) throws IOException {
     return asCharSource(file, charset).readLines(callback);
   }
 
@@ -614,10 +608,8 @@ public final class Files {
   @Beta
   @Deprecated
   @CanIgnoreReturnValue // some processors won't return a useful result
-  @ParametricNullness
   public
-  static <T extends @Nullable Object> T readBytes(File file, ByteProcessor<T> processor)
-      throws IOException {
+  static <T> T readBytes(File file, ByteProcessor<T> processor) throws IOException {
     return asByteSource(file).read(processor);
   }
 

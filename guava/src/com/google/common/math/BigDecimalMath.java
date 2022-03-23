@@ -25,7 +25,6 @@ import java.math.RoundingMode;
  * @since 30.0
  */
 @GwtIncompatible
-@ElementTypesAreNonnullByDefault
 public class BigDecimalMath {
   private BigDecimalMath() {}
 

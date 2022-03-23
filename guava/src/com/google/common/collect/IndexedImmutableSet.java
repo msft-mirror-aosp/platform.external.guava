@@ -22,11 +22,9 @@ import com.google.common.annotations.GwtCompatible;
 import com.google.common.annotations.GwtIncompatible;
 import java.util.Spliterator;
 import java.util.function.Consumer;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 @GwtCompatible(emulated = true)
-@ElementTypesAreNonnullByDefault
-abstract class IndexedImmutableSet<E> extends ImmutableSet.CachingAsList<E> {
+abstract class IndexedImmutableSet<E> extends ImmutableSet<E> {
   abstract E get(int index);
 
   @Override
@@ -50,7 +48,7 @@ abstract class IndexedImmutableSet<E> extends ImmutableSet.CachingAsList<E> {
 
   @Override
   @GwtIncompatible
-  int copyIntoArray(@Nullable Object[] dst, int offset) {
+  int copyIntoArray(Object[] dst, int offset) {
     return asList().copyIntoArray(dst, offset);
   }
 

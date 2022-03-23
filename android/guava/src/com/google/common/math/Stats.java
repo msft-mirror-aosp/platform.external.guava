@@ -32,7 +32,7 @@ import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Iterator;
-import javax.annotation.CheckForNull;
+import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 
 /**
  * A bundle of statistical summary values -- sum, count, mean/average, min and max, and several
@@ -60,7 +60,6 @@ import javax.annotation.CheckForNull;
  */
 @Beta
 @GwtIncompatible
-@ElementTypesAreNonnullByDefault
 public final class Stats implements Serializable {
 
   private final long count;
@@ -341,7 +340,7 @@ public final class Stats implements Serializable {
    * {@code strictfp}-like semantics.)
    */
   @Override
-  public boolean equals(@CheckForNull Object obj) {
+  public boolean equals(@NullableDecl Object obj) {
     if (obj == null) {
       return false;
     }

@@ -16,13 +16,13 @@ package com.google.common.collect;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.annotations.Beta;
 import com.google.common.annotations.GwtIncompatible;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Equivalence;
 import com.google.common.base.Function;
 import com.google.common.collect.MapMaker.Dummy;
 import com.google.common.collect.MapMakerInternalMap.InternalEntry;
-import javax.annotation.CheckForNull;
 
 /**
  * Contains static methods pertaining to instances of {@link Interner}.
@@ -30,8 +30,8 @@ import javax.annotation.CheckForNull;
  * @author Kevin Bourrillion
  * @since 3.0
  */
+@Beta
 @GwtIncompatible
-@ElementTypesAreNonnullByDefault
 public final class Interners {
   private Interners() {}
 
@@ -124,15 +124,11 @@ public final class Interners {
     public E intern(E sample) {
       while (true) {
         // trying to read the canonical...
-        @SuppressWarnings("rawtypes") // using raw types to avoid a bug in our nullness checker :(
-        InternalEntry entry = map.getEntry(sample);
+        InternalEntry<E, Dummy, ?> entry = map.getEntry(sample);
         if (entry != null) {
-          Object canonical = entry.getKey();
+          E canonical = entry.getKey();
           if (canonical != null) { // only matters if weak/soft keys are used
-            // The compiler would know this is safe if not for our use of raw types (see above).
-            @SuppressWarnings("unchecked")
-            E result = (E) canonical;
-            return result;
+            return canonical;
           }
         }
 
@@ -180,7 +176,7 @@ public final class Interners {
     }
 
     @Override
-    public boolean equals(@CheckForNull Object other) {
+    public boolean equals(Object other) {
       if (other instanceof InternerFunction) {
         InternerFunction<?> that = (InternerFunction<?>) other;
         return interner.equals(that.interner);

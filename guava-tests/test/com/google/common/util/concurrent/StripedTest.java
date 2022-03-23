@@ -129,14 +129,12 @@ public class StripedTest extends TestCase {
     assertTrue(Striped.lazyWeakLock(256).size() == 256);
   }
 
-
   public void testWeakImplementations() {
     for (Striped<?> striped : weakImplementations()) {
       WeakReference<Object> weakRef = new WeakReference<>(striped.get(new Object()));
       GcFinalization.awaitClear(weakRef);
     }
   }
-
 
   public void testWeakReadWrite() {
     Striped<ReadWriteLock> striped = Striped.lazyWeakReadWriteLock(1000);
@@ -149,7 +147,6 @@ public class StripedTest extends TestCase {
     assertFalse(writeLock.tryLock());
     readLock.unlock();
   }
-
 
   public void testStrongImplementations() {
     for (Striped<?> striped : strongImplementations()) {
