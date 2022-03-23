@@ -19,7 +19,6 @@ import com.google.common.base.Preconditions;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.nio.charset.Charset;
-import javax.annotation.CheckForNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
@@ -29,7 +28,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * @since 11.0
  */
 @Beta
-@ElementTypesAreNonnullByDefault
 public final class Funnels {
   private Funnels() {}
 
@@ -105,7 +103,7 @@ public final class Funnels {
     }
 
     @Override
-    public boolean equals(@CheckForNull Object o) {
+    public boolean equals(@Nullable Object o) {
       if (o instanceof StringCharsetFunnel) {
         StringCharsetFunnel funnel = (StringCharsetFunnel) o;
         return this.charset.equals(funnel.charset);
@@ -166,13 +164,11 @@ public final class Funnels {
    *
    * @since 15.0
    */
-  public static <E extends @Nullable Object> Funnel<Iterable<? extends E>> sequentialFunnel(
-      Funnel<E> elementFunnel) {
+  public static <E> Funnel<Iterable<? extends E>> sequentialFunnel(Funnel<E> elementFunnel) {
     return new SequentialFunnel<E>(elementFunnel);
   }
 
-  private static class SequentialFunnel<E extends @Nullable Object>
-      implements Funnel<Iterable<? extends E>>, Serializable {
+  private static class SequentialFunnel<E> implements Funnel<Iterable<? extends E>>, Serializable {
     private final Funnel<E> elementFunnel;
 
     SequentialFunnel(Funnel<E> elementFunnel) {
@@ -192,7 +188,7 @@ public final class Funnels {
     }
 
     @Override
-    public boolean equals(@CheckForNull Object o) {
+    public boolean equals(@Nullable Object o) {
       if (o instanceof SequentialFunnel) {
         SequentialFunnel<?> funnel = (SequentialFunnel<?>) o;
         return elementFunnel.equals(funnel.elementFunnel);

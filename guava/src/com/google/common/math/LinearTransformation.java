@@ -21,7 +21,6 @@ import static java.lang.Double.NaN;
 import com.google.common.annotations.Beta;
 import com.google.common.annotations.GwtIncompatible;
 import com.google.errorprone.annotations.concurrent.LazyInit;
-import javax.annotation.CheckForNull;
 
 /**
  * The representation of a linear transformation between real numbers {@code x} and {@code y}.
@@ -36,7 +35,6 @@ import javax.annotation.CheckForNull;
  */
 @Beta
 @GwtIncompatible
-@ElementTypesAreNonnullByDefault
 public abstract class LinearTransformation {
 
   /**
@@ -163,7 +161,7 @@ public abstract class LinearTransformation {
     final double slope;
     final double yIntercept;
 
-    @CheckForNull @LazyInit LinearTransformation inverse;
+    @LazyInit LinearTransformation inverse;
 
     RegularLinearTransformation(double slope, double yIntercept) {
       this.slope = slope;
@@ -221,7 +219,7 @@ public abstract class LinearTransformation {
 
     final double x;
 
-    @CheckForNull @LazyInit LinearTransformation inverse;
+    @LazyInit LinearTransformation inverse;
 
     VerticalLinearTransformation(double x) {
       this.x = x;

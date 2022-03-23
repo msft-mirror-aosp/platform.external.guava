@@ -48,7 +48,6 @@ import java.math.RoundingMode;
  * @since 11.0
  */
 @GwtCompatible(emulated = true)
-@ElementTypesAreNonnullByDefault
 public final class IntMath {
   // NOTE: Whenever both tests are cheap and functional, it's faster to use &, | instead of &&, ||
 

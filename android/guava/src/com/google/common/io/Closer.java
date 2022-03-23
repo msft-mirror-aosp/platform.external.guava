@@ -27,8 +27,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.logging.Level;
-import javax.annotation.CheckForNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 
 /**
  * A {@link Closeable} that collects {@code Closeable} resources and closes them all when it is
@@ -89,16 +88,13 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 // Coffee's for {@link Closer closers} only.
 @Beta
 @GwtIncompatible
-@ElementTypesAreNonnullByDefault
 public final class Closer implements Closeable {
 
   /** The suppressor implementation to use for the current Java version. */
-  private static final Suppressor SUPPRESSOR;
-
-  static {
-    SuppressingSuppressor suppressingSuppressor = SuppressingSuppressor.tryCreate();
-    SUPPRESSOR = suppressingSuppressor == null ? LoggingSuppressor.INSTANCE : suppressingSuppressor;
-  }
+  private static final Suppressor SUPPRESSOR =
+      SuppressingSuppressor.isAvailable()
+          ? SuppressingSuppressor.INSTANCE
+          : LoggingSuppressor.INSTANCE;
 
   /** Creates a new {@link Closer}. */
   public static Closer create() {
@@ -109,7 +105,7 @@ public final class Closer implements Closeable {
 
   // only need space for 2 elements in most cases, so try to use the smallest array possible
   private final Deque<Closeable> stack = new ArrayDeque<>(4);
-  @CheckForNull private Throwable thrown;
+  @NullableDecl private Throwable thrown;
 
   @VisibleForTesting
   Closer(Suppressor suppressor) {
@@ -124,8 +120,7 @@ public final class Closer implements Closeable {
    */
   // close. this word no longer has any meaning to me.
   @CanIgnoreReturnValue
-  @ParametricNullness
-  public <C extends @Nullable Closeable> C register(@ParametricNullness C closeable) {
+  public <C extends Closeable> C register(@NullableDecl C closeable) {
     if (closeable != null) {
       stack.addFirst(closeable);
     }
@@ -262,21 +257,21 @@ public final class Closer implements Closeable {
    */
   @VisibleForTesting
   static final class SuppressingSuppressor implements Suppressor {
-    @CheckForNull
-    static SuppressingSuppressor tryCreate() {
-      Method addSuppressed;
+
+    static final SuppressingSuppressor INSTANCE = new SuppressingSuppressor();
+
+    static boolean isAvailable() {
+      return addSuppressed != null;
+    }
+
+    static final Method addSuppressed = addSuppressedMethodOrNull();
+
+    private static Method addSuppressedMethodOrNull() {
       try {
-        addSuppressed = Throwable.class.getMethod("addSuppressed", Throwable.class);
+        return Throwable.class.getMethod("addSuppressed", Throwable.class);
       } catch (Throwable e) {
         return null;
       }
-      return new SuppressingSuppressor(addSuppressed);
-    }
-
-    private final Method addSuppressed;
-
-    private SuppressingSuppressor(Method addSuppressed) {
-      this.addSuppressed = addSuppressed;
     }
 
     @Override

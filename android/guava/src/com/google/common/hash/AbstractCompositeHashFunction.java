@@ -20,7 +20,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.errorprone.annotations.Immutable;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * An abstract composition of multiple hash functions. {@linkplain #newHasher()} delegates to the
@@ -30,7 +29,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * @author Dimitris Andreou
  */
 @Immutable
-@ElementTypesAreNonnullByDefault
 abstract class AbstractCompositeHashFunction extends AbstractHashFunction {
 
   @SuppressWarnings("Immutable") // array not modified after creation
@@ -179,8 +177,7 @@ abstract class AbstractCompositeHashFunction extends AbstractHashFunction {
       }
 
       @Override
-      public <T extends @Nullable Object> Hasher putObject(
-          @ParametricNullness T instance, Funnel<? super T> funnel) {
+      public <T> Hasher putObject(T instance, Funnel<? super T> funnel) {
         for (Hasher hasher : hashers) {
           hasher.putObject(instance, funnel);
         }

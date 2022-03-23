@@ -17,7 +17,6 @@ package com.google.common.primitives;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkPositionIndexes;
-import static java.util.Objects.requireNonNull;
 
 import com.google.common.annotations.Beta;
 import com.google.common.annotations.GwtIncompatible;
@@ -44,7 +43,6 @@ import sun.misc.Unsafe;
  * @since 1.0
  */
 @GwtIncompatible
-@ElementTypesAreNonnullByDefault
 public final class UnsignedBytes {
   private UnsignedBytes() {}
 
@@ -439,12 +437,9 @@ public final class UnsignedBytes {
       try {
         Class<?> theClass = Class.forName(UNSAFE_COMPARATOR_NAME);
 
-        // requireNonNull is safe because the class is an enum.
-        Object[] constants = requireNonNull(theClass.getEnumConstants());
-
         // yes, UnsafeComparator does implement Comparator<byte[]>
         @SuppressWarnings("unchecked")
-        Comparator<byte[]> comparator = (Comparator<byte[]>) constants[0];
+        Comparator<byte[]> comparator = (Comparator<byte[]>) theClass.getEnumConstants()[0];
         return comparator;
       } catch (Throwable t) { // ensure we really catch *everything*
         return lexicographicalComparatorJavaImpl();
