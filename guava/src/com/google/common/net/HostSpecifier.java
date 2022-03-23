@@ -19,7 +19,7 @@ import com.google.common.annotations.GwtIncompatible;
 import com.google.common.base.Preconditions;
 import java.net.InetAddress;
 import java.text.ParseException;
-import javax.annotation.CheckForNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * A syntactically valid host specifier, suitable for use in a URI. This may be either a numeric IP
@@ -43,7 +43,6 @@ import javax.annotation.CheckForNull;
  */
 @Beta
 @GwtIncompatible
-@ElementTypesAreNonnullByDefault
 public final class HostSpecifier {
 
   private final String canonicalForm;
@@ -138,7 +137,7 @@ public final class HostSpecifier {
   }
 
   @Override
-  public boolean equals(@CheckForNull Object other) {
+  public boolean equals(@Nullable Object other) {
     if (this == other) {
       return true;
     }

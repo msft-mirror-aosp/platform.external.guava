@@ -35,7 +35,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
-import javax.annotation.CheckForNull;
+import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 
 /**
  * An object of this class encapsulates type mappings from type variables. Mappings are established
@@ -52,7 +52,6 @@ import javax.annotation.CheckForNull;
  * @since 15.0
  */
 @Beta
-@ElementTypesAreNonnullByDefault
 public final class TypeResolver {
 
   private final TypeTable typeTable;
@@ -509,7 +508,7 @@ public final class TypeResolver {
         @Override
         TypeVariable<?> captureAsTypeVariable(Type[] upperBounds) {
           Set<Type> combined = new LinkedHashSet<>(asList(upperBounds));
-          // Since this is an artificially generated type variable, we don't bother checking
+          // Since this is an artifically generated type variable, we don't bother checking
           // subtyping between declared type bound and actual type bound. So it's possible that we
           // may generate something like <capture#1-of ? extends Foo&SubFoo>.
           // Checking subtype between declared and actual type bounds
@@ -528,8 +527,7 @@ public final class TypeResolver {
       return new WildcardCapturer(id);
     }
 
-    @CheckForNull
-    private Type captureNullable(@CheckForNull Type type) {
+    private Type captureNullable(@NullableDecl Type type) {
       if (type == null) {
         return null;
       }
@@ -563,7 +561,7 @@ public final class TypeResolver {
     }
 
     @Override
-    public boolean equals(@CheckForNull Object obj) {
+    public boolean equals(Object obj) {
       if (obj instanceof TypeVariableKey) {
         TypeVariableKey that = (TypeVariableKey) obj;
         return equalsTypeVariable(that.var);
@@ -578,7 +576,6 @@ public final class TypeResolver {
     }
 
     /** Wraps {@code t} in a {@code TypeVariableKey} if it's a type variable. */
-    @CheckForNull
     static TypeVariableKey forLookup(Type t) {
       if (t instanceof TypeVariable) {
         return new TypeVariableKey((TypeVariable<?>) t);

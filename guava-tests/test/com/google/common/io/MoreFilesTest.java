@@ -34,7 +34,6 @@ import java.nio.file.FileSystemException;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
-import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -557,17 +556,6 @@ public class MoreFilesTest extends TestCase {
     }
   }
 
-  public void testDeleteRecursively_nonexistingFile_throwsNoSuchFileException() throws IOException {
-    try (FileSystem fs = newTestFileSystem()) {
-      try {
-        MoreFiles.deleteRecursively(fs.getPath("/work/nothere"), ALLOW_INSECURE);
-        fail();
-      } catch (NoSuchFileException expected) {
-        assertThat(expected.getFile()).isEqualTo("/work/nothere");
-      }
-    }
-  }
-
   public void testDeleteDirectoryContents_symlinkToDir_sdsNotSupported_allowInsecure()
       throws IOException {
     try (FileSystem fs = newTestFileSystem()) {
@@ -661,7 +649,7 @@ public class MoreFilesTest extends TestCase {
    */
   private static void startDirectorySymlinkSwitching(
       final Path file, final Path target, ExecutorService executor) {
-    @SuppressWarnings("unused") // https://errorprone.info/bugpattern/FutureReturnValueIgnored
+    @SuppressWarnings("unused") // go/futurereturn-lsc
     Future<?> possiblyIgnoredError =
         executor.submit(
             new Runnable() {

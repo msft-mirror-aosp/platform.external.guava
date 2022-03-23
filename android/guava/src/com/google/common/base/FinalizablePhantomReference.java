@@ -17,7 +17,6 @@ package com.google.common.base;
 import com.google.common.annotations.GwtIncompatible;
 import java.lang.ref.PhantomReference;
 import java.lang.ref.ReferenceQueue;
-import javax.annotation.CheckForNull;
 
 /**
  * Phantom reference with a {@code finalizeReferent()} method which a background thread invokes
@@ -30,7 +29,6 @@ import javax.annotation.CheckForNull;
  * @since 2.0
  */
 @GwtIncompatible
-@ElementTypesAreNonnullByDefault
 public abstract class FinalizablePhantomReference<T> extends PhantomReference<T>
     implements FinalizableReference {
   /**
@@ -39,7 +37,7 @@ public abstract class FinalizablePhantomReference<T> extends PhantomReference<T>
    * @param referent to phantom reference
    * @param queue that should finalize the referent
    */
-  protected FinalizablePhantomReference(@CheckForNull T referent, FinalizableReferenceQueue queue) {
+  protected FinalizablePhantomReference(T referent, FinalizableReferenceQueue queue) {
     super(referent, queue.queue);
     queue.cleanUp();
   }

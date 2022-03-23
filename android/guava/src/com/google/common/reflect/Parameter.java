@@ -21,8 +21,7 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
-import javax.annotation.CheckForNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 
 /**
  * Represents a method or constructor parameter.
@@ -31,7 +30,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * @since 14.0
  */
 @Beta
-@ElementTypesAreNonnullByDefault
 public final class Parameter implements AnnotatedElement {
 
   private final Invokable<?, ?> declaration;
@@ -63,7 +61,7 @@ public final class Parameter implements AnnotatedElement {
   }
 
   @Override
-  @CheckForNull
+  @NullableDecl
   public <A extends Annotation> A getAnnotation(Class<A> annotationType) {
     checkNotNull(annotationType);
     for (Annotation annotation : annotations) {
@@ -94,7 +92,7 @@ public final class Parameter implements AnnotatedElement {
 
   /** @since 18.0 */
   // @Override on JDK8
-  @CheckForNull
+  @NullableDecl
   public <A extends Annotation> A getDeclaredAnnotation(Class<A> annotationType) {
     checkNotNull(annotationType);
     return FluentIterable.from(annotations).filter(annotationType).first().orNull();
@@ -103,15 +101,11 @@ public final class Parameter implements AnnotatedElement {
   /** @since 18.0 */
   // @Override on JDK8
   public <A extends Annotation> A[] getDeclaredAnnotationsByType(Class<A> annotationType) {
-    @Nullable
-    A[] result = FluentIterable.from(annotations).filter(annotationType).toArray(annotationType);
-    @SuppressWarnings("nullness") // safe because the input list contains no nulls
-    A[] cast = (A[]) result;
-    return cast;
+    return FluentIterable.from(annotations).filter(annotationType).toArray(annotationType);
   }
 
   @Override
-  public boolean equals(@CheckForNull Object obj) {
+  public boolean equals(@NullableDecl Object obj) {
     if (obj instanceof Parameter) {
       Parameter that = (Parameter) obj;
       return position == that.position && declaration.equals(that.declaration);
