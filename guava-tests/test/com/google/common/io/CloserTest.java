@@ -24,7 +24,6 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
-import com.google.common.io.Closer.LoggingSuppressor;
 import com.google.common.testing.TestLogHandler;
 import java.io.Closeable;
 import java.io.IOException;
@@ -312,11 +311,12 @@ public class CloserTest extends TestCase {
   }
 
   public static void testSuppressingSuppressorIfPossible() throws IOException {
-    Closer closer = Closer.create();
     // can't test the JDK7 suppressor when not running on JDK7
-    if (closer.suppressor instanceof LoggingSuppressor) {
+    if (!Closer.SuppressingSuppressor.isAvailable()) {
       return;
     }
+
+    Closer closer = new Closer(new Closer.SuppressingSuppressor());
 
     IOException thrownException = new IOException();
     IOException c1Exception = new IOException();

@@ -18,7 +18,6 @@ package com.google.common.graph;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.Set;
-import javax.annotation.CheckForNull;
 
 /**
  * An interface for representing and manipulating an origin node's adjacent nodes and incident edges
@@ -28,7 +27,6 @@ import javax.annotation.CheckForNull;
  * @param <N> Node parameter type
  * @param <E> Edge parameter type
  */
-@ElementTypesAreNonnullByDefault
 interface NetworkConnections<N, E> {
 
   Set<N> adjacentNodes();
@@ -62,7 +60,6 @@ interface NetworkConnections<N, E> {
    * <p>In the undirected case, returns {@code null} if {@code isSelfLoop} is true.
    */
   @CanIgnoreReturnValue
-  @CheckForNull
   N removeInEdge(E edge, boolean isSelfLoop);
 
   /** Remove {@code edge} from the set of outgoing edges. Returns the former successor node. */

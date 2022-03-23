@@ -65,11 +65,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableDecl;
  */
 // TODO(kak): Consider removing @CanIgnoreReturnValue from this class.
 @GwtIncompatible
-@SuppressWarnings({
-  "GuardedBy", // TODO(b/35466881): Fix or suppress.
-  "nullness", // too much trouble for the payoff
-})
-// TODO(cpovirk): Annotate for nullness.
+@SuppressWarnings("GuardedBy") // TODO(b/35466881): Fix or suppress.
 class MapMakerInternalMap<
         K,
         V,
