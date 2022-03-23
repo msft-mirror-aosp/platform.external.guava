@@ -20,8 +20,6 @@ import com.google.common.annotations.GwtCompatible;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.NoSuchElementException;
 import java.util.Queue;
-import javax.annotation.CheckForNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * A queue which forwards all its method calls to another queue. Subclasses should override one or
@@ -46,9 +44,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * @since 2.0
  */
 @GwtCompatible
-@ElementTypesAreNonnullByDefault
-public abstract class ForwardingQueue<E extends @Nullable Object> extends ForwardingCollection<E>
-    implements Queue<E> {
+public abstract class ForwardingQueue<E> extends ForwardingCollection<E> implements Queue<E> {
 
   /** Constructor for use by subclasses. */
   protected ForwardingQueue() {}
@@ -58,32 +54,28 @@ public abstract class ForwardingQueue<E extends @Nullable Object> extends Forwar
 
   @CanIgnoreReturnValue // TODO(cpovirk): Consider removing this?
   @Override
-  public boolean offer(@ParametricNullness E o) {
+  public boolean offer(E o) {
     return delegate().offer(o);
   }
 
   @CanIgnoreReturnValue // TODO(cpovirk): Consider removing this?
   @Override
-  @CheckForNull
   public E poll() {
     return delegate().poll();
   }
 
   @CanIgnoreReturnValue
   @Override
-  @ParametricNullness
   public E remove() {
     return delegate().remove();
   }
 
   @Override
-  @CheckForNull
   public E peek() {
     return delegate().peek();
   }
 
   @Override
-  @ParametricNullness
   public E element() {
     return delegate().element();
   }
@@ -94,7 +86,7 @@ public abstract class ForwardingQueue<E extends @Nullable Object> extends Forwar
    *
    * @since 7.0
    */
-  protected boolean standardOffer(@ParametricNullness E e) {
+  protected boolean standardOffer(E e) {
     try {
       return add(e);
     } catch (IllegalStateException caught) {
@@ -108,7 +100,6 @@ public abstract class ForwardingQueue<E extends @Nullable Object> extends Forwar
    *
    * @since 7.0
    */
-  @CheckForNull
   protected E standardPeek() {
     try {
       return element();
@@ -123,7 +114,6 @@ public abstract class ForwardingQueue<E extends @Nullable Object> extends Forwar
    *
    * @since 7.0
    */
-  @CheckForNull
   protected E standardPoll() {
     try {
       return remove();

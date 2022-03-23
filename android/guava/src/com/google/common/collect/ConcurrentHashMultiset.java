@@ -18,8 +18,8 @@ package com.google.common.collect;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.CollectPreconditions.checkNonnegative;
+import static com.google.common.collect.CollectPreconditions.checkRemove;
 
 import com.google.common.annotations.Beta;
 import com.google.common.annotations.GwtIncompatible;
@@ -41,8 +41,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
-import javax.annotation.CheckForNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 
 /**
  * A multiset that supports concurrent modifications and that provides atomic versions of most
@@ -57,7 +56,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * @since 2.0
  */
 @GwtIncompatible
-@ElementTypesAreNonnullByDefault
 public final class ConcurrentHashMultiset<E> extends AbstractMultiset<E> implements Serializable {
 
   /*
@@ -139,7 +137,7 @@ public final class ConcurrentHashMultiset<E> extends AbstractMultiset<E> impleme
    * @return the nonnegative number of occurrences of the element
    */
   @Override
-  public int count(@CheckForNull Object element) {
+  public int count(@NullableDecl Object element) {
     AtomicInteger existingCounter = Maps.safeGet(countMap, element);
     return (existingCounter == null) ? 0 : existingCounter.get();
   }
@@ -170,8 +168,7 @@ public final class ConcurrentHashMultiset<E> extends AbstractMultiset<E> impleme
   }
 
   @Override
-  @SuppressWarnings("nullness") // b/192354773 in our checker affects toArray declarations
-  public <T extends @Nullable Object> T[] toArray(T[] array) {
+  public <T> T[] toArray(T[] array) {
     return snapshot().toArray(array);
   }
 
@@ -208,7 +205,7 @@ public final class ConcurrentHashMultiset<E> extends AbstractMultiset<E> impleme
     if (occurrences == 0) {
       return count(element);
     }
-    CollectPreconditions.checkPositive(occurrences, "occurrences");
+    CollectPreconditions.checkPositive(occurrences, "occurences");
 
     while (true) {
       AtomicInteger existingCounter = Maps.safeGet(countMap, element);
@@ -264,17 +261,17 @@ public final class ConcurrentHashMultiset<E> extends AbstractMultiset<E> impleme
    * if occurrences == 0. This satisfies both NullPointerTester and
    * CollectionRemoveTester.testRemove_nullAllowed, but it's not clear that it's
    * a good policy, especially because, in order for the test to pass, the
-   * parameter must be misleadingly annotated as @Nullable. I suspect that
-   * we'll want to remove @Nullable, add an eager checkNotNull, and loosen up
+   * parameter must be misleadingly annotated as @NullableDecl. I suspect that
+   * we'll want to remove @NullableDecl, add an eager checkNotNull, and loosen up
    * testRemove_nullAllowed.
    */
   @CanIgnoreReturnValue
   @Override
-  public int remove(@CheckForNull Object element, int occurrences) {
+  public int remove(@NullableDecl Object element, int occurrences) {
     if (occurrences == 0) {
       return count(element);
     }
-    CollectPreconditions.checkPositive(occurrences, "occurrences");
+    CollectPreconditions.checkPositive(occurrences, "occurences");
 
     AtomicInteger existingCounter = Maps.safeGet(countMap, element);
     if (existingCounter == null) {
@@ -311,11 +308,11 @@ public final class ConcurrentHashMultiset<E> extends AbstractMultiset<E> impleme
    * @throws IllegalArgumentException if {@code occurrences} is negative
    */
   @CanIgnoreReturnValue
-  public boolean removeExactly(@CheckForNull Object element, int occurrences) {
+  public boolean removeExactly(@NullableDecl Object element, int occurrences) {
     if (occurrences == 0) {
       return true;
     }
-    CollectPreconditions.checkPositive(occurrences, "occurrences");
+    CollectPreconditions.checkPositive(occurrences, "occurences");
 
     AtomicInteger existingCounter = Maps.safeGet(countMap, element);
     if (existingCounter == null) {
@@ -457,7 +454,7 @@ public final class ConcurrentHashMultiset<E> extends AbstractMultiset<E> impleme
       }
 
       @Override
-      public boolean contains(@CheckForNull Object object) {
+      public boolean contains(@NullableDecl Object object) {
         return object != null && Collections2.safeContains(delegate, object);
       }
 
@@ -467,7 +464,7 @@ public final class ConcurrentHashMultiset<E> extends AbstractMultiset<E> impleme
       }
 
       @Override
-      public boolean remove(@CheckForNull Object object) {
+      public boolean remove(Object object) {
         return object != null && Collections2.safeRemove(delegate, object);
       }
 
@@ -510,7 +507,6 @@ public final class ConcurrentHashMultiset<E> extends AbstractMultiset<E> impleme
               countMap.entrySet().iterator();
 
           @Override
-          @CheckForNull
           protected Entry<E> computeNext() {
             while (true) {
               if (!mapEntries.hasNext()) {
@@ -526,7 +522,7 @@ public final class ConcurrentHashMultiset<E> extends AbstractMultiset<E> impleme
         };
 
     return new ForwardingIterator<Entry<E>>() {
-      @CheckForNull private Entry<E> last;
+      @NullableDecl private Entry<E> last;
 
       @Override
       protected Iterator<Entry<E>> delegate() {
@@ -541,7 +537,7 @@ public final class ConcurrentHashMultiset<E> extends AbstractMultiset<E> impleme
 
       @Override
       public void remove() {
-        checkState(last != null, "no calls to next() since the last call to remove()");
+        checkRemove(last != null);
         ConcurrentHashMultiset.this.setCount(last.getElement(), 0);
         last = null;
       }
@@ -576,8 +572,7 @@ public final class ConcurrentHashMultiset<E> extends AbstractMultiset<E> impleme
     }
 
     @Override
-    @SuppressWarnings("nullness") // b/192354773 in our checker affects toArray declarations
-    public <T extends @Nullable Object> T[] toArray(T[] array) {
+    public <T> T[] toArray(T[] array) {
       return snapshot().toArray(array);
     }
 

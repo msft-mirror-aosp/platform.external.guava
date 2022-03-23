@@ -20,8 +20,7 @@ import com.google.common.annotations.GwtCompatible;
 import com.google.common.collect.Multisets.UnmodifiableMultiset;
 import java.util.Comparator;
 import java.util.NavigableSet;
-import javax.annotation.CheckForNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 
 /**
  * Implementation of {@link Multisets#unmodifiableSortedMultiset(SortedMultiset)}, split out into
@@ -31,8 +30,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * @author Louis Wasserman
  */
 @GwtCompatible(emulated = true)
-@ElementTypesAreNonnullByDefault
-final class UnmodifiableSortedMultiset<E extends @Nullable Object> extends UnmodifiableMultiset<E>
+final class UnmodifiableSortedMultiset<E> extends UnmodifiableMultiset<E>
     implements SortedMultiset<E> {
   UnmodifiableSortedMultiset(SortedMultiset<E> delegate) {
     super(delegate);
@@ -58,7 +56,7 @@ final class UnmodifiableSortedMultiset<E extends @Nullable Object> extends Unmod
     return (NavigableSet<E>) super.elementSet();
   }
 
-  @CheckForNull private transient UnmodifiableSortedMultiset<E> descendingMultiset;
+  @NullableDecl private transient UnmodifiableSortedMultiset<E> descendingMultiset;
 
   @Override
   public SortedMultiset<E> descendingMultiset() {
@@ -72,46 +70,39 @@ final class UnmodifiableSortedMultiset<E extends @Nullable Object> extends Unmod
   }
 
   @Override
-  @CheckForNull
   public Entry<E> firstEntry() {
     return delegate().firstEntry();
   }
 
   @Override
-  @CheckForNull
   public Entry<E> lastEntry() {
     return delegate().lastEntry();
   }
 
   @Override
-  @CheckForNull
   public Entry<E> pollFirstEntry() {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  @CheckForNull
   public Entry<E> pollLastEntry() {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public SortedMultiset<E> headMultiset(@ParametricNullness E upperBound, BoundType boundType) {
+  public SortedMultiset<E> headMultiset(E upperBound, BoundType boundType) {
     return Multisets.unmodifiableSortedMultiset(delegate().headMultiset(upperBound, boundType));
   }
 
   @Override
   public SortedMultiset<E> subMultiset(
-      @ParametricNullness E lowerBound,
-      BoundType lowerBoundType,
-      @ParametricNullness E upperBound,
-      BoundType upperBoundType) {
+      E lowerBound, BoundType lowerBoundType, E upperBound, BoundType upperBoundType) {
     return Multisets.unmodifiableSortedMultiset(
         delegate().subMultiset(lowerBound, lowerBoundType, upperBound, upperBoundType));
   }
 
   @Override
-  public SortedMultiset<E> tailMultiset(@ParametricNullness E lowerBound, BoundType boundType) {
+  public SortedMultiset<E> tailMultiset(E lowerBound, BoundType boundType) {
     return Multisets.unmodifiableSortedMultiset(delegate().tailMultiset(lowerBound, boundType));
   }
 

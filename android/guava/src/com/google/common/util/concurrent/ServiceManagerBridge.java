@@ -26,7 +26,6 @@ import com.google.common.util.concurrent.Service.State;
  * {@code servicesByState()} to return {@code ImmutableMultimap}.
  */
 @GwtIncompatible
-@ElementTypesAreNonnullByDefault
 interface ServiceManagerBridge {
   ImmutableMultimap<State, Service> servicesByState();
 }

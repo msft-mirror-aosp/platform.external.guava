@@ -16,7 +16,6 @@ package com.google.common.base;
 
 import com.google.common.annotations.GwtCompatible;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * Legacy version of {@link java.util.function.Supplier java.util.function.Supplier}. Semantically,
@@ -38,8 +37,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  */
 @GwtCompatible
 @FunctionalInterface
-@ElementTypesAreNonnullByDefault
-public interface Supplier<T extends @Nullable Object> extends java.util.function.Supplier<T> {
+public interface Supplier<T> extends java.util.function.Supplier<T> {
   /**
    * Retrieves an instance of the appropriate type. The returned object may or may not be a new
    * instance, depending on the implementation.
@@ -48,6 +46,5 @@ public interface Supplier<T extends @Nullable Object> extends java.util.function
    */
   @CanIgnoreReturnValue
   @Override
-  @ParametricNullness
   T get();
 }

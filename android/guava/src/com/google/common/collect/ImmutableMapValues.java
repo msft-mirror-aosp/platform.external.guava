@@ -20,7 +20,7 @@ import com.google.common.annotations.GwtCompatible;
 import com.google.common.annotations.GwtIncompatible;
 import java.io.Serializable;
 import java.util.Map.Entry;
-import javax.annotation.CheckForNull;
+import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 
 /**
  * {@code values()} implementation for {@link ImmutableMap}.
@@ -29,7 +29,6 @@ import javax.annotation.CheckForNull;
  * @author Kevin Bourrillion
  */
 @GwtCompatible(emulated = true)
-@ElementTypesAreNonnullByDefault
 final class ImmutableMapValues<K, V> extends ImmutableCollection<V> {
   private final ImmutableMap<K, V> map;
 
@@ -60,7 +59,7 @@ final class ImmutableMapValues<K, V> extends ImmutableCollection<V> {
   }
 
   @Override
-  public boolean contains(@CheckForNull Object object) {
+  public boolean contains(@NullableDecl Object object) {
     return object != null && Iterators.contains(iterator(), object);
   }
 
