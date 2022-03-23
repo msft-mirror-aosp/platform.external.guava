@@ -27,7 +27,6 @@ import java.lang.reflect.Proxy;
  * @since 12.0
  */
 @Beta
-@ElementTypesAreNonnullByDefault
 public final class Reflection {
 
   /**

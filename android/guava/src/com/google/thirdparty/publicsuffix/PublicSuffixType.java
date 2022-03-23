@@ -62,4 +62,8 @@ public enum PublicSuffixType {
     }
     throw new IllegalArgumentException("No enum corresponding to given code: " + code);
   }
+
+  static PublicSuffixType fromIsPrivate(boolean isPrivate) {
+    return isPrivate ? PRIVATE : REGISTRY;
+  }
 }

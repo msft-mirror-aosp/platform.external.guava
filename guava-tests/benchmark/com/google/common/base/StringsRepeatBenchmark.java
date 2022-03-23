@@ -40,7 +40,7 @@ public class StringsRepeatBenchmark {
   }
 
   @Benchmark
-  void oldRepeat(long reps) {
+  void oldRepeat(int reps) {
     for (int i = 0; i < reps; i++) {
       String x = oldRepeat(originalString, count);
       if (x.length() != (originalString.length() * count)) {
@@ -62,7 +62,7 @@ public class StringsRepeatBenchmark {
   }
 
   @Benchmark
-  void mikeRepeat(long reps) {
+  void mikeRepeat(int reps) {
     for (int i = 0; i < reps; i++) {
       String x = mikeRepeat(originalString, count);
       if (x.length() != (originalString.length() * count)) {
@@ -95,7 +95,7 @@ public class StringsRepeatBenchmark {
   }
 
   @Benchmark
-  void martinRepeat(long reps) {
+  void martinRepeat(int reps) {
     for (int i = 0; i < reps; i++) {
       String x = martinRepeat(originalString, count);
       if (x.length() != (originalString.length() * count)) {

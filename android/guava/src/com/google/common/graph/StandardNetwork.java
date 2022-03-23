@@ -22,12 +22,12 @@ import static com.google.common.graph.GraphConstants.DEFAULT_EDGE_COUNT;
 import static com.google.common.graph.GraphConstants.DEFAULT_NODE_COUNT;
 import static com.google.common.graph.GraphConstants.EDGE_NOT_IN_GRAPH;
 import static com.google.common.graph.GraphConstants.NODE_NOT_IN_GRAPH;
-import static java.util.Objects.requireNonNull;
 
 import com.google.common.collect.ImmutableSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 
 /**
  * Standard implementation of {@link Network} that supports the options supplied by {@link
@@ -48,7 +48,6 @@ import java.util.TreeMap;
  * @param <N> Node parameter type
  * @param <E> Edge parameter type
  */
-@ElementTypesAreNonnullByDefault
 class StandardNetwork<N, E> extends AbstractNetwork<N, E> {
   private final boolean isDirected;
   private final boolean allowsParallelEdges;
@@ -56,11 +55,11 @@ class StandardNetwork<N, E> extends AbstractNetwork<N, E> {
   private final ElementOrder<N> nodeOrder;
   private final ElementOrder<E> edgeOrder;
 
-  final MapIteratorCache<N, NetworkConnections<N, E>> nodeConnections;
+  protected final MapIteratorCache<N, NetworkConnections<N, E>> nodeConnections;
 
   // We could make this a Map<E, EndpointPair<N>>. It would make incidentNodes(edge) slightly
   // faster, but also make Networks consume 5 to 20+% (increasing with average degree) more memory.
-  final MapIteratorCache<E, N> edgeToReferenceNode; // referenceNode == source if directed
+  protected final MapIteratorCache<E, N> edgeToReferenceNode; // referenceNode == source if directed
 
   /** Constructs a graph with the properties specified in {@code builder}. */
   StandardNetwork(NetworkBuilder<? super N, ? super E> builder) {
@@ -136,8 +135,7 @@ class StandardNetwork<N, E> extends AbstractNetwork<N, E> {
   @Override
   public EndpointPair<N> incidentNodes(E edge) {
     N nodeU = checkedReferenceNode(edge);
-    // requireNonNull is safe because checkedReferenceNode made sure the edge is in the network.
-    N nodeV = requireNonNull(nodeConnections.get(nodeU)).adjacentNode(edge);
+    N nodeV = nodeConnections.get(nodeU).adjacentNode(edge);
     return EndpointPair.of(this, nodeU, nodeV);
   }
 
@@ -176,7 +174,7 @@ class StandardNetwork<N, E> extends AbstractNetwork<N, E> {
     return checkedConnections(node).successors();
   }
 
-  final NetworkConnections<N, E> checkedConnections(N node) {
+  protected final NetworkConnections<N, E> checkedConnections(N node) {
     NetworkConnections<N, E> connections = nodeConnections.get(node);
     if (connections == null) {
       checkNotNull(node);
@@ -185,7 +183,7 @@ class StandardNetwork<N, E> extends AbstractNetwork<N, E> {
     return connections;
   }
 
-  final N checkedReferenceNode(E edge) {
+  protected final N checkedReferenceNode(E edge) {
     N referenceNode = edgeToReferenceNode.get(edge);
     if (referenceNode == null) {
       checkNotNull(edge);
@@ -194,11 +192,11 @@ class StandardNetwork<N, E> extends AbstractNetwork<N, E> {
     return referenceNode;
   }
 
-  final boolean containsNode(N node) {
+  protected final boolean containsNode(@NullableDecl N node) {
     return nodeConnections.containsKey(node);
   }
 
-  final boolean containsEdge(E edge) {
+  protected final boolean containsEdge(@NullableDecl E edge) {
     return edgeToReferenceNode.containsKey(edge);
   }
 }

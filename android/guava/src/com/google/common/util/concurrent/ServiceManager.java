@@ -118,7 +118,6 @@ import java.util.logging.Logger;
  * @since 14.0
  */
 @GwtIncompatible
-@ElementTypesAreNonnullByDefault
 public final class ServiceManager implements ServiceManagerBridge {
   private static final Logger logger = Logger.getLogger(ServiceManager.class.getName());
   private static final ListenerCallQueue.Event<Listener> HEALTHY_EVENT =
@@ -596,9 +595,9 @@ public final class ServiceManager implements ServiceManagerBridge {
         // N.B. There will only be an entry in the map if the service has started
         for (Entry<Service, Stopwatch> entry : startupTimers.entrySet()) {
           Service service = entry.getKey();
-          Stopwatch stopwatch = entry.getValue();
-          if (!stopwatch.isRunning() && !(service instanceof NoOpService)) {
-            loadTimes.add(Maps.immutableEntry(service, stopwatch.elapsed(MILLISECONDS)));
+          Stopwatch stopWatch = entry.getValue();
+          if (!stopWatch.isRunning() && !(service instanceof NoOpService)) {
+            loadTimes.add(Maps.immutableEntry(service, stopWatch.elapsed(MILLISECONDS)));
           }
         }
       } finally {

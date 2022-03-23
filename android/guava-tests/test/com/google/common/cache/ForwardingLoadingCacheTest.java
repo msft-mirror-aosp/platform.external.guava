@@ -90,7 +90,7 @@ public class ForwardingLoadingCacheTest extends TestCase {
 
   public void testSize() {
     when(mock.size()).thenReturn(0L);
-    long unused = forward.size();
+    forward.size();
   }
 
   public void testStats() {

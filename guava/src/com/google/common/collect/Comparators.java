@@ -44,7 +44,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * @author Louis Wasserman
  */
 @GwtCompatible
-@ElementTypesAreNonnullByDefault
 public final class Comparators {
   private Comparators() {}
 
@@ -63,8 +62,7 @@ public final class Comparators {
   // desired return type. However, *nested* generics introduce a special class of problems that we
   // think tip it over into being worthwhile.
   @Beta
-  public static <T extends @Nullable Object, S extends T> Comparator<Iterable<S>> lexicographical(
-      Comparator<T> comparator) {
+  public static <T, S extends T> Comparator<Iterable<S>> lexicographical(Comparator<T> comparator) {
     return new LexicographicalOrdering<S>(checkNotNull(comparator));
   }
 
@@ -74,8 +72,7 @@ public final class Comparators {
    * always true when the iterable has fewer than two elements.
    */
   @Beta
-  public static <T extends @Nullable Object> boolean isInOrder(
-      Iterable<? extends T> iterable, Comparator<T> comparator) {
+  public static <T> boolean isInOrder(Iterable<? extends T> iterable, Comparator<T> comparator) {
     checkNotNull(comparator);
     Iterator<? extends T> it = iterable.iterator();
     if (it.hasNext()) {
@@ -97,7 +94,7 @@ public final class Comparators {
    * this is always true when the iterable has fewer than two elements.
    */
   @Beta
-  public static <T extends @Nullable Object> boolean isInStrictOrder(
+  public static <T> boolean isInStrictOrder(
       Iterable<? extends T> iterable, Comparator<T> comparator) {
     checkNotNull(comparator);
     Iterator<? extends T> it = iterable.iterator();
@@ -134,8 +131,7 @@ public final class Comparators {
    * @throws IllegalArgumentException if {@code k < 0}
    * @since 22.0
    */
-  public static <T extends @Nullable Object> Collector<T, ?, List<T>> least(
-      int k, Comparator<? super T> comparator) {
+  public static <T> Collector<T, ?, List<T>> least(int k, Comparator<? super T> comparator) {
     checkNonnegative(k, "k");
     checkNotNull(comparator);
     return Collector.of(
@@ -166,8 +162,7 @@ public final class Comparators {
    * @throws IllegalArgumentException if {@code k < 0}
    * @since 22.0
    */
-  public static <T extends @Nullable Object> Collector<T, ?, List<T>> greatest(
-      int k, Comparator<? super T> comparator) {
+  public static <T> Collector<T, ?, List<T>> greatest(int k, Comparator<? super T> comparator) {
     return least(k, comparator.reversed());
   }
 
@@ -181,8 +176,7 @@ public final class Comparators {
   @Beta
   public static <T> Comparator<Optional<T>> emptiesFirst(Comparator<? super T> valueComparator) {
     checkNotNull(valueComparator);
-    return Comparator.<Optional<T>, @Nullable T>comparing(
-        o -> o.orElse(null), Comparator.nullsFirst(valueComparator));
+    return Comparator.comparing(o -> o.orElse(null), Comparator.nullsFirst(valueComparator));
   }
 
   /**
@@ -195,8 +189,7 @@ public final class Comparators {
   @Beta
   public static <T> Comparator<Optional<T>> emptiesLast(Comparator<? super T> valueComparator) {
     checkNotNull(valueComparator);
-    return Comparator.<Optional<T>, @Nullable T>comparing(
-        o -> o.orElse(null), Comparator.nullsLast(valueComparator));
+    return Comparator.comparing(o -> o.orElse(null), Comparator.nullsLast(valueComparator));
   }
 
   /**
@@ -233,9 +226,7 @@ public final class Comparators {
    * @since 30.0
    */
   @Beta
-  @ParametricNullness
-  public static <T extends @Nullable Object> T min(
-      @ParametricNullness T a, @ParametricNullness T b, Comparator<T> comparator) {
+  public static <T> T min(@Nullable T a, @Nullable T b, Comparator<T> comparator) {
     return (comparator.compare(a, b) <= 0) ? a : b;
   }
 
@@ -273,9 +264,7 @@ public final class Comparators {
    * @since 30.0
    */
   @Beta
-  @ParametricNullness
-  public static <T extends @Nullable Object> T max(
-      @ParametricNullness T a, @ParametricNullness T b, Comparator<T> comparator) {
+  public static <T> T max(@Nullable T a, @Nullable T b, Comparator<T> comparator) {
     return (comparator.compare(a, b) >= 0) ? a : b;
   }
 }
