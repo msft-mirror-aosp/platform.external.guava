@@ -21,7 +21,6 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.errorprone.annotations.DoNotMock;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * An iterator that supports a one-element lookahead while iterating.
@@ -35,8 +34,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  */
 @DoNotMock("Use Iterators.peekingIterator")
 @GwtCompatible
-@ElementTypesAreNonnullByDefault
-public interface PeekingIterator<E extends @Nullable Object> extends Iterator<E> {
+public interface PeekingIterator<E> extends Iterator<E> {
   /**
    * Returns the next element in the iteration, without advancing the iteration.
    *
@@ -46,7 +44,6 @@ public interface PeekingIterator<E extends @Nullable Object> extends Iterator<E>
    * @throws NoSuchElementException if the iteration has no more elements according to {@link
    *     #hasNext()}
    */
-  @ParametricNullness
   E peek();
 
   /**
@@ -57,7 +54,6 @@ public interface PeekingIterator<E extends @Nullable Object> extends Iterator<E>
    */
   @CanIgnoreReturnValue
   @Override
-  @ParametricNullness
   E next();
 
   /**

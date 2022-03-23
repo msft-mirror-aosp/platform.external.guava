@@ -20,7 +20,6 @@ import static com.google.common.util.concurrent.AggregateFuture.ReleaseResources
 import static com.google.common.util.concurrent.AggregateFuture.ReleaseResourcesReason.OUTPUT_FUTURE_DONE;
 import static com.google.common.util.concurrent.Futures.getDone;
 import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
-import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.SEVERE;
 
 import com.google.common.annotations.GwtCompatible;
@@ -31,7 +30,6 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.logging.Logger;
-import javax.annotation.CheckForNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
@@ -41,9 +39,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * @param <OutputT> the type of the output (i.e. this) future
  */
 @GwtCompatible
-@ElementTypesAreNonnullByDefault
-abstract class AggregateFuture<InputT extends @Nullable Object, OutputT extends @Nullable Object>
-    extends AggregateFutureState<OutputT> {
+abstract class AggregateFuture<InputT, OutputT> extends AggregateFutureState<OutputT> {
   private static final Logger logger = Logger.getLogger(AggregateFuture.class.getName());
 
   /**
@@ -56,7 +52,7 @@ abstract class AggregateFuture<InputT extends @Nullable Object, OutputT extends 
    * In certain circumstances, this field might theoretically not be visible to an afterDone() call
    * triggered by cancel(). For details, see the comments on the fields of TimeoutFuture.
    */
-  @CheckForNull private ImmutableCollection<? extends ListenableFuture<? extends InputT>> futures;
+  private @Nullable ImmutableCollection<? extends ListenableFuture<? extends InputT>> futures;
 
   private final boolean allMustSucceed;
   private final boolean collectsValues;
@@ -91,7 +87,6 @@ abstract class AggregateFuture<InputT extends @Nullable Object, OutputT extends 
   }
 
   @Override
-  @CheckForNull
   protected final String pendingToString() {
     ImmutableCollection<? extends Future<?>> localFutures = futures;
     if (localFutures != null) {
@@ -108,13 +103,6 @@ abstract class AggregateFuture<InputT extends @Nullable Object, OutputT extends 
    * we're guaranteed to have properly initialized the subclass.
    */
   final void init() {
-    /*
-     * requireNonNull is safe because this is called from the constructor after `futures` is set but
-     * before releaseResources could be called (because we have not yet set up any of the listeners
-     * that could call it, nor exposed this Future for users to call cancel() on).
-     */
-    requireNonNull(futures);
-
     // Corner case: List is empty.
     if (futures.isEmpty()) {
       handleAllCompleted();
@@ -246,14 +234,8 @@ abstract class AggregateFuture<InputT extends @Nullable Object, OutputT extends 
   final void addInitialException(Set<Throwable> seen) {
     checkNotNull(seen);
     if (!isCancelled()) {
-      /*
-       * requireNonNull is safe because this is a TrustedFuture, and we're calling this method only
-       * if it has failed.
-       *
-       * TODO(cpovirk): Think about whether we could/should use Verify to check the return value of
-       * addCausalChain.
-       */
-      boolean unused = addCausalChain(seen, requireNonNull(tryInternalFastPathGetFailure()));
+      // TODO(cpovirk): Think about whether we could/should use Verify to check this.
+      boolean unused = addCausalChain(seen, tryInternalFastPathGetFailure());
     }
   }
 
@@ -273,7 +255,7 @@ abstract class AggregateFuture<InputT extends @Nullable Object, OutputT extends 
   }
 
   private void decrementCountAndMaybeComplete(
-      @CheckForNull
+      @Nullable
           ImmutableCollection<? extends Future<? extends InputT>>
               futuresIfNeedToCollectAtCompletion) {
     int newRemaining = decrementRemainingAndGet();
@@ -284,7 +266,7 @@ abstract class AggregateFuture<InputT extends @Nullable Object, OutputT extends 
   }
 
   private void processCompleted(
-      @CheckForNull
+      @Nullable
           ImmutableCollection<? extends Future<? extends InputT>>
               futuresIfNeedToCollectAtCompletion) {
     if (futuresIfNeedToCollectAtCompletion != null) {
@@ -340,15 +322,12 @@ abstract class AggregateFuture<InputT extends @Nullable Object, OutputT extends 
    * If {@code allMustSucceed} is true, called as each future completes; otherwise, if {@code
    * collectsValues} is true, called for each future when all futures complete.
    */
-  abstract void collectOneValue(int index, @ParametricNullness InputT returnValue);
+  abstract void collectOneValue(int index, @Nullable InputT returnValue);
 
   abstract void handleAllCompleted();
 
   /** Adds the chain to the seen set, and returns whether all the chain was new to us. */
-  private static boolean addCausalChain(Set<Throwable> seen, Throwable param) {
-    // Declare a "true" local variable so that the Checker Framework will infer nullness.
-    Throwable t = param;
-
+  private static boolean addCausalChain(Set<Throwable> seen, Throwable t) {
     for (; t != null; t = t.getCause()) {
       boolean firstTimeSeen = seen.add(t);
       if (!firstTimeSeen) {

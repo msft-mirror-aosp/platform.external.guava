@@ -20,10 +20,7 @@ import static java.util.logging.Level.WARNING;
 
 import com.google.common.annotations.GwtCompatible;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.errorprone.annotations.InlineMe;
-import com.google.errorprone.annotations.InlineMeValidationDisabled;
 import java.util.logging.Logger;
-import javax.annotation.CheckForNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
@@ -33,7 +30,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * @since 3.0
  */
 @GwtCompatible
-@ElementTypesAreNonnullByDefault
 public final class Strings {
   private Strings() {}
 
@@ -43,7 +39,7 @@ public final class Strings {
    * @param string the string to test and possibly return
    * @return {@code string} itself if it is non-null; {@code ""} if it is null
    */
-  public static String nullToEmpty(@CheckForNull String string) {
+  public static String nullToEmpty(@Nullable String string) {
     return Platform.nullToEmpty(string);
   }
 
@@ -53,8 +49,7 @@ public final class Strings {
    * @param string the string to test and possibly return
    * @return {@code string} itself if it is nonempty; {@code null} if it is empty or null
    */
-  @CheckForNull
-  public static String emptyToNull(@CheckForNull String string) {
+  public static @Nullable String emptyToNull(@Nullable String string) {
     return Platform.emptyToNull(string);
   }
 
@@ -69,7 +64,7 @@ public final class Strings {
    * @param string a string reference to check
    * @return {@code true} if the string is null or is the empty string
    */
-  public static boolean isNullOrEmpty(@CheckForNull String string) {
+  public static boolean isNullOrEmpty(@Nullable String string) {
     return Platform.stringIsNullOrEmpty(string);
   }
 
@@ -139,16 +134,12 @@ public final class Strings {
    * Returns a string consisting of a specific number of concatenated copies of an input string. For
    * example, {@code repeat("hey", 3)} returns the string {@code "heyheyhey"}.
    *
-   * <p><b>Java 11+ users:</b> use {@code string.repeat(count)} instead.
-   *
    * @param string any non-null string
    * @param count the number of times to repeat it; a nonnegative integer
    * @return a string containing {@code string} repeated {@code count} times (the empty string if
    *     {@code count} is zero)
    * @throws IllegalArgumentException if {@code count} is negative
    */
-  @InlineMe(replacement = "string.repeat(count)")
-  @InlineMeValidationDisabled("Java 11+ API only")
   public static String repeat(String string, int count) {
     checkNotNull(string); // eager for GWT.
 
@@ -266,7 +257,7 @@ public final class Strings {
    */
   // TODO(diamondm) consider using Arrays.toString() for array parameters
   public static String lenientFormat(
-      @CheckForNull String template, @CheckForNull @Nullable Object... args) {
+      @Nullable String template, @Nullable Object @Nullable ... args) {
     template = String.valueOf(template); // null -> "null"
 
     if (args == null) {
@@ -306,7 +297,7 @@ public final class Strings {
     return builder.toString();
   }
 
-  private static String lenientToString(@CheckForNull Object o) {
+  private static String lenientToString(@Nullable Object o) {
     if (o == null) {
       return "null";
     }

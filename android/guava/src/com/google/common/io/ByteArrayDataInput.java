@@ -18,7 +18,6 @@ import com.google.common.annotations.GwtIncompatible;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.io.DataInput;
 import java.io.IOException;
-import javax.annotation.CheckForNull;
 
 /**
  * An extension of {@code DataInput} for reading from in-memory byte arrays; its methods offer
@@ -33,7 +32,6 @@ import javax.annotation.CheckForNull;
  * @since 1.0
  */
 @GwtIncompatible
-@ElementTypesAreNonnullByDefault
 public interface ByteArrayDataInput extends DataInput {
   @Override
   void readFully(byte b[]);
@@ -88,7 +86,6 @@ public interface ByteArrayDataInput extends DataInput {
 
   @CanIgnoreReturnValue // to skip a line
   @Override
-  @CheckForNull
   String readLine();
 
   @CanIgnoreReturnValue // to skip a field

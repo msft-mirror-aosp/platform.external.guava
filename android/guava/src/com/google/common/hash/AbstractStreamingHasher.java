@@ -29,7 +29,6 @@ import java.nio.ByteOrder;
  */
 // TODO(kevinb): this class still needs some design-and-document-for-inheritance love
 @CanIgnoreReturnValue
-@ElementTypesAreNonnullByDefault
 abstract class AbstractStreamingHasher extends AbstractHasher {
   /** Buffer via which we pass data to the hash algorithm (the implementor) */
   private final ByteBuffer buffer;

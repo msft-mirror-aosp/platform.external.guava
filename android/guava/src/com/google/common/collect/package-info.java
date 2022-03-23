@@ -97,7 +97,6 @@
  *
  * <ul>
  *   <li>{@link com.google.common.collect.ImmutableMultiset}
- *   <li>{@link com.google.common.collect.ImmutableSortedMultiset}
  *   <li>{@link com.google.common.collect.HashMultiset}
  *   <li>{@link com.google.common.collect.LinkedHashMultiset}
  *   <li>{@link com.google.common.collect.TreeMultiset}

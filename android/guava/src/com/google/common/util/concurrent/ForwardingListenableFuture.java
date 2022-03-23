@@ -18,7 +18,6 @@ import com.google.common.annotations.GwtCompatible;
 import com.google.common.base.Preconditions;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.concurrent.Executor;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * A {@link ListenableFuture} which forwards all its method calls to another future. Subclasses
@@ -32,9 +31,8 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  */
 @CanIgnoreReturnValue // TODO(cpovirk): Consider being more strict.
 @GwtCompatible
-@ElementTypesAreNonnullByDefault
-public abstract class ForwardingListenableFuture<V extends @Nullable Object>
-    extends ForwardingFuture<V> implements ListenableFuture<V> {
+public abstract class ForwardingListenableFuture<V> extends ForwardingFuture<V>
+    implements ListenableFuture<V> {
 
   /** Constructor for use by subclasses. */
   protected ForwardingListenableFuture() {}
@@ -54,7 +52,7 @@ public abstract class ForwardingListenableFuture<V extends @Nullable Object>
    *
    * @since 9.0
    */
-  public abstract static class SimpleForwardingListenableFuture<V extends @Nullable Object>
+  public abstract static class SimpleForwardingListenableFuture<V>
       extends ForwardingListenableFuture<V> {
     private final ListenableFuture<V> delegate;
 
