@@ -40,6 +40,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import org.checkerframework.checker.nullness.compatqual.MonotonicNonNullDecl;
 import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 
 /**
@@ -593,7 +594,7 @@ class StandardTable<R, C, V> extends AbstractTable<R, C, V> implements Serializa
     return rowMap().keySet();
   }
 
-  @NullableDecl private transient Set<C> columnKeySet;
+  @MonotonicNonNullDecl private transient Set<C> columnKeySet;
 
   /**
    * {@inheritDoc}
@@ -723,7 +724,7 @@ class StandardTable<R, C, V> extends AbstractTable<R, C, V> implements Serializa
     return super.values();
   }
 
-  @NullableDecl private transient Map<R, Map<C, V>> rowMap;
+  @MonotonicNonNullDecl private transient Map<R, Map<C, V>> rowMap;
 
   @Override
   public Map<R, Map<C, V>> rowMap() {
@@ -802,7 +803,7 @@ class StandardTable<R, C, V> extends AbstractTable<R, C, V> implements Serializa
     }
   }
 
-  @NullableDecl private transient ColumnMap columnMap;
+  @MonotonicNonNullDecl private transient ColumnMap columnMap;
 
   @Override
   public Map<C, Map<R, V>> columnMap() {

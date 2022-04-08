@@ -166,7 +166,7 @@ final class Murmur3_128HashFunction extends AbstractHashFunction implements Seri
     }
 
     @Override
-    protected HashCode makeHash() {
+    public HashCode makeHash() {
       h1 ^= length;
       h2 ^= length;
 

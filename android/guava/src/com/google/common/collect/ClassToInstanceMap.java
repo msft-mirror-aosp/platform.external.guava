@@ -18,7 +18,6 @@ package com.google.common.collect;
 
 import com.google.common.annotations.GwtCompatible;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import com.google.errorprone.annotations.DoNotMock;
 import java.util.Map;
 import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 
@@ -41,7 +40,6 @@ import org.checkerframework.checker.nullness.compatqual.NullableDecl;
  * @author Kevin Bourrillion
  * @since 2.0
  */
-@DoNotMock("Use ImmutableClassToInstanceMap or MutableClassToInstanceMap")
 @GwtCompatible
 public interface ClassToInstanceMap<B> extends Map<Class<? extends B>, B> {
   /**

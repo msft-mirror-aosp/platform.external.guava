@@ -233,7 +233,6 @@ public class JdkFutureAdaptersTest extends TestCase {
     }
   }
 
-  @SuppressWarnings("IsInstanceIncompatibleType") // intentional.
   public void testListenInPoolThreadRunsListenerAfterRuntimeException() throws Exception {
     RuntimeExceptionThrowingFuture<String> input = new RuntimeExceptionThrowingFuture<>();
     /*

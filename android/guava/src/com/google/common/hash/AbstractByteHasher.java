@@ -54,7 +54,7 @@ abstract class AbstractByteHasher extends AbstractHasher {
   protected void update(ByteBuffer b) {
     if (b.hasArray()) {
       update(b.array(), b.arrayOffset() + b.position(), b.remaining());
-      Java8Compatibility.position(b, b.limit());
+      b.position(b.limit());
     } else {
       for (int remaining = b.remaining(); remaining > 0; remaining--) {
         update(b.get());
@@ -67,7 +67,7 @@ abstract class AbstractByteHasher extends AbstractHasher {
     try {
       update(scratch.array(), 0, bytes);
     } finally {
-      Java8Compatibility.clear(scratch);
+      scratch.clear();
     }
     return this;
   }

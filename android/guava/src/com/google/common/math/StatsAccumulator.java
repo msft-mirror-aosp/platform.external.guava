@@ -136,47 +136,27 @@ public final class StatsAccumulator {
     if (values.count() == 0) {
       return;
     }
-    merge(values.count(), values.mean(), values.sumOfSquaresOfDeltas(), values.min(), values.max());
-  }
 
-  /**
-   * Adds the given statistics to the dataset, as if the individual values used to compute the
-   * statistics had been added directly.
-   *
-   * @since 28.2
-   */
-  public void addAll(StatsAccumulator values) {
-    if (values.count() == 0) {
-      return;
-    }
-    merge(values.count(), values.mean(), values.sumOfSquaresOfDeltas(), values.min(), values.max());
-  }
-
-  private void merge(
-      long otherCount,
-      double otherMean,
-      double otherSumOfSquaresOfDeltas,
-      double otherMin,
-      double otherMax) {
     if (count == 0) {
-      count = otherCount;
-      mean = otherMean;
-      sumOfSquaresOfDeltas = otherSumOfSquaresOfDeltas;
-      min = otherMin;
-      max = otherMax;
+      count = values.count();
+      mean = values.mean();
+      sumOfSquaresOfDeltas = values.sumOfSquaresOfDeltas();
+      min = values.min();
+      max = values.max();
     } else {
-      count += otherCount;
-      if (isFinite(mean) && isFinite(otherMean)) {
+      count += values.count();
+      if (isFinite(mean) && isFinite(values.mean())) {
         // This is a generalized version of the calculation in add(double) above.
-        double delta = otherMean - mean;
-        mean += delta * otherCount / count;
-        sumOfSquaresOfDeltas += otherSumOfSquaresOfDeltas + delta * (otherMean - mean) * otherCount;
+        double delta = values.mean() - mean;
+        mean += delta * values.count() / count;
+        sumOfSquaresOfDeltas +=
+            values.sumOfSquaresOfDeltas() + delta * (values.mean() - mean) * values.count();
       } else {
-        mean = calculateNewMeanNonFinite(mean, otherMean);
+        mean = calculateNewMeanNonFinite(mean, values.mean());
         sumOfSquaresOfDeltas = NaN;
       }
-      min = Math.min(min, otherMin);
-      max = Math.max(max, otherMax);
+      min = Math.min(min, values.min());
+      max = Math.max(max, values.max());
     }
   }
 

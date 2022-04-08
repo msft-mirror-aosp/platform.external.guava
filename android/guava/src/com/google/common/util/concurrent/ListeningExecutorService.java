@@ -15,7 +15,6 @@
 package com.google.common.util.concurrent;
 
 import com.google.common.annotations.GwtIncompatible;
-import com.google.errorprone.annotations.DoNotMock;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -32,9 +31,6 @@ import java.util.concurrent.TimeUnit;
  * @author Chris Povirk
  * @since 10.0
  */
-@DoNotMock(
-    "Use TestingExecutors.sameThreadScheduledExecutor, or wrap a real Executor from "
-        + "java.util.concurrent.Executors with MoreExecutors.listeningDecorator")
 @GwtIncompatible
 public interface ListeningExecutorService extends ExecutorService {
   /**

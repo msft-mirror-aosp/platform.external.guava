@@ -10,7 +10,6 @@ third_party {
     value: "https://github.com/google/guava.git"
   }
   version: "27.1"
-  license_type: NOTICE
   last_upgrade_date {
     year: 2019
     month: 4
