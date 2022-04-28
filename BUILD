@@ -18,7 +18,9 @@ java_library(
         ":guava-android-annotation-stubs",
         ":guava-both",
         "//external/error_prone:error_prone_annotations",
-        "//external/jsr305",
+    ],
+    exports = [
+        ":guava-both",
     ],
     target_compatible_with = ["//build/bazel/platforms/os:android"],
 )
@@ -36,6 +38,9 @@ java_library(
         "//external/error_prone:error_prone_annotations",
         "//external/jsr305",
     ],
+    exports = [
+        "//external/jsr305",
+    ],
 )
 
 java_library(
@@ -46,6 +51,8 @@ java_library(
         ":guava-android-annotation-stubs",
         ":guava-both",
         "//external/error_prone:error_prone_annotations",
-        "//external/jsr305",
+    ],
+    exports = [
+        ":guava-both",
     ],
 )
