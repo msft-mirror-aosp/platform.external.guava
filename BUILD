@@ -1,4 +1,14 @@
 # TODO(b/198224074): auto-generate this file using bp2build.
+#
+
+alias(
+    name = "guava",
+    actual = select({
+        "//build/bazel/platforms/os:android": ":guava-android-host",
+        "//conditions:default": ":guava-jre",
+    }),
+    visibility = ["//visibility:public"],
+)
 
 java_library(
     name = "guava-android-host",
@@ -8,8 +18,11 @@ java_library(
         ":guava-android-annotation-stubs",
         ":guava-both",
         "//external/error_prone:error_prone_annotations",
-        "//external/jsr305",
     ],
+    exports = [
+        ":guava-both",
+    ],
+    target_compatible_with = ["//build/bazel/platforms/os:android"],
 )
 
 java_library(
@@ -25,6 +38,9 @@ java_library(
         "//external/error_prone:error_prone_annotations",
         "//external/jsr305",
     ],
+    exports = [
+        "//external/jsr305",
+    ],
 )
 
 java_library(
@@ -35,6 +51,8 @@ java_library(
         ":guava-android-annotation-stubs",
         ":guava-both",
         "//external/error_prone:error_prone_annotations",
-        "//external/jsr305",
+    ],
+    exports = [
+        ":guava-both",
     ],
 )
