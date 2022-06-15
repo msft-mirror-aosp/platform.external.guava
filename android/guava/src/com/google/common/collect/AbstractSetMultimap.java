@@ -23,8 +23,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import javax.annotation.CheckForNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 
 /**
  * Basic implementation of the {@link SetMultimap} interface. It's a wrapper around {@link
@@ -34,9 +33,8 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * @author Jared Levy
  */
 @GwtCompatible
-@ElementTypesAreNonnullByDefault
-abstract class AbstractSetMultimap<K extends @Nullable Object, V extends @Nullable Object>
-    extends AbstractMapBasedMultimap<K, V> implements SetMultimap<K, V> {
+abstract class AbstractSetMultimap<K, V> extends AbstractMapBasedMultimap<K, V>
+    implements SetMultimap<K, V> {
   /**
    * Creates a new multimap that uses the provided map.
    *
@@ -55,13 +53,12 @@ abstract class AbstractSetMultimap<K extends @Nullable Object, V extends @Nullab
   }
 
   @Override
-  <E extends @Nullable Object> Collection<E> unmodifiableCollectionSubclass(
-      Collection<E> collection) {
+  <E> Collection<E> unmodifiableCollectionSubclass(Collection<E> collection) {
     return Collections.unmodifiableSet((Set<E>) collection);
   }
 
   @Override
-  Collection<V> wrapCollection(@ParametricNullness K key, Collection<V> collection) {
+  Collection<V> wrapCollection(K key, Collection<V> collection) {
     return new WrappedSet(key, (Set<V>) collection);
   }
 
@@ -74,7 +71,7 @@ abstract class AbstractSetMultimap<K extends @Nullable Object, V extends @Nullab
    * {@link Set}, instead of the {@link Collection} specified in the {@link Multimap} interface.
    */
   @Override
-  public Set<V> get(@ParametricNullness K key) {
+  public Set<V> get(@NullableDecl K key) {
     return (Set<V>) super.get(key);
   }
 
@@ -97,7 +94,7 @@ abstract class AbstractSetMultimap<K extends @Nullable Object, V extends @Nullab
    */
   @CanIgnoreReturnValue
   @Override
-  public Set<V> removeAll(@CheckForNull Object key) {
+  public Set<V> removeAll(@NullableDecl Object key) {
     return (Set<V>) super.removeAll(key);
   }
 
@@ -111,7 +108,7 @@ abstract class AbstractSetMultimap<K extends @Nullable Object, V extends @Nullab
    */
   @CanIgnoreReturnValue
   @Override
-  public Set<V> replaceValues(@ParametricNullness K key, Iterable<? extends V> values) {
+  public Set<V> replaceValues(@NullableDecl K key, Iterable<? extends V> values) {
     return (Set<V>) super.replaceValues(key, values);
   }
 
@@ -136,7 +133,7 @@ abstract class AbstractSetMultimap<K extends @Nullable Object, V extends @Nullab
    */
   @CanIgnoreReturnValue
   @Override
-  public boolean put(@ParametricNullness K key, @ParametricNullness V value) {
+  public boolean put(@NullableDecl K key, @NullableDecl V value) {
     return super.put(key, value);
   }
 
@@ -147,7 +144,7 @@ abstract class AbstractSetMultimap<K extends @Nullable Object, V extends @Nullab
    * Equality does not depend on the ordering of keys or values.
    */
   @Override
-  public boolean equals(@CheckForNull Object object) {
+  public boolean equals(@NullableDecl Object object) {
     return super.equals(object);
   }
 

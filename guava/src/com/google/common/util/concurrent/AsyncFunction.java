@@ -27,8 +27,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  */
 @GwtCompatible
 @FunctionalInterface
-@ElementTypesAreNonnullByDefault
-public interface AsyncFunction<I extends @Nullable Object, O extends @Nullable Object> {
+public interface AsyncFunction<I, O> {
   /**
    * Returns an output {@code Future} to use in place of the given {@code input}. The output {@code
    * Future} need not be {@linkplain Future#isDone done}, making {@code AsyncFunction} suitable for
@@ -36,5 +35,5 @@ public interface AsyncFunction<I extends @Nullable Object, O extends @Nullable O
    *
    * <p>Throwing an exception from this method is equivalent to returning a failing {@code Future}.
    */
-  ListenableFuture<O> apply(@ParametricNullness I input) throws Exception;
+  ListenableFuture<O> apply(@Nullable I input) throws Exception;
 }

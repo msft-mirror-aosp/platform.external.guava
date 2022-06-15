@@ -15,11 +15,11 @@
 package com.google.common.collect;
 
 import com.google.common.annotations.Beta;
-import com.google.common.annotations.GwtIncompatible;
 import com.google.errorprone.annotations.DoNotMock;
+import com.google.common.annotations.GwtIncompatible;
 import java.util.NoSuchElementException;
 import java.util.Set;
-import javax.annotation.CheckForNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * A set comprising zero or more {@linkplain Range#isEmpty nonempty}, {@linkplain
@@ -52,7 +52,6 @@ import javax.annotation.CheckForNull;
 @Beta
 @DoNotMock("Use ImmutableRangeSet or TreeRangeSet")
 @GwtIncompatible
-@ElementTypesAreNonnullByDefault
 public interface RangeSet<C extends Comparable> {
   // TODO(lowasser): consider adding default implementations of some of these methods
 
@@ -65,7 +64,6 @@ public interface RangeSet<C extends Comparable> {
    * Returns the unique range from this range set that {@linkplain Range#contains contains} {@code
    * value}, or {@code null} if this range set does not contain {@code value}.
    */
-  @CheckForNull
   Range<C> rangeContaining(C value);
 
   /**
@@ -264,7 +262,7 @@ public interface RangeSet<C extends Comparable> {
    * according to {@link Range#equals(Object)}.
    */
   @Override
-  boolean equals(@CheckForNull Object obj);
+  boolean equals(@Nullable Object obj);
 
   /** Returns {@code asRanges().hashCode()}. */
   @Override

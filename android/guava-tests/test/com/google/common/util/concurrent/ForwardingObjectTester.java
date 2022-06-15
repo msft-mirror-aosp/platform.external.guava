@@ -61,7 +61,7 @@ final class ForwardingObjectTester {
             new Function<Object, T>() {
               @Override
               public T apply(Object delegate) {
-                T mock = mock(forwarderClass, CALLS_REAL_METHODS);
+                T mock = mock(forwarderClass, CALLS_REAL_METHODS.get());
                 try {
                   T stubber = doReturn(delegate).when(mock);
                   DELEGATE_METHOD.invoke(stubber);

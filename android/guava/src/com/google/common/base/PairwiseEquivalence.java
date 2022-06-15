@@ -17,16 +17,14 @@ package com.google.common.base;
 import com.google.common.annotations.GwtCompatible;
 import java.io.Serializable;
 import java.util.Iterator;
-import javax.annotation.CheckForNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 
 @GwtCompatible(serializable = true)
-@ElementTypesAreNonnullByDefault
-final class PairwiseEquivalence<E, T extends @Nullable E> extends Equivalence<Iterable<T>>
-    implements Serializable {
-  final Equivalence<E> elementEquivalence;
+final class PairwiseEquivalence<T> extends Equivalence<Iterable<T>> implements Serializable {
 
-  PairwiseEquivalence(Equivalence<E> elementEquivalence) {
+  final Equivalence<? super T> elementEquivalence;
+
+  PairwiseEquivalence(Equivalence<? super T> elementEquivalence) {
     this.elementEquivalence = Preconditions.checkNotNull(elementEquivalence);
   }
 
@@ -54,9 +52,9 @@ final class PairwiseEquivalence<E, T extends @Nullable E> extends Equivalence<It
   }
 
   @Override
-  public boolean equals(@CheckForNull Object object) {
+  public boolean equals(@NullableDecl Object object) {
     if (object instanceof PairwiseEquivalence) {
-      PairwiseEquivalence<?, ?> that = (PairwiseEquivalence<?, ?>) object;
+      PairwiseEquivalence<?> that = (PairwiseEquivalence<?>) object;
       return this.elementEquivalence.equals(that.elementEquivalence);
     }
 

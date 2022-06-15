@@ -15,7 +15,7 @@
 package com.google.common.util.concurrent;
 
 import com.google.common.annotations.GwtIncompatible;
-import javax.annotation.CheckForNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * Unchecked version of {@link java.util.concurrent.TimeoutException}.
@@ -24,19 +24,18 @@ import javax.annotation.CheckForNull;
  * @since 1.0
  */
 @GwtIncompatible
-@ElementTypesAreNonnullByDefault
 public class UncheckedTimeoutException extends RuntimeException {
   public UncheckedTimeoutException() {}
 
-  public UncheckedTimeoutException(@CheckForNull String message) {
+  public UncheckedTimeoutException(@Nullable String message) {
     super(message);
   }
 
-  public UncheckedTimeoutException(@CheckForNull Throwable cause) {
+  public UncheckedTimeoutException(@Nullable Throwable cause) {
     super(cause);
   }
 
-  public UncheckedTimeoutException(@CheckForNull String message, @CheckForNull Throwable cause) {
+  public UncheckedTimeoutException(@Nullable String message, @Nullable Throwable cause) {
     super(message, cause);
   }
 

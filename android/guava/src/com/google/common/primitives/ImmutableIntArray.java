@@ -28,7 +28,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.RandomAccess;
-import javax.annotation.CheckForNull;
+import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 
 /**
  * An immutable array of {@code int} values, with an API resembling {@link List}.
@@ -80,7 +80,6 @@ import javax.annotation.CheckForNull;
 @Beta
 @GwtCompatible
 @Immutable
-@ElementTypesAreNonnullByDefault
 public final class ImmutableIntArray implements Serializable {
   private static final ImmutableIntArray EMPTY = new ImmutableIntArray(new int[0]);
 
@@ -433,17 +432,17 @@ public final class ImmutableIntArray implements Serializable {
     }
 
     @Override
-    public boolean contains(@CheckForNull Object target) {
+    public boolean contains(Object target) {
       return indexOf(target) >= 0;
     }
 
     @Override
-    public int indexOf(@CheckForNull Object target) {
+    public int indexOf(Object target) {
       return target instanceof Integer ? parent.indexOf((Integer) target) : -1;
     }
 
     @Override
-    public int lastIndexOf(@CheckForNull Object target) {
+    public int lastIndexOf(Object target) {
       return target instanceof Integer ? parent.lastIndexOf((Integer) target) : -1;
     }
 
@@ -453,7 +452,7 @@ public final class ImmutableIntArray implements Serializable {
     }
 
     @Override
-    public boolean equals(@CheckForNull Object object) {
+    public boolean equals(@NullableDecl Object object) {
       if (object instanceof AsList) {
         AsList that = (AsList) object;
         return this.parent.equals(that.parent);
@@ -493,7 +492,7 @@ public final class ImmutableIntArray implements Serializable {
    * values as this one, in the same order.
    */
   @Override
-  public boolean equals(@CheckForNull Object object) {
+  public boolean equals(@NullableDecl Object object) {
     if (object == this) {
       return true;
     }
