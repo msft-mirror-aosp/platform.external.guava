@@ -108,6 +108,11 @@ java_library_host {
         "error_prone_annotations",
     ],
     java_version: "1.8",
+    errorprone: {
+        javacflags: [
+            "-Xep:NoCanIgnoreReturnValueOnClasses:WARN",
+        ],
+    },
 }
 
 java_library_host {
@@ -121,6 +126,11 @@ java_library_host {
          "junit",
     ],
     java_version: "1.8",
+    errorprone: {
+        javacflags: [
+            "-Xep:ReturnValueIgnored:WARN",
+        ],
+    },
 }
 
 // Guava for Android can't compile against an Android bootclasspath, compile
@@ -135,6 +145,11 @@ java_library_host {
         "error_prone_annotations",
     ],
     java_version: "1.8",
+    errorprone: {
+        javacflags: [
+            "-Xep:NoCanIgnoreReturnValueOnClasses:WARN",
+        ],
+    },
 }
 
 java_host_for_device {
@@ -161,4 +176,9 @@ java_library {
         "guava-android-annotation-stubs",
         "junit",
     ],
+    errorprone: {
+        javacflags: [
+            "-Xep:ReturnValueIgnored:WARN",
+        ],
+    },
 }
