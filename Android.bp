@@ -159,7 +159,7 @@ java_host_for_device {
 
 // Compile dummy implementations of annotations used by guava but not
 // present in the Android tree.
-// 30 may not be the lowest min_sdk_version, but the min sdk version 
+// 30 may not be the lowest min_sdk_version, but the min sdk version
 // for permission controller.
 java_library {
     name: "guava-android-annotation-stubs",
@@ -169,7 +169,7 @@ java_library {
     srcs: ["android-annotation-stubs/src/**/*.java"],
     apex_available: [
         "//apex_available:platform",
-        "com.android.permission",
+        "//apex_available:anyapex",
     ],
 }
 
