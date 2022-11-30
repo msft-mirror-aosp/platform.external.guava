@@ -56,3 +56,10 @@ java_library(
         ":guava-both",
     ],
 )
+
+java_library(
+    name = "guava-neverlink",
+    exports = [":guava"],
+    neverlink = True,
+)
+
