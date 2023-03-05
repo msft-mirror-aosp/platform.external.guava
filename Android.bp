@@ -162,6 +162,8 @@ java_host_for_device {
 java_library {
     name: "guava-android-annotation-stubs",
     host_supported: true,
+    // b/267831518: Pin tradefed and dependencies to Java 11.
+    java_version: "11",
     sdk_version: "core_current",
     srcs: ["android-annotation-stubs/src/**/*.java"],
 }
