@@ -35,7 +35,6 @@ import java.util.Locale;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import junit.framework.TestCase;
-import org.easymock.EasyMock;
 import org.mockito.Mockito;
 
 /**
@@ -564,24 +563,9 @@ public class RateLimiterTest extends TestCase {
     }
   }
 
-  /*
-   * Note: Mockito appears to lose its ability to Mock doGetRate as of Android 21. If we start
-   * testing with that version or newer, we'll need to suppress this test (or see if Mockito can be
-   * changed to support this).
-   */
+  @AndroidIncompatible // Mockito loses its ability to mock doGetRate as of Android 21
   public void testMockingMockito() throws Exception {
     RateLimiter mock = Mockito.mock(RateLimiter.class);
-    doTestMocking(mock);
-  }
-
-  @AndroidIncompatible // EasyMock Class Extension doesn't appear to work on Android.
-  public void testMockingEasyMock() throws Exception {
-    RateLimiter mock = EasyMock.createNiceMock(RateLimiter.class);
-    EasyMock.replay(mock);
-    doTestMocking(mock);
-  }
-
-  private static void doTestMocking(RateLimiter mock) throws Exception {
     for (Method method : RateLimiter.class.getMethods()) {
       if (!isStatic(method.getModifiers())
           && !NOT_WORKING_ON_MOCKS.contains(method.getName())
