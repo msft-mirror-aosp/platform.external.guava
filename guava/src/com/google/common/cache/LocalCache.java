@@ -281,7 +281,8 @@ class LocalCache<K, V> extends AbstractMap<K, V> implements ConcurrentMap<K, V> 
     // will result in random eviction behavior.
     int segmentShift = 0;
     int segmentCount = 1;
-    while (segmentCount < concurrencyLevel && (!evictsBySize() || segmentCount * 20 <= maxWeight)) {
+    while (segmentCount < concurrencyLevel
+        && (!evictsBySize() || segmentCount * 20L <= maxWeight)) {
       ++segmentShift;
       segmentCount <<= 1;
     }
@@ -2183,12 +2184,7 @@ class LocalCache<K, V> extends AbstractMap<K, V> implements ConcurrentMap<K, V> 
 
       if (createNewEntry) {
         try {
-          // Synchronizes on the entry to allow failing fast when a recursive load is
-          // detected. This may be circumvented when an entry is copied, but will fail fast most
-          // of the time.
-          synchronized (e) {
-            return loadSync(key, hash, loadingValueReference, loader);
-          }
+          return loadSync(key, hash, loadingValueReference, loader);
         } finally {
           statsCounter.recordMisses(1);
         }
@@ -2204,7 +2200,22 @@ class LocalCache<K, V> extends AbstractMap<K, V> implements ConcurrentMap<K, V> 
         throw new AssertionError();
       }
 
-      checkState(!Thread.holdsLock(e), "Recursive load of: %s", key);
+      // As of this writing, the only prod ValueReference implementation for which isLoading() is
+      // true is LoadingValueReference. (Note, however, that not all LoadingValueReference instances
+      // have isLoading()==true: LoadingValueReference has a subclass, ComputingValueReference, for
+      // which isLoading() is false!) However, that might change, and we already have a *test*
+      // implementation for which it doesn't hold. So we check instanceof to be safe.
+      if (valueReference instanceof LoadingValueReference) {
+        // We check whether the thread that is loading the entry is our current thread, which would
+        // mean that we are both loading and waiting for the entry. In this case, we fail fast
+        // instead of deadlocking.
+        checkState(
+            ((LoadingValueReference<K, V>) valueReference).getLoadingThread()
+                != Thread.currentThread(),
+            "Recursive load of: %s",
+            key);
+      }
+
       // don't consider expiration as we're concurrent with loading
       try {
         V value = valueReference.waitForValue();
@@ -2220,7 +2231,11 @@ class LocalCache<K, V> extends AbstractMap<K, V> implements ConcurrentMap<K, V> 
       }
     }
 
-    V compute(K key, int hash, BiFunction<? super K, ? super @Nullable V, ? extends V> function) {
+    @CheckForNull
+    V compute(
+        K key,
+        int hash,
+        BiFunction<? super K, ? super @Nullable V, ? extends @Nullable V> function) {
       ReferenceEntry<K, V> e;
       ValueReference<K, V> valueReference = null;
       ComputingValueReference<K, V> computingValueReference = null;
@@ -3512,12 +3527,15 @@ class LocalCache<K, V> extends AbstractMap<K, V> implements ConcurrentMap<K, V> 
     final SettableFuture<V> futureValue = SettableFuture.create();
     final Stopwatch stopwatch = Stopwatch.createUnstarted();
 
+    final Thread loadingThread;
+
     public LoadingValueReference() {
       this(null);
     }
 
-    public LoadingValueReference(ValueReference<K, V> oldValue) {
+    public LoadingValueReference(@CheckForNull ValueReference<K, V> oldValue) {
       this.oldValue = (oldValue == null) ? LocalCache.unset() : oldValue;
+      this.loadingThread = Thread.currentThread();
     }
 
     @Override
@@ -3593,7 +3611,9 @@ class LocalCache<K, V> extends AbstractMap<K, V> implements ConcurrentMap<K, V> 
       }
     }
 
-    public V compute(K key, BiFunction<? super K, ? super @Nullable V, ? extends V> function) {
+    @CheckForNull
+    public V compute(
+        K key, BiFunction<? super K, ? super @Nullable V, ? extends @Nullable V> function) {
       stopwatch.start();
       V previousValue;
       try {
@@ -3639,6 +3659,10 @@ class LocalCache<K, V> extends AbstractMap<K, V> implements ConcurrentMap<K, V> 
     public ValueReference<K, V> copyFor(
         ReferenceQueue<V> queue, @CheckForNull V value, ReferenceEntry<K, V> entry) {
       return this;
+    }
+
+    Thread getLoadingThread() {
+      return this.loadingThread;
     }
   }
 
@@ -4255,7 +4279,9 @@ class LocalCache<K, V> extends AbstractMap<K, V> implements ConcurrentMap<K, V> 
   }
 
   @Override
-  public V compute(K key, BiFunction<? super K, ? super @Nullable V, ? extends V> function) {
+  @CheckForNull
+  public V compute(
+      K key, BiFunction<? super K, ? super @Nullable V, ? extends @Nullable V> function) {
     checkNotNull(key);
     checkNotNull(function);
     int hash = hash(key);
@@ -4270,7 +4296,9 @@ class LocalCache<K, V> extends AbstractMap<K, V> implements ConcurrentMap<K, V> 
   }
 
   @Override
-  public V computeIfPresent(K key, BiFunction<? super K, ? super V, ? extends V> function) {
+  @CheckForNull
+  public V computeIfPresent(
+      K key, BiFunction<? super K, ? super V, ? extends @Nullable V> function) {
     checkNotNull(key);
     checkNotNull(function);
     return compute(key, (k, oldValue) -> (oldValue == null) ? null : function.apply(k, oldValue));
