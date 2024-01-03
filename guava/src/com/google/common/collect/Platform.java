@@ -32,8 +32,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 @GwtCompatible(emulated = true)
 @ElementTypesAreNonnullByDefault
 final class Platform {
-  private static final java.util.logging.Logger logger =
-      java.util.logging.Logger.getLogger(Platform.class.getName());
 
   /** Returns the platform preferred implementation of a map based on a hash table. */
   static <K extends @Nullable Object, V extends @Nullable Object>
@@ -82,7 +80,7 @@ final class Platform {
    * for insertions.
    */
   static <E extends @Nullable Object> Set<E> preservesInsertionOrderOnAddsSet() {
-    return Sets.newLinkedHashSet();
+    return CompactHashSet.create();
   }
 
   /**

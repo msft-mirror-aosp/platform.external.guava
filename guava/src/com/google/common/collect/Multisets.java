@@ -196,6 +196,11 @@ public final class Multisets {
     }
 
     @Override
+    public boolean removeIf(java.util.function.Predicate<? super E> filter) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
     public boolean retainAll(Collection<?> elementsToRetain) {
       throw new UnsupportedOperationException();
     }
@@ -1166,7 +1171,7 @@ public final class Multisets {
   }
 
   private static final class DecreasingCount implements Comparator<Entry<?>> {
-    static final DecreasingCount INSTANCE = new DecreasingCount();
+    static final Comparator<Entry<?>> INSTANCE = new DecreasingCount();
 
     @Override
     public int compare(Entry<?> entry1, Entry<?> entry2) {
