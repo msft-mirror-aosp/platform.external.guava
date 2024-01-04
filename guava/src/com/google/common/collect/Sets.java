@@ -1432,6 +1432,15 @@ public final class Sets {
             boolean isPartialView() {
               return true;
             }
+
+            // redeclare to help optimizers with b/310253115
+            @SuppressWarnings("RedundantOverride")
+            @Override
+            @J2ktIncompatible // serialization
+            @GwtIncompatible // serialization
+            Object writeReplace() {
+              return super.writeReplace();
+            }
           };
       return new CartesianSet<E>(axes, new CartesianList<E>(listAxes));
     }
@@ -1473,7 +1482,11 @@ public final class Sets {
         CartesianSet<?> that = (CartesianSet<?>) object;
         return this.axes.equals(that.axes);
       }
-      return super.equals(object);
+      if (object instanceof Set) {
+        Set<?> that = (Set<?>) object;
+        return this.size() == that.size() && this.containsAll(that);
+      }
+      return false;
     }
 
     @Override
