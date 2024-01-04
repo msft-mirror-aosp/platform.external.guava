@@ -52,7 +52,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -669,6 +668,7 @@ public class SetsTest extends TestCase {
   }
 
   @GwtIncompatible // NullPointerTester
+  @AndroidIncompatible // see ImmutableTableTest.testNullPointerInstance
   public void testNullPointerExceptions() {
     new NullPointerTester()
         .setDefault(Enum.class, SomeEnum.A)
@@ -781,6 +781,21 @@ public class SetsTest extends TestCase {
     assertTrue(actual.contains(list(2, 3)));
     assertTrue(actual.contains(list(2, 4)));
     assertFalse(actual.contains(list(3, 1)));
+  }
+
+  public void testCartesianProduct_equals() {
+    Set<List<Integer>> cartesian = Sets.cartesianProduct(set(1, 2), set(3, 4));
+    ImmutableSet<List<Integer>> equivalent =
+        ImmutableSet.of(ImmutableList.of(1, 3), ImmutableList.of(1, 4), list(2, 3), list(2, 4));
+    ImmutableSet<List<Integer>> different1 =
+        ImmutableSet.of(ImmutableList.of(0, 3), ImmutableList.of(1, 4), list(2, 3), list(2, 4));
+    ImmutableSet<List<Integer>> different2 =
+        ImmutableSet.of(ImmutableList.of(1, 3), ImmutableList.of(1, 4), list(2, 3));
+    new EqualsTester()
+        .addEqualityGroup(cartesian, equivalent)
+        .addEqualityGroup(different1)
+        .addEqualityGroup(different2)
+        .testEquals();
   }
 
   @SuppressWarnings("unchecked") // varargs!
@@ -1136,47 +1151,6 @@ public class SetsTest extends TestCase {
       }
     }
     assertEquals(expected, set);
-  }
-
-  /** Simple base class to verify that we handle generics correctly. */
-  static class Base implements Comparable<Base>, Serializable {
-    private final String s;
-
-    public Base(String s) {
-      this.s = s;
-    }
-
-    @Override
-    public int hashCode() { // delegate to 's'
-      return s.hashCode();
-    }
-
-    @Override
-    public boolean equals(@Nullable Object other) {
-      if (other == null) {
-        return false;
-      } else if (other instanceof Base) {
-        return s.equals(((Base) other).s);
-      } else {
-        return false;
-      }
-    }
-
-    @Override
-    public int compareTo(Base o) {
-      return s.compareTo(o.s);
-    }
-
-    private static final long serialVersionUID = 0;
-  }
-
-  /** Simple derived class to verify that we handle generics correctly. */
-  static class Derived extends Base {
-    public Derived(String s) {
-      super(s);
-    }
-
-    private static final long serialVersionUID = 0;
   }
 
   @GwtIncompatible // NavigableSet
