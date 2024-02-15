@@ -44,7 +44,6 @@ license {
         "legacy_unencumbered",
     ],
     license_text: [
-        "COPYING",
         "NOTICE",
     ],
 }
@@ -176,18 +175,24 @@ java_library {
 }
 
 // Compile guava testlib
-java_library {
-    name: "guava-android-testlib",
+java_library_host {
+    name: "guava-android-testlib-host",
     srcs: ["android/guava-testlib/src/**/*.java"],
     libs: [
         "error_prone_annotations",
-        "guava-android",
         "guava-android-annotation-stubs",
+        "guava-android-host",
         "junit",
     ],
+    java_version: "1.8",
     errorprone: {
         javacflags: [
             "-Xep:ReturnValueIgnored:WARN",
         ],
     },
+}
+
+java_host_for_device {
+    name: "guava-android-testlib",
+    libs: ["guava-android-testlib-host"],
 }

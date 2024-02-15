@@ -19,6 +19,7 @@ package com.google.common.util.concurrent;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.util.concurrent.MoreExecutors.newSequentialExecutor;
 import static com.google.common.util.concurrent.Uninterruptibles.awaitUninterruptibly;
+import static org.junit.Assert.assertThrows;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -79,11 +80,7 @@ public class SequentialExecutorTest extends TestCase {
   }
 
   public void testConstructingWithNullExecutor_fails() {
-    try {
-      new SequentialExecutor(null);
-      fail("Should have failed with NullPointerException.");
-    } catch (NullPointerException expected) {
-    }
+    assertThrows(NullPointerException.class, () -> new SequentialExecutor(null));
   }
 
   public void testBasics() {
@@ -263,11 +260,7 @@ public class SequentialExecutorTest extends TestCase {
             numCalls.incrementAndGet();
           }
         };
-    try {
-      executor.execute(task);
-      fail();
-    } catch (RejectedExecutionException expected) {
-    }
+    assertThrows(RejectedExecutionException.class, () -> executor.execute(task));
     assertEquals(0, numCalls.get());
     reject.set(false);
     executor.execute(task);
@@ -310,7 +303,7 @@ public class SequentialExecutorTest extends TestCase {
       executor.execute(errorTask);
       service.execute(barrierTask); // submit directly to the service
       // the barrier task runs after the error task so we know that the error has been observed by
-      // SequentialExecutor by the time the barrier is satified
+      // SequentialExecutor by the time the barrier is satisfied
       barrier.await(1, TimeUnit.SECONDS);
       executor.execute(barrierTask);
       // timeout means the second task wasn't even tried
@@ -344,18 +337,11 @@ public class SequentialExecutorTest extends TestCase {
               }
             });
     future.get(10, TimeUnit.SECONDS);
-    try {
-      executor.execute(Runnables.doNothing());
-      fail();
-    } catch (RejectedExecutionException expected) {
-    }
+    assertThrows(RejectedExecutionException.class, () -> executor.execute(Runnables.doNothing()));
     latch.countDown();
-    try {
-      first.get(10, TimeUnit.SECONDS);
-      fail();
-    } catch (ExecutionException expected) {
-      assertThat(expected).hasCauseThat().isInstanceOf(RejectedExecutionException.class);
-    }
+    ExecutionException expected =
+        assertThrows(ExecutionException.class, () -> first.get(10, TimeUnit.SECONDS));
+    assertThat(expected).hasCauseThat().isInstanceOf(RejectedExecutionException.class);
   }
 
   public void testToString() {

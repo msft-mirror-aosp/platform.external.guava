@@ -31,6 +31,8 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InvalidObjectException;
+import java.io.ObjectInputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.math.RoundingMode;
@@ -471,6 +473,10 @@ public final class BloomFilter<T extends @Nullable Object> implements Predicate<
     return new SerialForm<T>(this);
   }
 
+  private void readObject(ObjectInputStream stream) throws InvalidObjectException {
+    throw new InvalidObjectException("Use SerializedForm");
+  }
+
   private static class SerialForm<T extends @Nullable Object> implements Serializable {
     final long[] data;
     final int numHashFunctions;
@@ -524,6 +530,7 @@ public final class BloomFilter<T extends @Nullable Object> implements Predicate<
    * @throws IOException if the InputStream throws an {@code IOException}, or if its data does not
    *     appear to be a BloomFilter serialized using the {@linkplain #writeTo(OutputStream)} method.
    */
+  @SuppressWarnings("CatchingUnchecked") // sneaky checked exception
   public static <T extends @Nullable Object> BloomFilter<T> readFrom(
       InputStream in, Funnel<? super T> funnel) throws IOException {
     checkNotNull(in, "InputStream");
@@ -548,7 +555,9 @@ public final class BloomFilter<T extends @Nullable Object> implements Predicate<
       }
 
       return new BloomFilter<T>(dataArray, numHashFunctions, funnel, strategy);
-    } catch (RuntimeException e) {
+    } catch (IOException e) {
+      throw e;
+    } catch (Exception e) { // sneaky checked exception
       String message =
           "Unable to deserialize BloomFilter from InputStream."
               + " strategyOrdinal: "
@@ -560,4 +569,6 @@ public final class BloomFilter<T extends @Nullable Object> implements Predicate<
       throw new IOException(message, e);
     }
   }
+
+  private static final long serialVersionUID = 0xdecaf;
 }

@@ -17,6 +17,7 @@ package com.google.common.util.concurrent;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.util.concurrent.Futures.getDone;
 import static com.google.common.util.concurrent.MoreExecutors.rejectionPropagatingExecutor;
+import static com.google.common.util.concurrent.Platform.restoreInterruptIfIsInterruptedException;
 
 import com.google.common.annotations.GwtCompatible;
 import com.google.common.base.Function;
@@ -65,6 +66,7 @@ abstract class AbstractTransformFuture<
   }
 
   @Override
+  @SuppressWarnings("CatchingUnchecked") // sneaky checked exception
   public final void run() {
     ListenableFuture<? extends I> localInputFuture = inputFuture;
     F localFunction = function;
@@ -103,7 +105,7 @@ abstract class AbstractTransformFuture<
       // Set the cause of the exception as this future's exception.
       setException(e.getCause());
       return;
-    } catch (RuntimeException e) {
+    } catch (Exception e) { // sneaky checked exception
       // Bug in inputFuture.get(). Propagate to the output Future so that its consumers don't hang.
       setException(e);
       return;
@@ -121,6 +123,7 @@ abstract class AbstractTransformFuture<
     try {
       transformResult = doTransform(localFunction, sourceResult);
     } catch (Throwable t) {
+      restoreInterruptIfIsInterruptedException(t);
       // This exception is irrelevant in this thread, but useful for the client.
       setException(t);
       return;

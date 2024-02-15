@@ -15,6 +15,7 @@
 package com.google.common.util.concurrent;
 
 import static com.google.common.util.concurrent.NullnessCasts.uncheckedCastNullableTToT;
+import static com.google.common.util.concurrent.Platform.restoreInterruptIfIsInterruptedException;
 
 import com.google.common.annotations.GwtCompatible;
 import com.google.common.annotations.VisibleForTesting;
@@ -22,6 +23,7 @@ import com.google.j2objc.annotations.ReflectionSupport;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.AbstractOwnableSynchronizer;
 import java.util.concurrent.locks.LockSupport;
+import javax.annotation.CheckForNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 @GwtCompatible(emulated = true)
@@ -74,6 +76,7 @@ abstract class InterruptibleTask<T extends @Nullable Object>
         result = runInterruptibly();
       }
     } catch (Throwable t) {
+      restoreInterruptIfIsInterruptedException(t);
       error = t;
     } finally {
       // Attempt to set the task as done so that further attempts to interrupt will fail.
@@ -229,6 +232,12 @@ abstract class InterruptibleTask<T extends @Nullable Object>
 
     private void setOwner(Thread thread) {
       super.setExclusiveOwnerThread(thread);
+    }
+
+    @VisibleForTesting
+    @CheckForNull
+    Thread getOwner() {
+      return super.getExclusiveOwnerThread();
     }
 
     @Override

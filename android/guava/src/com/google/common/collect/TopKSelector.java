@@ -231,6 +231,13 @@ final class TopKSelector<
     buffer[j] = tmp;
   }
 
+  TopKSelector<T> combine(TopKSelector<T> other) {
+    for (int i = 0; i < other.bufferSize; i++) {
+      this.offer(uncheckedCastNullableTToT(other.buffer[i]));
+    }
+    return this;
+  }
+
   /**
    * Adds each member of {@code elements} as a candidate for the top {@code k} elements. This
    * operation takes amortized linear time in the length of {@code elements}.
@@ -273,7 +280,9 @@ final class TopKSelector<
       bufferSize = k;
       threshold = buffer[k - 1];
     }
+    // Up to bufferSize, all elements of buffer are real Ts (not null unless T includes null)
+    T[] topK = Arrays.copyOf(castBuffer, bufferSize);
     // we have to support null elements, so no ImmutableList for us
-    return Collections.unmodifiableList(Arrays.asList(Arrays.copyOf(buffer, bufferSize)));
+    return Collections.unmodifiableList(Arrays.asList(topK));
   }
 }
