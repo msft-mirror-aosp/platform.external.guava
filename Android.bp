@@ -118,16 +118,17 @@ java_library_host {
     name: "guava-testlib",
     srcs: ["guava-testlib/src/**/*.java"],
     libs: [
-         "error_prone_annotations",
-         "guava",
-         "guava-android-annotation-stubs",
-         "jsr305",
-         "junit",
+        "error_prone_annotations",
+        "guava",
+        "guava-android-annotation-stubs",
+        "jsr305",
+        "junit",
     ],
     java_version: "1.8",
     errorprone: {
         javacflags: [
             "-Xep:ReturnValueIgnored:WARN",
+            "-Xep:BareDotMetacharacter:WARN",
         ],
     },
 }
@@ -188,6 +189,7 @@ java_library_host {
     errorprone: {
         javacflags: [
             "-Xep:ReturnValueIgnored:WARN",
+            "-Xep:BareDotMetacharacter:WARN",
         ],
     },
 }
