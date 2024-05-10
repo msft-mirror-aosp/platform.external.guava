@@ -30,10 +30,10 @@ import java.lang.annotation.Target;
 /**
  * Signifies that a test should not be run under Android. This annotation is respected only by our
  * Google-internal Android suite generators. Note that those generators also suppress any test
- * annotated with MediumTest or LargeTest.
+ * annotated with LargeTest.
  *
- * <p>Why use a custom annotation instead of {@code android.test.suitebuilder.annotation.Suppress}?
- * I'm not completely sure that this is the right choice, but it has various advantages:
+ * <p>Why use a custom annotation instead of {@code androidx.test.filters.Suppress}? I'm not
+ * completely sure that this is the right choice, but it has various advantages:
  *
  * <ul>
  *   <li>An annotation named just "Suppress" might someday be treated by a non-Android tool as a

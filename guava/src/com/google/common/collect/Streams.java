@@ -74,7 +74,6 @@ public final class Streams {
    *
    * @deprecated There is no reason to use this; just invoke {@code collection.stream()} directly.
    */
-  @Beta
   @Deprecated
   @InlineMe(replacement = "collection.stream()")
   public static <T extends @Nullable Object> Stream<T> stream(Collection<T> collection) {
@@ -85,7 +84,6 @@ public final class Streams {
    * Returns a sequential {@link Stream} of the remaining contents of {@code iterator}. Do not use
    * {@code iterator} directly after passing it to this method.
    */
-  @Beta
   public static <T extends @Nullable Object> Stream<T> stream(Iterator<T> iterator) {
     return StreamSupport.stream(Spliterators.spliteratorUnknownSize(iterator, 0), false);
   }
@@ -94,7 +92,6 @@ public final class Streams {
    * If a value is present in {@code optional}, returns a stream containing only that element,
    * otherwise returns an empty stream.
    */
-  @Beta
   public static <T> Stream<T> stream(com.google.common.base.Optional<T> optional) {
     return optional.isPresent() ? Stream.of(optional.get()) : Stream.empty();
   }
@@ -151,11 +148,40 @@ public final class Streams {
     return optional.isPresent() ? DoubleStream.of(optional.getAsDouble()) : DoubleStream.empty();
   }
 
+  @SuppressWarnings("CatchingUnchecked") // sneaky checked exception
   private static void closeAll(BaseStream<?, ?>[] toClose) {
+    // If one of the streams throws an exception, continue closing the others, then throw the
+    // exception later. If more than one stream throws an exception, the later ones are added to the
+    // first as suppressed exceptions. We don't catch Error on the grounds that it should be allowed
+    // to propagate immediately.
+    Exception exception = null;
     for (BaseStream<?, ?> stream : toClose) {
-      // TODO(b/80534298): Catch exceptions, rethrowing later with extras as suppressed exceptions.
-      stream.close();
+      try {
+        stream.close();
+      } catch (Exception e) { // sneaky checked exception
+        if (exception == null) {
+          exception = e;
+        } else {
+          exception.addSuppressed(e);
+        }
+      }
     }
+    if (exception != null) {
+      // Normally this is a RuntimeException that doesn't need sneakyThrow.
+      // But theoretically we could see sneaky checked exception
+      sneakyThrow(exception);
+    }
+  }
+
+  /** Throws an undeclared checked exception. */
+  private static void sneakyThrow(Throwable t) {
+    class SneakyThrower<T extends Throwable> {
+      @SuppressWarnings("unchecked") // not really safe, but that's the point
+      void throwIt(Throwable t) throws T {
+        throw (T) t;
+      }
+    }
+    new SneakyThrower<Error>().throwIt(t);
   }
 
   /**

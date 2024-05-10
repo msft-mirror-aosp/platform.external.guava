@@ -44,7 +44,6 @@ license {
         "legacy_unencumbered",
     ],
     license_text: [
-        "COPYING",
         "NOTICE",
     ],
 }
@@ -79,6 +78,10 @@ java_library {
         host: {
             static_libs: ["guava-jre"],
         },
+        windows: {
+            static_libs: ["guava-jre"],
+            enabled: true,
+        },
     },
     apex_available: [
         "//apex_available:platform",
@@ -97,6 +100,11 @@ java_library {
         "error_prone_annotations",
     ],
     java_version: "1.8",
+    target: {
+        windows: {
+            enabled: true,
+        },
+    },
 }
 
 java_library_host {
@@ -113,22 +121,28 @@ java_library_host {
             "-Xep:NoCanIgnoreReturnValueOnClasses:WARN",
         ],
     },
+    target: {
+        windows: {
+            enabled: true,
+        },
+    },
 }
 
 java_library_host {
     name: "guava-testlib",
     srcs: ["guava-testlib/src/**/*.java"],
     libs: [
-         "error_prone_annotations",
-         "guava",
-         "guava-android-annotation-stubs",
-         "jsr305",
-         "junit",
+        "error_prone_annotations",
+        "guava",
+        "guava-android-annotation-stubs",
+        "jsr305",
+        "junit",
     ],
     java_version: "1.8",
     errorprone: {
         javacflags: [
             "-Xep:ReturnValueIgnored:WARN",
+            "-Xep:BareDotMetacharacter:WARN",
         ],
     },
 }
@@ -150,6 +164,11 @@ java_library_host {
             "-Xep:NoCanIgnoreReturnValueOnClasses:WARN",
         ],
     },
+    target: {
+        windows: {
+            enabled: true,
+        },
+    },
 }
 
 java_host_for_device {
@@ -159,28 +178,47 @@ java_host_for_device {
 
 // Compile dummy implementations of annotations used by guava but not
 // present in the Android tree.
+// 30 may not be the lowest min_sdk_version, but the min sdk version
+// for permission controller.
 java_library {
     name: "guava-android-annotation-stubs",
     host_supported: true,
     // b/267831518: Pin tradefed and dependencies to Java 11.
     java_version: "11",
     sdk_version: "core_current",
+    min_sdk_version: "30",
     srcs: ["android-annotation-stubs/src/**/*.java"],
+    apex_available: [
+        "//apex_available:platform",
+        "//apex_available:anyapex",
+    ],
+    target: {
+        windows: {
+            enabled: true,
+        },
+    },
 }
 
 // Compile guava testlib
-java_library {
-    name: "guava-android-testlib",
+java_library_host {
+    name: "guava-android-testlib-host",
     srcs: ["android/guava-testlib/src/**/*.java"],
     libs: [
         "error_prone_annotations",
-        "guava-android",
         "guava-android-annotation-stubs",
+        "guava-android-host",
         "junit",
     ],
+    java_version: "1.8",
     errorprone: {
         javacflags: [
             "-Xep:ReturnValueIgnored:WARN",
+            "-Xep:BareDotMetacharacter:WARN",
         ],
     },
+}
+
+java_host_for_device {
+    name: "guava-android-testlib",
+    libs: ["guava-android-testlib-host"],
 }
