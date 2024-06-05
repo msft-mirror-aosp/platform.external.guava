@@ -22,6 +22,7 @@ import static java.util.Objects.requireNonNull;
 
 import com.google.common.annotations.GwtCompatible;
 import com.google.common.annotations.GwtIncompatible;
+import com.google.common.annotations.J2ktIncompatible;
 import com.google.common.base.Objects;
 import com.google.common.collect.Maps.IteratorBasedAbstractMap;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
@@ -29,6 +30,7 @@ import com.google.errorprone.annotations.concurrent.LazyInit;
 import com.google.j2objc.annotations.RetainedWith;
 import com.google.j2objc.annotations.Weak;
 import java.io.IOException;
+import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
@@ -88,7 +90,7 @@ public final class HashBiMap<K extends @Nullable Object, V extends @Nullable Obj
     return bimap;
   }
 
-  private static final class BiEntry<K extends @Nullable Object, V extends @Nullable Object>
+  static final class BiEntry<K extends @Nullable Object, V extends @Nullable Object>
       extends ImmutableEntry<K, V> {
     final int keyHash;
     final int valueHash;
@@ -119,8 +121,12 @@ public final class HashBiMap<K extends @Nullable Object, V extends @Nullable Obj
    * they are not initialized inline in the constructor, they are initialized from init(), which the
    * constructor calls (as does readObject()).
    */
+  @SuppressWarnings("nullness:initialization.field.uninitialized") // For J2KT (see above)
   private transient @Nullable BiEntry<K, V>[] hashTableKToV;
+
+  @SuppressWarnings("nullness:initialization.field.uninitialized") // For J2KT (see above)
   private transient @Nullable BiEntry<K, V>[] hashTableVToK;
+
   @Weak @CheckForNull private transient BiEntry<K, V> firstInKeyInsertionOrder;
   @Weak @CheckForNull private transient BiEntry<K, V> lastInKeyInsertionOrder;
   private transient int size;
@@ -332,6 +338,7 @@ public final class HashBiMap<K extends @Nullable Object, V extends @Nullable Obj
     return put(key, value, true);
   }
 
+  @CanIgnoreReturnValue
   @CheckForNull
   private K putInverse(@ParametricNullness V value, @ParametricNullness K key, boolean force) {
     int valueHash = smearedHash(value);
@@ -431,7 +438,7 @@ public final class HashBiMap<K extends @Nullable Object, V extends @Nullable Obj
     return size;
   }
 
-  abstract class Itr<T extends @Nullable Object> implements Iterator<T> {
+  private abstract class Itr<T extends @Nullable Object> implements Iterator<T> {
     @CheckForNull BiEntry<K, V> next = firstInKeyInsertionOrder;
     @CheckForNull BiEntry<K, V> toRemove = null;
     int expectedModCount = modCount;
@@ -524,7 +531,7 @@ public final class HashBiMap<K extends @Nullable Object, V extends @Nullable Obj
       }
 
       class MapEntry extends AbstractMapEntry<K, V> {
-        BiEntry<K, V> delegate;
+        private BiEntry<K, V> delegate;
 
         MapEntry(BiEntry<K, V> entry) {
           this.delegate = entry;
@@ -701,7 +708,7 @@ public final class HashBiMap<K extends @Nullable Object, V extends @Nullable Obj
         }
 
         class InverseEntry extends AbstractMapEntry<V, K> {
-          BiEntry<K, V> delegate;
+          private BiEntry<K, V> delegate;
 
           InverseEntry(BiEntry<K, V> entry) {
             this.delegate = entry;
@@ -759,6 +766,12 @@ public final class HashBiMap<K extends @Nullable Object, V extends @Nullable Obj
     Object writeReplace() {
       return new InverseSerializedForm<>(HashBiMap.this);
     }
+
+    @GwtIncompatible // serialization
+    @J2ktIncompatible
+    private void readObject(ObjectInputStream in) throws InvalidObjectException {
+      throw new InvalidObjectException("Use InverseSerializedForm");
+    }
   }
 
   private static final class InverseSerializedForm<
@@ -779,12 +792,14 @@ public final class HashBiMap<K extends @Nullable Object, V extends @Nullable Obj
    * @serialData the number of entries, first key, first value, second key, second value, and so on.
    */
   @GwtIncompatible // java.io.ObjectOutputStream
+  @J2ktIncompatible
   private void writeObject(ObjectOutputStream stream) throws IOException {
     stream.defaultWriteObject();
     Serialization.writeMap(this, stream);
   }
 
   @GwtIncompatible // java.io.ObjectInputStream
+  @J2ktIncompatible
   private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
     stream.defaultReadObject();
     int size = Serialization.readCount(stream);
@@ -793,5 +808,6 @@ public final class HashBiMap<K extends @Nullable Object, V extends @Nullable Obj
   }
 
   @GwtIncompatible // Not needed in emulated source
+  @J2ktIncompatible
   private static final long serialVersionUID = 0;
 }

@@ -17,8 +17,8 @@ package com.google.common.util.concurrent;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.annotations.Beta;
 import com.google.common.annotations.GwtIncompatible;
+import com.google.common.annotations.J2ktIncompatible;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
@@ -27,7 +27,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.MapMaker;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.j2objc.annotations.Weak;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,7 +41,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.annotation.CheckForNull;
 
 /**
@@ -160,8 +158,7 @@ import javax.annotation.CheckForNull;
  * @author Darick Tong
  * @since 13.0
  */
-@Beta
-@CanIgnoreReturnValue // TODO(cpovirk): Consider being more strict.
+@J2ktIncompatible
 @GwtIncompatible
 @ElementTypesAreNonnullByDefault
 public class CycleDetectingLockFactory {
@@ -173,7 +170,6 @@ public class CycleDetectingLockFactory {
    *
    * @since 13.0
    */
-  @Beta
   public interface Policy {
 
     /**
@@ -193,7 +189,6 @@ public class CycleDetectingLockFactory {
    *
    * @since 13.0
    */
-  @Beta
   public enum Policies implements Policy {
     /**
      * When potential deadlock is detected, this policy results in the throwing of the {@code
@@ -215,7 +210,7 @@ public class CycleDetectingLockFactory {
     WARN {
       @Override
       public void handlePotentialDeadlock(PotentialDeadlockException e) {
-        logger.log(Level.SEVERE, "Detected potential deadlock", e);
+        logger.get().log(Level.SEVERE, "Detected potential deadlock", e);
       }
     },
 
@@ -394,7 +389,6 @@ public class CycleDetectingLockFactory {
    * @param <E> The Enum type representing the explicit lock ordering.
    * @since 13.0
    */
-  @Beta
   public static final class WithExplicitOrdering<E extends Enum<E>>
       extends CycleDetectingLockFactory {
 
@@ -452,7 +446,7 @@ public class CycleDetectingLockFactory {
 
   //////// Implementation /////////
 
-  private static final Logger logger = Logger.getLogger(CycleDetectingLockFactory.class.getName());
+  private static final LazyLogger logger = new LazyLogger(CycleDetectingLockFactory.class);
 
   final Policy policy;
 
@@ -534,7 +528,6 @@ public class CycleDetectingLockFactory {
    *
    * @since 13.0
    */
-  @Beta
   public static final class PotentialDeadlockException extends ExampleStackTrace {
 
     private final ExampleStackTrace conflictingStackTrace;
@@ -717,7 +710,8 @@ public class CycleDetectingLockFactory {
    */
   private void aboutToAcquire(CycleDetectingLock lock) {
     if (!lock.isAcquiredByCurrentThread()) {
-      ArrayList<LockGraphNode> acquiredLockList = acquiredLocks.get();
+      // requireNonNull accommodates Android's @RecentlyNullable annotation on ThreadLocal.get
+      ArrayList<LockGraphNode> acquiredLockList = requireNonNull(acquiredLocks.get());
       LockGraphNode node = lock.getLockGraphNode();
       node.checkAcquiredLocks(policy, acquiredLockList);
       acquiredLockList.add(node);
@@ -731,7 +725,8 @@ public class CycleDetectingLockFactory {
    */
   private static void lockStateChanged(CycleDetectingLock lock) {
     if (!lock.isAcquiredByCurrentThread()) {
-      ArrayList<LockGraphNode> acquiredLockList = acquiredLocks.get();
+      // requireNonNull accommodates Android's @RecentlyNullable annotation on ThreadLocal.get
+      ArrayList<LockGraphNode> acquiredLockList = requireNonNull(acquiredLocks.get());
       LockGraphNode node = lock.getLockGraphNode();
       // Iterate in reverse because locks are usually locked/unlocked in a
       // LIFO order.

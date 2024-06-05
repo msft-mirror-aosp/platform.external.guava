@@ -15,14 +15,12 @@
 package com.google.common.util.concurrent;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Throwables.throwIfUnchecked;
 import static com.google.common.util.concurrent.NullnessCasts.uncheckedNull;
 import static java.lang.Integer.toHexString;
 import static java.lang.System.identityHashCode;
 import static java.util.Objects.requireNonNull;
 import static java.util.concurrent.atomic.AtomicReferenceFieldUpdater.newUpdater;
 
-import com.google.common.annotations.Beta;
 import com.google.common.annotations.GwtCompatible;
 import com.google.common.base.Strings;
 import com.google.common.util.concurrent.internal.InternalFutureFailureAccess;
@@ -44,7 +42,6 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 import java.util.concurrent.locks.LockSupport;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.annotation.CheckForNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -143,8 +140,7 @@ public abstract class AbstractFuture<V extends @Nullable Object> extends Interna
     }
   }
 
-  // Logger to log exceptions caught when running listeners.
-  private static final Logger log = Logger.getLogger(AbstractFuture.class.getName());
+  static final LazyLogger log = new LazyLogger(AbstractFuture.class);
 
   // A heuristic for timed gets. If the remaining timeout is less than this, spin instead of
   // blocking. This value is what AbstractQueuedSynchronizer uses.
@@ -159,7 +155,7 @@ public abstract class AbstractFuture<V extends @Nullable Object> extends Interna
 
     try {
       helper = new UnsafeAtomicHelper();
-    } catch (Throwable unsafeFailure) {
+    } catch (Exception | Error unsafeFailure) { // sneaky checked exception
       thrownUnsafeFailure = unsafeFailure;
       // catch absolutely everything and fall through to our 'SafeAtomicHelper'
       // The access control checks that ARFU does means the caller class has to be AbstractFuture
@@ -172,7 +168,8 @@ public abstract class AbstractFuture<V extends @Nullable Object> extends Interna
                 newUpdater(AbstractFuture.class, Waiter.class, "waiters"),
                 newUpdater(AbstractFuture.class, Listener.class, "listeners"),
                 newUpdater(AbstractFuture.class, Object.class, "value"));
-      } catch (Throwable atomicReferenceFieldUpdaterFailure) {
+      } catch (Exception // sneaky checked exception
+          | Error atomicReferenceFieldUpdaterFailure) {
         // Some Android 5.0.x Samsung devices have bugs in JDK reflection APIs that cause
         // getDeclaredField to throw a NoSuchFieldException when the field is definitely there.
         // For these users fallback to a suboptimal implementation, based on synchronized. This will
@@ -191,9 +188,12 @@ public abstract class AbstractFuture<V extends @Nullable Object> extends Interna
     // Log after all static init is finished; if an installed logger uses any Futures methods, it
     // shouldn't break in cases where reflection is missing/broken.
     if (thrownAtomicReferenceFieldUpdaterFailure != null) {
-      log.log(Level.SEVERE, "UnsafeAtomicHelper is broken!", thrownUnsafeFailure);
-      log.log(
-          Level.SEVERE, "SafeAtomicHelper is broken!", thrownAtomicReferenceFieldUpdaterFailure);
+      log.get().log(Level.SEVERE, "UnsafeAtomicHelper is broken!", thrownUnsafeFailure);
+      log.get()
+          .log(
+              Level.SEVERE,
+              "SafeAtomicHelper is broken!",
+              thrownAtomicReferenceFieldUpdaterFailure);
     }
   }
 
@@ -357,7 +357,13 @@ public abstract class AbstractFuture<V extends @Nullable Object> extends Interna
       }
       Object valueToSet = getFutureValue(future);
       if (ATOMIC_HELPER.casValue(owner, this, valueToSet)) {
-        complete(owner);
+        complete(
+            owner,
+            /*
+             * Interruption doesn't propagate through a SetFuture chain (see getFutureValue), so
+             * don't invoke interruptTask.
+             */
+            false);
       }
     }
   }
@@ -401,7 +407,7 @@ public abstract class AbstractFuture<V extends @Nullable Object> extends Interna
   // Timed Get
   // There are a few design constraints to consider
   // * We want to be responsive to small timeouts, unpark() has non trivial latency overheads (I
-  //   have observed 12 micros on 64 bit linux systems to wake up a parked thread). So if the
+  //   have observed 12 micros on 64-bit linux systems to wake up a parked thread). So if the
   //   timeout is small we shouldn't park(). This needs to be traded off with the cpu overhead of
   //   spinning, so we use SPIN_THRESHOLD_NANOS which is what AbstractQueuedSynchronizer uses for
   //   similar purposes.
@@ -657,12 +663,7 @@ public abstract class AbstractFuture<V extends @Nullable Object> extends Interna
       while (true) {
         if (ATOMIC_HELPER.casValue(abstractFuture, localValue, valueToSet)) {
           rValue = true;
-          // We call interruptTask before calling complete(), which is consistent with
-          // FutureTask
-          if (mayInterruptIfRunning) {
-            abstractFuture.interruptTask();
-          }
-          complete(abstractFuture);
+          complete(abstractFuture, mayInterruptIfRunning);
           if (localValue instanceof SetFuture) {
             // propagate cancellation to the future set in setfuture, this is racy, and we don't
             // care if we are successful or not.
@@ -780,7 +781,7 @@ public abstract class AbstractFuture<V extends @Nullable Object> extends Interna
   protected boolean set(@ParametricNullness V value) {
     Object valueToSet = value == null ? NULL : value;
     if (ATOMIC_HELPER.casValue(this, null, valueToSet)) {
-      complete(this);
+      complete(this, /*callInterruptTask=*/ false);
       return true;
     }
     return false;
@@ -805,7 +806,7 @@ public abstract class AbstractFuture<V extends @Nullable Object> extends Interna
   protected boolean setException(Throwable throwable) {
     Object valueToSet = new Failure(checkNotNull(throwable));
     if (ATOMIC_HELPER.casValue(this, null, valueToSet)) {
-      complete(this);
+      complete(this, /*callInterruptTask=*/ false);
       return true;
     }
     return false;
@@ -848,7 +849,13 @@ public abstract class AbstractFuture<V extends @Nullable Object> extends Interna
       if (future.isDone()) {
         Object value = getFutureValue(future);
         if (ATOMIC_HELPER.casValue(this, null, value)) {
-          complete(this);
+          complete(
+              this,
+              /*
+               * Interruption doesn't propagate through a SetFuture chain (see getFutureValue), so
+               * don't invoke interruptTask.
+               */
+              false);
           return true;
         }
         return false;
@@ -860,13 +867,15 @@ public abstract class AbstractFuture<V extends @Nullable Object> extends Interna
         try {
           future.addListener(valueToSet, DirectExecutor.INSTANCE);
         } catch (Throwable t) {
+          // Any Exception is either a RuntimeException or sneaky checked exception.
+          //
           // addListener has thrown an exception! SetFuture.run can't throw any exceptions so this
           // must have been caused by addListener itself. The most likely explanation is a
           // misconfigured mock. Try to switch to Failure.
           Failure failure;
           try {
             failure = new Failure(t);
-          } catch (Throwable oomMostLikely) {
+          } catch (Exception | Error oomMostLikely) { // sneaky checked exception
             failure = Failure.FALLBACK_INSTANCE;
           }
           // Note: The only way this CAS could fail is if cancel() has raced with us. That is ok.
@@ -961,7 +970,7 @@ public abstract class AbstractFuture<V extends @Nullable Object> extends Interna
                 cancellation));
       }
       return new Cancellation(false, cancellation);
-    } catch (Throwable t) {
+    } catch (Exception | Error t) { // sneaky checked exception
       return new Failure(t);
     }
   }
@@ -990,7 +999,7 @@ public abstract class AbstractFuture<V extends @Nullable Object> extends Interna
   }
 
   /** Unblocks all threads and runs all listeners. */
-  private static void complete(AbstractFuture<?> param) {
+  private static void complete(AbstractFuture<?> param, boolean callInterruptTask) {
     // Declare a "true" local variable so that the Checker Framework will infer nullness.
     AbstractFuture<?> future = param;
 
@@ -998,6 +1007,18 @@ public abstract class AbstractFuture<V extends @Nullable Object> extends Interna
     outer:
     while (true) {
       future.releaseWaiters();
+      /*
+       * We call interruptTask() immediately before afterDone() so that migrating between the two
+       * can be a no-op.
+       */
+      if (callInterruptTask) {
+        future.interruptTask();
+        /*
+         * Interruption doesn't propagate through a SetFuture chain (see getFutureValue), so don't
+         * invoke interruptTask on any subsequent futures.
+         */
+        callInterruptTask = false;
+      }
       // We call this before the listeners in order to avoid needing to manage a separate stack data
       // structure for them.  Also, some implementations rely on this running prior to listeners
       // so that the cleanup work is visible to listeners.
@@ -1029,7 +1050,7 @@ public abstract class AbstractFuture<V extends @Nullable Object> extends Interna
               continue outer;
             }
           }
-          // other wise the future we were trying to set is already done.
+          // otherwise the future we were trying to set is already done.
         } else {
           /*
            * requireNonNull is safe because the listener stack never contains TOMBSTONE until after
@@ -1053,7 +1074,6 @@ public abstract class AbstractFuture<V extends @Nullable Object> extends Interna
    *
    * @since 20.0
    */
-  @Beta
   @ForOverride
   protected void afterDone() {}
 
@@ -1120,7 +1140,7 @@ public abstract class AbstractFuture<V extends @Nullable Object> extends Interna
   @CheckForNull
   private Listener clearListeners(@CheckForNull Listener onto) {
     // We need to
-    // 1. atomically swap the listeners with TOMBSTONE, this is because addListener uses that to
+    // 1. atomically swap the listeners with TOMBSTONE, this is because addListener uses that
     //    to synchronize with us
     // 2. reverse the linked list, because despite our rather clear contract, people depend on us
     //    executing listeners in the order they were added
@@ -1152,7 +1172,7 @@ public abstract class AbstractFuture<V extends @Nullable Object> extends Interna
     } else if (isDone()) {
       addDoneString(builder);
     } else {
-      addPendingString(builder); // delegates to addDoneString if future completes mid-way
+      addPendingString(builder); // delegates to addDoneString if future completes midway
     }
     return builder.append("]").toString();
   }
@@ -1174,6 +1194,7 @@ public abstract class AbstractFuture<V extends @Nullable Object> extends Interna
     return null;
   }
 
+  @SuppressWarnings("CatchingUnchecked") // sneaky checked exception
   private void addPendingString(StringBuilder builder) {
     // Capture current builder length so it can be truncated if this future ends up completing while
     // the toString is being calculated
@@ -1190,7 +1211,9 @@ public abstract class AbstractFuture<V extends @Nullable Object> extends Interna
       String pendingDescription;
       try {
         pendingDescription = Strings.emptyToNull(pendingToString());
-      } catch (RuntimeException | StackOverflowError e) {
+      } catch (Exception | StackOverflowError e) {
+        // Any Exception is either a RuntimeException or sneaky checked exception.
+        //
         // Don't call getMessage or toString() on the exception, in case the exception thrown by the
         // subclass is implemented with bugs similar to the subclass.
         pendingDescription = "Exception thrown from implementation: " + e.getClass();
@@ -1209,6 +1232,7 @@ public abstract class AbstractFuture<V extends @Nullable Object> extends Interna
     }
   }
 
+  @SuppressWarnings("CatchingUnchecked") // sneaky checked exception
   private void addDoneString(StringBuilder builder) {
     try {
       V value = getUninterruptibly(this);
@@ -1219,7 +1243,7 @@ public abstract class AbstractFuture<V extends @Nullable Object> extends Interna
       builder.append("FAILURE, cause=[").append(e.getCause()).append("]");
     } catch (CancellationException e) {
       builder.append("CANCELLED"); // shouldn't be reachable
-    } catch (RuntimeException e) {
+    } catch (Exception e) { // sneaky checked exception
       builder.append("UNKNOWN, cause=[").append(e.getClass()).append(" thrown from get()]");
     }
   }
@@ -1243,6 +1267,7 @@ public abstract class AbstractFuture<V extends @Nullable Object> extends Interna
   }
 
   /** Helper for printing user supplied objects into our toString method. */
+  @SuppressWarnings("CatchingUnchecked") // sneaky checked exception
   private void appendUserObject(StringBuilder builder, @CheckForNull Object o) {
     // This is some basic recursion detection for when people create cycles via set/setFuture or
     // when deep chains of futures exist resulting in a StackOverflowException. We could detect
@@ -1254,7 +1279,9 @@ public abstract class AbstractFuture<V extends @Nullable Object> extends Interna
       } else {
         builder.append(o);
       }
-    } catch (RuntimeException | StackOverflowError e) {
+    } catch (Exception | StackOverflowError e) {
+      // Any Exception is either a RuntimeException or sneaky checked exception.
+      //
       // Don't call getMessage or toString() on the exception, in case the exception thrown by the
       // user object is implemented with bugs similar to the user object.
       builder.append("Exception thrown from implementation: ").append(e.getClass());
@@ -1265,25 +1292,30 @@ public abstract class AbstractFuture<V extends @Nullable Object> extends Interna
    * Submits the given runnable to the given {@link Executor} catching and logging all {@linkplain
    * RuntimeException runtime exceptions} thrown by the executor.
    */
+  @SuppressWarnings("CatchingUnchecked") // sneaky checked exception
   private static void executeListener(Runnable runnable, Executor executor) {
     try {
       executor.execute(runnable);
-    } catch (RuntimeException e) {
+    } catch (Exception e) { // sneaky checked exception
       // Log it and keep going -- bad runnable and/or executor. Don't punish the other runnables if
       // we're given a bad one. We only catch RuntimeException because we want Errors to propagate
       // up.
-      log.log(
-          Level.SEVERE,
-          "RuntimeException while executing runnable " + runnable + " with executor " + executor,
-          e);
+      log.get()
+          .log(
+              Level.SEVERE,
+              "RuntimeException while executing runnable "
+                  + runnable
+                  + " with executor "
+                  + executor,
+              e);
     }
   }
 
   private abstract static class AtomicHelper {
-    /** Non volatile write of the thread to the {@link Waiter#thread} field. */
+    /** Non-volatile write of the thread to the {@link Waiter#thread} field. */
     abstract void putThread(Waiter waiter, Thread newValue);
 
-    /** Non volatile write of the waiter to the {@link Waiter#next} field. */
+    /** Non-volatile write of the waiter to the {@link Waiter#next} field. */
     abstract void putNext(Waiter waiter, @CheckForNull Waiter newValue);
 
     /** Performs a CAS operation on the {@link #waiters} field. */
@@ -1353,8 +1385,7 @@ public abstract class AbstractFuture<V extends @Nullable Object> extends Interna
         WAITER_THREAD_OFFSET = unsafe.objectFieldOffset(Waiter.class.getDeclaredField("thread"));
         WAITER_NEXT_OFFSET = unsafe.objectFieldOffset(Waiter.class.getDeclaredField("next"));
         UNSAFE = unsafe;
-      } catch (Exception e) {
-        throwIfUnchecked(e);
+      } catch (NoSuchFieldException e) {
         throw new RuntimeException(e);
       }
     }
