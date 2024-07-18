@@ -197,6 +197,7 @@ java_library {
             enabled: true,
         },
     },
+    is_stubs_module: true,
 }
 
 // Compile guava testlib
