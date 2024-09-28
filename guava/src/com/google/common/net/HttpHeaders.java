@@ -366,7 +366,8 @@ public final class HttpHeaders {
   public static final String SET_COOKIE2 = "Set-Cookie2";
 
   /**
-   * The HTTP <a href="http://goo.gl/Dxx19N">{@code SourceMap}</a> header field name.
+   * The HTTP <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/SourceMap">{@code
+   * SourceMap}</a> header field name.
    *
    * @since 27.1
    */
@@ -456,18 +457,25 @@ public final class HttpHeaders {
   public static final String X_FORWARDED_FOR = "X-Forwarded-For";
   /** The HTTP {@code X-Forwarded-Proto} header field name. */
   public static final String X_FORWARDED_PROTO = "X-Forwarded-Proto";
+
   /**
-   * The HTTP <a href="http://goo.gl/lQirAH">{@code X-Forwarded-Host}</a> header field name.
+   * The HTTP <a
+   * href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-Host">{@code
+   * X-Forwarded-Host}</a> header field name.
    *
    * @since 20.0
    */
   public static final String X_FORWARDED_HOST = "X-Forwarded-Host";
+
   /**
-   * The HTTP <a href="http://goo.gl/YtV2at">{@code X-Forwarded-Port}</a> header field name.
+   * The HTTP <a
+   * href="https://docs.aws.amazon.com/elasticloadbalancing/latest/classic/x-forwarded-headers.html#x-forwarded-port">{@code
+   * X-Forwarded-Port}</a> header field name.
    *
    * @since 20.0
    */
   public static final String X_FORWARDED_PORT = "X-Forwarded-Port";
+
   /** The HTTP {@code X-Frame-Options} header field name. */
   public static final String X_FRAME_OPTIONS = "X-Frame-Options";
   /** The HTTP {@code X-Powered-By} header field name. */
@@ -496,8 +504,11 @@ public final class HttpHeaders {
   public static final String X_REQUESTED_WITH = "X-Requested-With";
   /** The HTTP {@code X-User-IP} header field name. */
   public static final String X_USER_IP = "X-User-IP";
+
   /**
-   * The HTTP <a href="https://goo.gl/VKpXxa">{@code X-Download-Options}</a> header field name.
+   * The HTTP <a
+   * href="https://learn.microsoft.com/en-us/archive/blogs/ieinternals/internet-explorer-and-custom-http-headers#:~:text=X%2DDownload%2DOptions">{@code
+   * X-Download-Options}</a> header field name.
    *
    * <p>When the new X-Download-Options header is present with the value {@code noopen}, the user is
    * prevented from opening a file download directly; instead, they must first save the file
@@ -506,6 +517,7 @@ public final class HttpHeaders {
    * @since 24.1
    */
   public static final String X_DOWNLOAD_OPTIONS = "X-Download-Options";
+
   /** The HTTP {@code X-XSS-Protection} header field name. */
   public static final String X_XSS_PROTECTION = "X-XSS-Protection";
   /**
@@ -623,6 +635,15 @@ public final class HttpHeaders {
 
   /**
    * The HTTP <a
+   * href="https://w3c.github.io/webappsec-permissions-policy/#permissions-policy-report-only-http-header-field">{@code
+   * Permissions-Policy-Report-Only}</a> header field name.
+   *
+   * @since 33.2.0
+   */
+  public static final String PERMISSIONS_POLICY_REPORT_ONLY = "Permissions-Policy-Report-Only";
+
+  /**
+   * The HTTP <a
    * href="https://wicg.github.io/user-preference-media-features-headers/#sec-ch-prefers-color-scheme">{@code
    * Sec-CH-Prefers-Color-Scheme}</a> header field name.
    *
@@ -720,13 +741,24 @@ public final class HttpHeaders {
    * @since 31.0
    */
   public static final String SEC_CH_UA_BITNESS = "Sec-CH-UA-Bitness";
+
   /**
    * The HTTP <a href="https://wicg.github.io/ua-client-hints/#sec-ch-ua-form-factor">{@code
    * Sec-CH-UA-Form-Factor}</a> header field name.
    *
+   * @deprecated Prefer {@link SEC_CH_UA_FORM_FACTORS}.
    * @since 32.0.0
    */
-  public static final String SEC_CH_UA_FORM_FACTOR = "Sec-CH-UA-Form-Factor";
+  @Deprecated public static final String SEC_CH_UA_FORM_FACTOR = "Sec-CH-UA-Form-Factor";
+
+  /**
+   * The HTTP <a href="https://wicg.github.io/ua-client-hints/#sec-ch-ua-form-factors">{@code
+   * Sec-CH-UA-Form-Factors}</a> header field name.
+   *
+   * @since 33.3.0
+   */
+  public static final String SEC_CH_UA_FORM_FACTORS = "Sec-CH-UA-Form-Factors";
+
   /**
    * The HTTP <a
    * href="https://wicg.github.io/responsive-image-client-hints/#sec-ch-viewport-width">{@code
@@ -867,12 +899,29 @@ public final class HttpHeaders {
 
   /**
    * The HTTP <a
+   * href="https://privacycg.github.io/gpc-spec/#the-sec-gpc-header-field-for-http-requests">{@code
+   * Sec-GPC}</a> header field name.
+   *
+   * @since 33.2.0
+   */
+  public static final String SEC_GPC = "Sec-GPC";
+
+  /**
+   * The HTTP <a
    * href="https://wicg.github.io/turtledove/#handling-direct-from-seller-signals">{@code
    * Ad-Auction-Signals}</a> header field name.
    *
    * @since 33.0.0
    */
   public static final String AD_AUCTION_SIGNALS = "Ad-Auction-Signals";
+
+  /**
+   * The HTTP <a href="https://wicg.github.io/turtledove/#http-headerdef-ad-auction-allowed">{@code
+   * Ad-Auction-Allowed}</a> header field name.
+   *
+   * @since 33.2.0
+   */
+  public static final String AD_AUCTION_ALLOWED = "Ad-Auction-Allowed";
 
   /**
    * The HTTP <a href="https://tools.ietf.org/html/rfc8586">{@code CDN-Loop}</a> header field name.
