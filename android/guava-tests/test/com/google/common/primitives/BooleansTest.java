@@ -49,7 +49,6 @@ public class BooleansTest extends TestCase {
 
   private static final boolean[] VALUES = {false, true};
 
-  @J2ktIncompatible // TODO(b/285538920): Fix and enable.
   public void testHashCode() {
     assertThat(Booleans.hashCode(true)).isEqualTo(Boolean.TRUE.hashCode());
     assertThat(Booleans.hashCode(false)).isEqualTo(Boolean.FALSE.hashCode());
@@ -129,6 +128,37 @@ public class BooleansTest extends TestCase {
         .isEqualTo(new boolean[] {false, false, false});
     assertThat(Booleans.concat(ARRAY_FALSE, ARRAY_FALSE_TRUE))
         .isEqualTo(new boolean[] {false, false, true});
+  }
+
+  @GwtIncompatible // different overflow behavior; could probably be made to work by using ~~
+  public void testConcat_overflow_negative() {
+    int dim1 = 1 << 16;
+    int dim2 = 1 << 15;
+    assertThat(dim1 * dim2).isLessThan(0);
+    testConcatOverflow(dim1, dim2);
+  }
+
+  @GwtIncompatible // different overflow behavior; could probably be made to work by using ~~
+  public void testConcat_overflow_nonNegative() {
+    int dim1 = 1 << 16;
+    int dim2 = 1 << 16;
+    assertThat(dim1 * dim2).isAtLeast(0);
+    testConcatOverflow(dim1, dim2);
+  }
+
+  private static void testConcatOverflow(int arraysDim1, int arraysDim2) {
+    assertThat((long) arraysDim1 * arraysDim2).isNotEqualTo((long) (arraysDim1 * arraysDim2));
+
+    boolean[][] arrays = new boolean[arraysDim1][];
+    // it's shared to avoid using too much memory in tests
+    boolean[] sharedArray = new boolean[arraysDim2];
+    Arrays.fill(arrays, sharedArray);
+
+    try {
+      Booleans.concat(arrays);
+      fail();
+    } catch (IllegalArgumentException expected) {
+    }
   }
 
   public void testEnsureCapacity() {
