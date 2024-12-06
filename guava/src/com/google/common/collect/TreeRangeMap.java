@@ -50,6 +50,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * @author Louis Wasserman
  * @since 14.0
  */
+@SuppressWarnings("rawtypes") // https://github.com/google/guava/issues/989
 @GwtIncompatible // NavigableMap
 @ElementTypesAreNonnullByDefault
 public final class TreeRangeMap<K extends Comparable, V> implements RangeMap<K, V> {
@@ -263,6 +264,9 @@ public final class TreeRangeMap<K extends Comparable, V> implements RangeMap<K, 
     putRangeMapEntry(cut, rangeMapEntry.getUpperBound(), rangeMapEntry.getValue());
   }
 
+  /**
+   * @since 28.1
+   */
   @Override
   public void merge(
       Range<K> range,
@@ -431,6 +435,8 @@ public final class TreeRangeMap<K extends Comparable, V> implements RangeMap<K, 
         }
 
         @Override
+        // https://github.com/jspecify/jspecify-reference-checker/issues/162
+        @SuppressWarnings("nullness")
         public void merge(
             Range<Comparable<?>> range,
             @CheckForNull Object value,
