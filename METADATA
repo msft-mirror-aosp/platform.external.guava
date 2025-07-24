@@ -6,6 +6,9 @@ name: "guava"
 description: "Google Core Libraries for Java."
 third_party {
   license_type: NOTICE
+  security {
+    tag: "NVD-CPE2.3:cpe:/a:google:guava:33.3.1"
+  }
   last_upgrade_date {
     year: 2024
     month: 9
