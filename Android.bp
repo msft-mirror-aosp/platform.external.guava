@@ -68,6 +68,7 @@ license {
 
 java_library {
     name: "guava",
+    defaults: ["error_prone_dependency_defaults"],
     host_supported: true,
     hostdex: true,
     sdk_version: "core_current",
@@ -91,6 +92,7 @@ java_library {
 
 java_library {
     name: "guava-both",
+    defaults: ["error_prone_dependency_defaults"],
     host_supported: true,
     sdk_version: "core_current",
     srcs: ["futures/failureaccess/**/*.java"],
@@ -109,6 +111,7 @@ java_library {
 
 java_library_host {
     name: "guava-jre",
+    defaults: ["error_prone_dependency_defaults"],
     srcs: ["guava/src/**/*.java"],
     static_libs: ["guava-both"],
     libs: [
@@ -116,11 +119,6 @@ java_library_host {
         "error_prone_annotations",
     ],
     java_version: "1.8",
-    errorprone: {
-        javacflags: [
-            "-Xep:NoCanIgnoreReturnValueOnClasses:WARN",
-        ],
-    },
     target: {
         windows: {
             enabled: true,
@@ -182,6 +180,7 @@ java_host_for_device {
 // for permission controller.
 java_library {
     name: "guava-android-annotation-stubs",
+    defaults: ["error_prone_dependency_defaults"],
     host_supported: true,
     // b/267831518: Pin tradefed and dependencies to Java 11.
     java_version: "11",
