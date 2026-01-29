@@ -18,6 +18,7 @@ third_party {
   identifier {
     type: "Git"
     value: "https://github.com/google/guava.git"
-    version: "v33.3.1"
+    version: "df9602b6f1dd36414464229e0a441469d06e4575"
+    closest_version: "v33.3.1"
   }
 }
